@@ -112,15 +112,6 @@ architecture structural of system is
 	constant SPI_0_CS                     : integer := 10;
 	constant SPI_1_CS                     : integer := 11;
 
-	
-	---------------------------------------------------------------------
-	component rom is port (
-		addr : in std_logic_vector(15 downto 0);
-		data : out std_logic_vector(15 downto 0);
-		cs : in std_logic);
-	end component;
-	---------------------------------------------------------------------
-
 
 	---------------------------------------------------------------------
 	component mmu_uart_top is port (
@@ -160,35 +151,6 @@ architecture structural of system is
 	end component;
 	---------------------------------------------------------------------
 
-
-	---------------------------------------------------------------------
-	component mem_based_int_controller is port (
-		clock : in  STD_LOGIC;
-		reset : in  STD_LOGIC;
-		address : in  STD_LOGIC_VECTOR (1 downto 0);
-		data_bus_0 : inout  STD_LOGIC;
-		data_bus_1 : inout  STD_LOGIC;
-		data_bus_2 : inout  STD_LOGIC;
-		data_bus_3 : inout  STD_LOGIC;
-		data_bus_4 : inout  STD_LOGIC;
-		data_bus_5 : inout  STD_LOGIC;
-		data_bus_6 : inout  STD_LOGIC;
-		data_bus_7 : inout  STD_LOGIC;
-		data_bus_8 : inout  STD_LOGIC;
-		data_bus_9 : inout  STD_LOGIC;
-		data_bus_10 : inout  STD_LOGIC;
-		data_bus_11 : inout  STD_LOGIC;
-		data_bus_12 : inout  STD_LOGIC;
-		data_bus_13 : inout  STD_LOGIC;
-		data_bus_14 : inout  STD_LOGIC;
-		data_bus_15 : inout  STD_LOGIC;
-		int_out : out  STD_LOGIC;
-		n_cs : in  STD_LOGIC;
-		n_wr : in  STD_LOGIC;
-		n_rd : in  STD_LOGIC;
-		int_in : in  STD_LOGIC_vector(15 downto 0));
-	end component;
-	---------------------------------------------------------------------
 
 	---------------------------------------------------------------------
    component output_port_16_bits is port ( 
@@ -496,10 +458,12 @@ begin
 	external_ram_cs <= cs_bus(RAM_CS);
  
 	---------------------------------------------------------------------
-	the_rom : rom port map (
-		addr => local_addr_bus(15 downto 0),
-		data => data_bus,
-		cs => cs_bus(ROM_CS));
+	the_rom : entity work.rom 
+		port map (
+			addr => local_addr_bus(15 downto 0),
+			data => data_bus,
+			cs => cs_bus(ROM_CS)
+		);
 	---------------------------------------------------------------------
 
 
@@ -657,31 +621,33 @@ begin
 	
 	
 	---------------------------------------------------------------------
-	int_controller_1 :  mem_based_int_controller port map (
-		clock => my_clock,
-		reset => reset,
-		address => local_addr_bus(1 downto 0),
-		data_bus_0 => data_bus(0),
-		data_bus_1 => data_bus(1),
-		data_bus_2 => data_bus(2),
-		data_bus_3 => data_bus(3),
-		data_bus_4 => data_bus(4),
-		data_bus_5 => data_bus(5),
-		data_bus_6 => data_bus(6),
-		data_bus_7 => data_bus(7),
-		data_bus_8 => data_bus(8),
-		data_bus_9 => data_bus(9),
-		data_bus_10 => data_bus(10),
-		data_bus_11 => data_bus(11),
-		data_bus_12 => data_bus(12),
-		data_bus_13 => data_bus(13),
-		data_bus_14 => data_bus(14),
-		data_bus_15 => data_bus(15),
-		int_out => cpu_int,
-		n_cs => cs_bus(INTERRUPT_CONTROLLER_CS),
-		n_rd => n_rd_bus,
-		n_wr => n_wr_bus,
-		int_in => multiple_int_sources);
+	int_controller_1 :  entity work.mem_based_int_controller 
+		port map (
+			clock => my_clock,
+			reset => reset,
+			address => local_addr_bus(1 downto 0),
+			data_bus_0 => data_bus(0),
+			data_bus_1 => data_bus(1),
+			data_bus_2 => data_bus(2),
+			data_bus_3 => data_bus(3),
+			data_bus_4 => data_bus(4),
+			data_bus_5 => data_bus(5),
+			data_bus_6 => data_bus(6),
+			data_bus_7 => data_bus(7),
+			data_bus_8 => data_bus(8),
+			data_bus_9 => data_bus(9),
+			data_bus_10 => data_bus(10),
+			data_bus_11 => data_bus(11),
+			data_bus_12 => data_bus(12),
+			data_bus_13 => data_bus(13),
+			data_bus_14 => data_bus(14),
+			data_bus_15 => data_bus(15),
+			int_out => cpu_int,
+			n_cs => cs_bus(INTERRUPT_CONTROLLER_CS),
+			n_rd => n_rd_bus,
+			n_wr => n_wr_bus,
+			int_in => multiple_int_sources
+		);
 	---------------------------------------------------------------------
 
 
