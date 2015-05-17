@@ -114,13 +114,6 @@ architecture structural of system is
 
 	
 	---------------------------------------------------------------------
-	component CS_Glue is port (
-		addr : in std_logic_vector(19 downto 0);
-		CS : out std_logic_vector (15 downto 0));
-	end component;
-	---------------------------------------------------------------------
-
-	---------------------------------------------------------------------
 	component rom is port (
 		addr : in std_logic_vector(15 downto 0);
 		data : out std_logic_vector(15 downto 0);
@@ -147,23 +140,6 @@ architecture structural of system is
 		-- interrupt signals- same signals as the status register bits
 		RX_full     : out std_logic;
 		TX_busy_n   : out std_logic);
-	end component;
-	---------------------------------------------------------------------
-
-
-
-	---------------------------------------------------------------------
-	component mem_based_counter is port(
-		clock : in  STD_LOGIC;
-		reset : in  STD_LOGIC;
-		n_rd : in std_logic;
-		n_cs : in std_logic;
-		x_edge : out  STD_LOGIC;
-		x_delayed_out : out  STD_LOGIC;
-		x_synced_out : out  STD_LOGIC;
-		fast_counter_out : out std_logic_vector(20 downto 0);
-		counter_is_zero_out : out std_logic;
-		counter_out : out std_logic_vector(15 downto 0));
 	end component;
 	---------------------------------------------------------------------
 
@@ -509,10 +485,11 @@ begin
 	-- This component provides the chip selects for 
 	-- devices on the address and data buses.
 	--
-	glue_chip : CS_Glue port map (
-		addr => local_addr_bus(19 downto 0),
-		CS => cs_bus
-	);
+	glue_chip : entity work.CS_Glue 
+		port map (
+			addr => local_addr_bus(19 downto 0),
+			CS => cs_bus
+		);
 	---------------------------------------------------------------------
 
 
@@ -527,14 +504,15 @@ begin
 
 
 	---------------------------------------------------------------------
-	counter_0: mem_based_counter port map (
-		clock => my_clock,
-		reset => reset,
-		n_rd => n_rd_bus,
-		n_cs => cs_bus(COUNTER_0_CS),
-		x_edge => counter_is_zero,
-		counter_out => data_bus
-	);
+	counter_0: entity work.mem_based_counter 
+		port map (
+			clock => my_clock,
+			reset => reset,
+			n_rd => n_rd_bus,
+			n_cs => cs_bus(COUNTER_0_CS),
+			x_edge => counter_is_zero,
+			counter_out => data_bus
+		);
 	---------------------------------------------------------------------
 
 	---------------------------------------------------------------------
