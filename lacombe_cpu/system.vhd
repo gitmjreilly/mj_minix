@@ -114,18 +114,6 @@ architecture structural of system is
 
 	
 	---------------------------------------------------------------------
-	component SevenSegDriver is port ( 
-		Digit3 : in std_logic_vector(3 downto 0);
-		Digit2 : in std_logic_vector(3 downto 0);
-		Digit1 : in std_logic_vector(3 downto 0);
-		Digit0 : in std_logic_vector(3 downto 0);
-		clkin : in std_logic;
-		Segments : out std_logic_vector(7 downto 0);
-		Anodes : out std_logic_vector(3 downto 0));
-	end component;
-	---------------------------------------------------------------------
-
-	---------------------------------------------------------------------
 	component CS_Glue is port (
 		addr : in std_logic_vector(19 downto 0);
 		CS : out std_logic_vector (15 downto 0));
@@ -504,14 +492,16 @@ begin
 	-- and produces the appropriate signals to drive
 	-- the 4 seven segment LED display on the Digilent spartan 3 board.
 	--
-	DigitDriver : SevenSegDriver 	port map (	
-		four_digits (15 downto 12),			-- High Digit
-		four_digits (11 downto 8),
-		four_digits (7 downto 4),
-		four_digits (3 downto 0),
-		clk_counter(15), 
-		SevenSegSegments, 
-		SevenSegAnodes);
+	DigitDriver : entity work.SevenSegDriver 	
+		port map (	
+			four_digits (15 downto 12),			-- High Digit
+			four_digits (11 downto 8),
+			four_digits (7 downto 4),
+			four_digits (3 downto 0),
+			clk_counter(15), 
+			SevenSegSegments, 
+			SevenSegAnodes
+		);
 	---------------------------------------------------------------------
 
 
