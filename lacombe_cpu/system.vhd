@@ -112,25 +112,7 @@ architecture structural of system is
 	constant SPI_0_CS                     : integer := 10;
 	constant SPI_1_CS                     : integer := 11;
 
-	---------------------------------------------------------------------
-	component cpu1 is Port (  
-		reset : in std_logic;
-		clkin : in std_logic;	-- this should be the 50Mhz Clock
-		N_indicator : out std_logic;
-		Z_indicator : out std_logic;
-		RD_INDICATOR : out std_logic;
-		WR_INDICATOR : out std_logic;
-		FETCH_INDICATOR : out std_logic;
-		four_digits : out std_logic_vector(15 downto 0);
-		Address_Switches : in std_logic_vector(4 downto 0);
-		Mem_Addr_bus : out std_logic_vector(19 downto 0);
-		Mem_Data_bus : inout std_logic_vector(15 downto 0);
-		N_WR : out std_logic;
-		N_RD : out std_logic;
-		INT : in std_logic);
-	end component;
-	---------------------------------------------------------------------
-
+	
 	---------------------------------------------------------------------
 	component SevenSegDriver is port ( 
 		Digit3 : in std_logic_vector(3 downto 0);
@@ -489,24 +471,26 @@ begin
 	n_ub <= '0';
 	n_lb <= '0';
 
+	
+	
 	---------------------------------------------------------------------
-	-- This is the cpu.  It drives the 
-	the_cpu : cpu1 port map (
-		reset => reset,
-		clkin => my_clock,
-		n_indicator => n_ind,
-		z_indicator => z_ind,
-		rd_indicator => rd_ind,
-		wr_indicator => wr_ind,
-		fetch_indicator => fetch_ind,
-		four_digits => four_digits,
-		address_switches => address_switches,
-		Mem_Addr_bus => local_addr_bus,
-		Mem_Data_bus => data_bus,
-		N_WR => n_wr_bus,
-		N_RD => n_rd_bus,
-		INT => cpu_int
-	);	
+	the_cpu : entity work.cpu1 
+		port map (
+			reset => reset,
+			clkin => my_clock,
+			n_indicator => n_ind,
+			z_indicator => z_ind,
+			rd_indicator => rd_ind,
+			wr_indicator => wr_ind,
+			fetch_indicator => fetch_ind,
+			four_digits => four_digits,
+			address_switches => address_switches,
+			Mem_Addr_bus => local_addr_bus,
+			Mem_Data_bus => data_bus,
+			N_WR => n_wr_bus,
+			N_RD => n_rd_bus,
+			INT => cpu_int
+		);	
 	---------------------------------------------------------------------
 
 
