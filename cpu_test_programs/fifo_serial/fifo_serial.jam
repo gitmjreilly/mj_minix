@@ -1,0 +1,54 @@
+#
+# This program is designed to test the fifo serial 
+# port located at f020
+# data in/out is at f020
+# status is at f021
+#
+#
+
+CONST DATA_ADDR   0xF020
+CONST STATUS_ADDR 0xF021
+
+# Bit masks to use to figure out when output fifo is NOT full
+# and input fifo is not empty.
+CONST OUT_FULL_MASK  0x0008
+CONST OUT_EMPTY_MASK 0x0004
+CONST IN_EMPTY_MASK 0x0001
+
+# Global Vars
+ch: DS 1
+count: DS 1
+
+
+	
+MAIN:
+	65 ch STORE
+	26 count STORE
+
+
+BIG_LOOP:
+
+L1:
+    STATUS_ADDR FETCH OUT_FULL_MASK AND
+	# Output fifo space available?  If not, just spin
+	0 == 
+	JMPF L1
+	
+	ch FETCH DATA_ADDR STORE
+	ch FETCH 1 + ch STORE
+	count FETCH 1 - count STORE
+
+	count FETCH 0 == JMPF BIG_LOOP
+	#######################
+	
+L2:	
+	# Now that we've "transmitted all chars
+	# We should spin until the output fifo is empty
+    STATUS_ADDR FETCH OUT_EMPTY_MASK AND
+	# Output fifo empty?  If not, just spin
+	OUT_EMPTY_MASK == 
+	JMPF L2
+	
+	
+	HALT
+	
