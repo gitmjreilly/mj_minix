@@ -112,90 +112,8 @@ architecture structural of system is
 	constant SPI_0_CS                     : integer := 10;
 	constant SPI_1_CS                     : integer := 11;
 
-
-
-
-	component pb_disk_ctlr is 
-		generic (
-			data_width : natural := 16;
-			addr_width : natural := 4
-		);
-		Port ( 
-			clk : in std_logic;
-			reset : in std_logic;
-			
-			uart0_en_16x : in std_logic;
-			uart1_en_16x : in std_logic;
-			
-			rx0_in : in std_logic;
-			tx0_out : out std_logic;
-			
-			rx1_in : in std_logic;
-			tx1_out : out std_logic;
-			
-			-- These signals are for parallel interface to dp ram
-			addr_bus : in  STD_LOGIC_VECTOR ((addr_width - 1) downto 0);
-			data_bus : inout  STD_LOGIC_VECTOR ((data_width - 1) downto 0);
-			n_wr : in  STD_LOGIC;
-			n_rd : in  STD_LOGIC;
-			n_cs : in  STD_LOGIC
-		);	
-	end component;
-
-		
 		
 	
-	---------------------------------------------------------------------
-	component pulse_gen is
-    Port ( clk : in  STD_LOGIC;
-           input : in  STD_LOGIC;
-           output : out  STD_LOGIC);
-	end component;
-	---------------------------------------------------------------------
-
-	
-		
-
-	
-	
-	---------------------------------------------------------------------
-	component spi_mem_mapped is
-    port (
-     -- Clock is 100Mhz on Nexys 3 Board
-      -- which is divided down to get fsm clock
-      clock : in  STD_LOGIC;
-      reset : in STD_LOGIC;
-      n_cs : in std_logic;
-      n_oe : in std_logic;
-      n_we : in std_logic;
-      address_bus : in std_logic_vector(1 downto 0);
-      data_bus : inout std_logic_vector(15 downto 0);
-      real_sclock : out STD_LOGIC;
-      mosi : out STD_LOGIC;
-      miso : in STD_LOGIC);
-   end component;
-	---------------------------------------------------------------------
-
-	---------------------------------------------------------------------
-	component wiznet_spi_mem_mapped is
-    port (
-     -- Clock is 100Mhz on Nexys 3 Board
-      -- which is divided down to get fsm clock
-      clock : in  STD_LOGIC;
-      reset : in STD_LOGIC;
-      n_cs : in std_logic;
-      n_oe : in std_logic;
-      n_we : in std_logic;
-      address_bus : in std_logic_vector(1 downto 0);
-      data_bus : inout std_logic_vector(15 downto 0);
-      real_sclock : out STD_LOGIC;
-      mosi : out STD_LOGIC;
-      miso : in STD_LOGIC);
-   end component;
-	---------------------------------------------------------------------
-
-	
-
 	---------------------------------------------------------------------
 	component pb_uart_lacombe is 
 		generic (
@@ -432,71 +350,75 @@ begin
 
    -- The generic wiznet interrupt line (active low)
    n_external_input_port_4 <= NOT external_input_port_4;
-	u_wiznet_int_pulse : pulse_gen port map (
-	   clk => clk_counter(5), -- clock should be half system clock
-		input => n_external_input_port_4,
-		output => wiznet_int_pulse);
-   multiple_int_sources(6) <= wiznet_int_pulse;
+   
+	u_wiznet_int_pulse : entity work.pulse_gen 
+		port map (
+			clk => clk_counter(5), -- clock should be half system clock
+			input => n_external_input_port_4,
+			output => wiznet_int_pulse
+		);
+	multiple_int_sources(6) <= wiznet_int_pulse;
    	
 	multiple_int_sources(15 downto 7) <= "000000000";
    
 	---------------------------------------------------------------------
    --- Memory mapped SPI Port for usbwiz
-   u_spi_port_0 : spi_mem_mapped port map (
-      
-      clock => my_clock,
-      reset => reset,
-      n_cs  => cs_bus(SPI_0_CS),
-      n_oe  => n_rd_bus,
-      n_we  => n_wr_bus,
-      address_bus => local_addr_bus(1 downto 0),
-      data_bus => data_bus,
-      real_sclock => usbwiz_sclk,
-      mosi => usbwiz_mosi,
-      miso => usbwiz_miso
-   );
+	u_spi_port_0 : entity work.spi_mem_mapped 
+		port map (      
+			clock => my_clock,
+			reset => reset,
+			n_cs  => cs_bus(SPI_0_CS),
+			n_oe  => n_rd_bus,
+			n_we  => n_wr_bus,
+			address_bus => local_addr_bus(1 downto 0),
+			data_bus => data_bus,
+			real_sclock => usbwiz_sclk,
+			mosi => usbwiz_mosi,
+			miso => usbwiz_miso
+		);
 	---------------------------------------------------------------------
    
 
 	---------------------------------------------------------------------
    --- Memory mapped SPI Port for wiznet tcp/ip chip
-   u_spi_port_1 : wiznet_spi_mem_mapped port map (
-      
-      clock => my_clock,
-      reset => reset,
-      n_cs  => cs_bus(SPI_1_CS),
-      n_oe  => n_rd_bus,
-      n_we  => n_wr_bus,
-      address_bus => local_addr_bus(1 downto 0),
-      data_bus => data_bus,
-      real_sclock => wiznet_sclk,
-      mosi => wiznet_mosi,
-      miso => wiznet_miso
-   );
+	u_spi_port_1 : entity work.wiznet_spi_mem_mapped 
+		port map (
+			clock => my_clock,
+			reset => reset,
+			n_cs  => cs_bus(SPI_1_CS),
+			n_oe  => n_rd_bus,
+			n_we  => n_wr_bus,
+			address_bus => local_addr_bus(1 downto 0),
+			data_bus => data_bus,
+			real_sclock => wiznet_sclk,
+			mosi => wiznet_mosi,
+			miso => wiznet_miso
+		);
 	---------------------------------------------------------------------
    
 	
 
-	u_pb_disk_ctlr:  pb_disk_ctlr port map (
-		clk => clk,
-		reset => reset,
-		
-		uart0_en_16x => en_16x_baud, -- ok 
-		uart1_en_16x => en_16x_baud, -- ok
-		
-		rx0_in => rx0_in, -- ok, from entity
-		tx0_out => tx0_out, -- ok, from entity
-		
-		rx1_in => rx1_in, -- ok
-		tx1_out => tx1_out, -- ok
-		
-		-- These signals are for parallel interface to dp ram
-		addr_bus => local_addr_bus(3 downto 0),
-		data_bus => data_bus,
-		n_wr => n_wr_bus,
-		n_rd => n_rd_bus,
-		n_cs => cs_bus(DISK_CTLR_CS)
-	);	
+	u_pb_disk_ctlr:  entity work.pb_disk_ctlr 
+		port map (
+			clk => clk,
+			reset => reset,
+			
+			uart0_en_16x => en_16x_baud, -- ok 
+			uart1_en_16x => en_16x_baud, -- ok
+			
+			rx0_in => rx0_in, -- ok, from entity
+			tx0_out => tx0_out, -- ok, from entity
+			
+			rx1_in => rx1_in, -- ok
+			tx1_out => tx1_out, -- ok
+			
+			-- These signals are for parallel interface to dp ram
+			addr_bus => local_addr_bus(3 downto 0),
+			data_bus => data_bus,
+			n_wr => n_wr_bus,
+			n_rd => n_rd_bus,
+			n_cs => cs_bus(DISK_CTLR_CS)
+		);	
 
 		
 		
