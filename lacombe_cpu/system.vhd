@@ -113,99 +113,6 @@ architecture structural of system is
 	constant SPI_1_CS                     : integer := 11;
 
 
-	---------------------------------------------------------------------
-	component mmu_uart_top is port (
-		Clk     : in std_logic;         -- main clock
-		Reset_n : in std_logic;         -- main reset
-		TXD     : out std_logic;        -- RS232 TX data
-		RXD     : in std_logic;         -- RS232 RX data
-		ck_div  : in std_logic_vector(15 downto 0);
-		-- clock divider value
-		-- used to get the baud rate
-		-- baud_rate = F(clk) / (ck_div * 3)
-		CE_N    : in std_logic;         -- chip enable
-		WR_N    : in std_logic;         -- write enable
-		RD_N    : in std_logic;         -- read enable
-		A0      : in std_logic;         -- 0 - Rx/TX data reg; 1 - status reg
-		Data   : inout std_logic_vector(15 downto 0);
-		-- interrupt signals- same signals as the status register bits
-		RX_full     : out std_logic;
-		TX_busy_n   : out std_logic);
-	end component;
-	---------------------------------------------------------------------
-
-
-	---------------------------------------------------------------------
-	component switch_debounce is port ( 
-		clock : in std_logic;
-		sw : in std_logic;
-		y : out std_logic);
-	end component;
-	---------------------------------------------------------------------
-
-	---------------------------------------------------------------------
-	component ClockDivider is port (
-		clkin : in std_logic;
-		reset : in std_logic;
-		slowout : out std_logic_vector(23 downto 0));
-	end component;
-	---------------------------------------------------------------------
-
-
-	---------------------------------------------------------------------
-   component output_port_16_bits is port ( 
-		clock : in std_logic;
-		reset : in std_logic;
-		n_rd : in  STD_LOGIC;
-		n_wr : in  STD_LOGIC;
-		n_cs : in  STD_LOGIC;
-		address : in std_logic_vector(3 downto 0);
-		out_0 : out std_logic;
-		out_1 : out std_logic;
-		out_2 : out std_logic;
-		out_3 : out std_logic;
-		out_4 : out std_logic;
-		out_5 : out std_logic;
-		out_6 : out std_logic;
-		out_7 : out std_logic;
-		out_8 : out std_logic;
-		out_9 : out std_logic;
-		out_A : out std_logic;
-		out_B : out std_logic;
-		out_C : out std_logic;
-		out_D : out std_logic;
-		out_E : out std_logic;
-		out_F : out std_logic;
-		data_bus : inout  STD_LOGIC_VECTOR(15 downto 0));
-   end component;
-	---------------------------------------------------------------------
-
-
-
-	---------------------------------------------------------------------
-	component output_port_8_words is port (
-		clock : in std_logic;
-		reset : in std_logic;
-		n_rd : in  STD_LOGIC;
-		n_wr : in  STD_LOGIC;
-		n_cs : in  STD_LOGIC;
-		address : in std_logic_vector(2 downto 0);
-		int_out : out  STD_LOGIC;
-		toggle_status_out : out std_logic;
-		out_0 : out std_logic_vector(15 downto 0);
-		out_1 : out std_logic_vector(15 downto 0);
-		out_2 : out std_logic_vector(15 downto 0);
-		out_3 : out std_logic_vector(15 downto 0);
-		out_4 : out std_logic_vector(15 downto 0);
-		out_5 : out std_logic_vector(15 downto 0);
-		out_6 : out std_logic_vector(15 downto 0);
-		out_7 : out std_logic_vector(15 downto 0);
-		data_bus : inout  STD_LOGIC_VECTOR(15 downto 0));
-	end component;
-	---------------------------------------------------------------------
-
-	
-
 
 
 	component pb_disk_ctlr is 
@@ -358,27 +265,32 @@ begin
 	cellular_ram_cre <= '0';
 
 	---------------------------------------------------------------------
-	clk_divider : ClockDivider port map (
-		reset => reset,
-		clkin => clk,
-		slowout => clk_counter
-	);
+	clk_divider : entity work.ClockDivider 
+		port map (
+			reset => reset,
+			clkin => clk,
+			slowout => clk_counter
+		);
 	---------------------------------------------------------------------
 
 
 	---------------------------------------------------------------------
-	u_switch_clock : switch_debounce port map (
-		clock => clk_counter(20),
-		sw => clock_sw,
-		y => sw_clock_out);
+	u_switch_clock : entity work.switch_debounce 
+		port map (
+			clock => clk_counter(20),
+			sw => clock_sw,
+			y => sw_clock_out
+		);
 	---------------------------------------------------------------------
 
 
 	---------------------------------------------------------------------
-	INT_SW_1 : switch_debounce port map (
-		clock => clk_counter(20),
-		sw => INT_SW,
-		y => INT_SW_OUT);
+	INT_SW_1 : entity work.switch_debounce 
+		port map (
+			clock => clk_counter(20),
+			sw => INT_SW,
+			y => INT_SW_OUT
+		);
 	---------------------------------------------------------------------
 
 -- Divide 50Mhz Clock by 2 on Spartan 3 starter ; Divide 100Mhz by 8 on Nexys3
@@ -480,24 +392,25 @@ begin
 	---------------------------------------------------------------------
 
 	---------------------------------------------------------------------
-	u_uart :  mmu_uart_top port map (
-		Clk => clk_counter(1),						-- Fundamental clock 0->Spartan 1->Nexys
-		Reset_n => reset_n,					-- neg assertion reset
-		TXD => TXD_BUS,
-		RXD => RXD_BUS,
-		ck_div => "0000000001001000", -- 72 for 115k ; 18	 (for 460 Kbps)
---		ck_div => "0000001101100000", -- 72 * 12 = 864 for 9600
-		CE_N => cs_bus(UART_0_CS),
-		WR_N => n_wr_bus,
-		RD_N => n_rd_bus,
-		A0  => local_addr_bus(0),
-		Data  => data_bus,
-		--        d_out_8   : out std_logic_vector(7 downto 0); NOT CONNECTED
-		-- interrupt signals- same signals as the status register bits
-		--        RX_full     : out std_logic;
-		--		TX_busy_n => tx_busy_n
-		RX_full => RX_FULL,
-		tx_busy_n => tx_busy_n
+	u_uart : entity work.mmu_uart_top 
+		port map (
+			Clk => clk_counter(1),						-- Fundamental clock 0->Spartan 1->Nexys
+			Reset_n => reset_n,					-- neg assertion reset
+			TXD => TXD_BUS,
+			RXD => RXD_BUS,
+			ck_div => "0000000001001000", -- 72 for 115k ; 18	 (for 460 Kbps)
+	--		ck_div => "0000001101100000", -- 72 * 12 = 864 for 9600
+			CE_N => cs_bus(UART_0_CS),
+			WR_N => n_wr_bus,
+			RD_N => n_rd_bus,
+			A0  => local_addr_bus(0),
+			Data  => data_bus,
+			--        d_out_8   : out std_logic_vector(7 downto 0); NOT CONNECTED
+			-- interrupt signals- same signals as the status register bits
+			--        RX_full     : out std_logic;
+			--		TX_busy_n => tx_busy_n
+			RX_full => RX_FULL,
+			tx_busy_n => tx_busy_n
 		);
 	---------------------------------------------------------------------
 
@@ -652,30 +565,32 @@ begin
 
 
 	---------------------------------------------------------------------
-	u_output_port :  output_port_16_bits port map (	
-		clock => my_clock,
-		reset => reset,
-		n_rd => n_rd_bus,
-		n_wr => n_wr_bus,
-		n_cs => cs_bus(OUTPUT_PORT_0_CS),
-		address => local_addr_bus(3 downto 0),
---		out_0 => output_port_0,
---		out_1 => output_port_1,
-		out_2 => output_port_2,
-		out_3 => output_port_3,
-		out_4 => output_port_4,
---		out_5 => output_port_5,
---		out_6 => output_port_6,
-		out_7 => output_port_7,
-		out_8 => output_port_8,
-		out_9 => output_port_9,
-		out_A => output_port_A,
-		out_B => output_port_B,
-		out_C => output_port_C,
-		out_D => output_port_D,
-		out_E => output_port_E,
-		out_F => output_port_F,
-		data_bus => data_bus);
+	u_output_port :  entity work.output_port_16_bits 
+		port map (	
+			clock => my_clock,
+			reset => reset,
+			n_rd => n_rd_bus,
+			n_wr => n_wr_bus,
+			n_cs => cs_bus(OUTPUT_PORT_0_CS),
+			address => local_addr_bus(3 downto 0),
+	--		out_0 => output_port_0,
+	--		out_1 => output_port_1,
+			out_2 => output_port_2,
+			out_3 => output_port_3,
+			out_4 => output_port_4,
+	--		out_5 => output_port_5,
+	--		out_6 => output_port_6,
+			out_7 => output_port_7,
+			out_8 => output_port_8,
+			out_9 => output_port_9,
+			out_A => output_port_A,
+			out_B => output_port_B,
+			out_C => output_port_C,
+			out_D => output_port_D,
+			out_E => output_port_E,
+			out_F => output_port_F,
+			data_bus => data_bus
+		);
 	---------------------------------------------------------------------
 
 
