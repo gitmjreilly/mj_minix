@@ -77,14 +77,6 @@ entity system is port (
 	output_port_E : out std_logic;
 	output_port_F : out std_logic;
 	
-   usbwiz_mosi : out std_logic;
-   usbwiz_miso : in std_logic;
-   usbwiz_sclk : out std_logic;
-   
-   wiznet_mosi : out std_logic;
-   wiznet_miso : in std_logic;
-   wiznet_sclk : out std_logic;
-   
 	clock_selector_switch : in std_logic;
 
 	rx0_in : in std_logic;
@@ -105,12 +97,12 @@ architecture structural of system is
 	constant COUNTER_0_CS                 : integer := 3;
 	constant DISK_CTLR_CS                 : integer := 4;
 	constant INTERRUPT_CONTROLLER_CS      : integer := 5;
-	constant SPI_2_CS                     : integer := 6;
+	constant SPI_2_CS                     : integer := 6; -- available
 	constant OUTPUT_PORT_0_CS             : integer := 7;
 	constant DISK_CTLR_UART_CS            : integer := 8;
 	constant INPUT_PORT_0_CS              : integer := 9;
-	constant SPI_0_CS                     : integer := 10;
-	constant SPI_1_CS                     : integer := 11;
+	constant SPI_0_CS                     : integer := 10; -- available
+	constant SPI_1_CS                     : integer := 11; -- available
 
 		
 	
@@ -361,42 +353,9 @@ begin
    	
 	multiple_int_sources(15 downto 7) <= "000000000";
    
-	---------------------------------------------------------------------
-   --- Memory mapped SPI Port for usbwiz
-	u_spi_port_0 : entity work.spi_mem_mapped 
-		port map (      
-			clock => my_clock,
-			reset => reset,
-			n_cs  => cs_bus(SPI_0_CS),
-			n_oe  => n_rd_bus,
-			n_we  => n_wr_bus,
-			address_bus => local_addr_bus(1 downto 0),
-			data_bus => data_bus,
-			real_sclock => usbwiz_sclk,
-			mosi => usbwiz_mosi,
-			miso => usbwiz_miso
-		);
-	---------------------------------------------------------------------
-   
 
-	---------------------------------------------------------------------
-   --- Memory mapped SPI Port for wiznet tcp/ip chip
-	u_spi_port_1 : entity work.wiznet_spi_mem_mapped 
-		port map (
-			clock => my_clock,
-			reset => reset,
-			n_cs  => cs_bus(SPI_1_CS),
-			n_oe  => n_rd_bus,
-			n_we  => n_wr_bus,
-			address_bus => local_addr_bus(1 downto 0),
-			data_bus => data_bus,
-			real_sclock => wiznet_sclk,
-			mosi => wiznet_mosi,
-			miso => wiznet_miso
-		);
-	---------------------------------------------------------------------
-   
-	
+
+
 
 	u_pb_disk_ctlr:  entity work.pb_disk_ctlr 
 		port map (
