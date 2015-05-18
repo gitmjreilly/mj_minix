@@ -77,13 +77,7 @@ entity system is port (
 	output_port_E : out std_logic;
 	output_port_F : out std_logic;
 	
-	clock_selector_switch : in std_logic;
-
-	rx0_in : in std_logic;
-	tx0_out : out std_logic;
-
-	rx1_in : in std_logic;
-	tx1_out : out std_logic
+	clock_selector_switch : in std_logic
 	
 );
 end system;
@@ -105,27 +99,6 @@ architecture structural of system is
 	constant SPI_1_CS                     : integer := 11; -- available
 
 		
-	
-	---------------------------------------------------------------------
-	component pb_uart_lacombe is 
-		generic (
-			data_width : natural := 16;
-			addr_width : natural := 4
-		);
-		port (
-			clk : in std_logic; -- Assume 100Mhz, NOT the CPU clock
-			reset : in std_logic;
-			n_cs : in std_logic;
-			n_oe : in std_logic;
-			n_wr : in std_logic;
-			addr_bus : in std_logic_vector((addr_width - 1) downto 0);
-			data_bus : inout std_logic_vector((data_width - 1) downto 0);
-			en_16x_baud : in std_logic;
-			serial_in : in std_logic;
-			serial_out : out std_logic
-		);
-	end component;
-	---------------------------------------------------------------------
 	
 	
 	---------------------------------------------------------------------
@@ -355,33 +328,6 @@ begin
    
 
 
-
-
-	u_pb_disk_ctlr:  entity work.pb_disk_ctlr 
-		port map (
-			clk => clk,
-			reset => reset,
-			
-			uart0_en_16x => en_16x_baud, -- ok 
-			uart1_en_16x => en_16x_baud, -- ok
-			
-			rx0_in => rx0_in, -- ok, from entity
-			tx0_out => tx0_out, -- ok, from entity
-			
-			rx1_in => rx1_in, -- ok
-			tx1_out => tx1_out, -- ok
-			
-			-- These signals are for parallel interface to dp ram
-			addr_bus => local_addr_bus(3 downto 0),
-			data_bus => data_bus,
-			n_wr => n_wr_bus,
-			n_rd => n_rd_bus,
-			n_cs => cs_bus(DISK_CTLR_CS)
-		);	
-
-		
-		
-
 	baud_rate: process(clk)
 		begin
 			if clk'event and clk = '1' then
@@ -394,22 +340,6 @@ begin
 				end if;
 			end if;
 		end process baud_rate;
-	
-	
-	-- u_pb_uart_lacombe_1 : pb_uart_lacombe port map (
-			-- clk => clk,
-			-- reset => reset,
-			-- n_cs => cs_bus(disk_ctlr_uart_cs),
-			-- n_oe => n_rd_bus,
-			-- n_wr => n_wr_bus,
-			-- addr_bus => local_addr_bus(3 downto 0),
-			-- data_bus => data_bus,
-			-- en_16x_baud => en_16x_baud,
-			-- serial_in => test_serial_in,
-			-- serial_out => test_serial_out
-		-- );
-	
-			
 	
 		
 	

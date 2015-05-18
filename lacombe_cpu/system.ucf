@@ -168,11 +168,11 @@ NET "external_input_port_4"  LOC = "D12"  ;
 
 
 #	JA1
-NET "tx0_out" LOC = "T12" ;
-NET "rx0_in" LOC = "V12" ;
+# NET "tx0_out" LOC = "T12" ;
+# NET "rx0_in" LOC = "V12" ;
 
-NET "tx1_out" LOC = "M10" ;
-NET "rx1_in" LOC = "N9" ;
+# NET "tx1_out" LOC = "M10" ;
+# NET "rx1_in" LOC = "N9" ;
 
 
 # PMOD Port A ports
