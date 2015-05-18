@@ -113,11 +113,10 @@ signal mem_ff_out : std_logic;
 signal HighBitOut : std_logic;
 signal AddressSelectorOut : std_logic_vector(7 downto 0);
 signal ControlStoreNextAddress : std_logic_vector(8 downto 0);
-signal TmpAddress : std_logic_vector(15 downto 0);
 
 signal Display_Selector_Output : std_logic_vector(15 downto 0);
-signal ControlStoreAddressDebug : std_logic_vector(15 downto 0);
-signal Junk : std_logic_vector(15 downto 0);
+signal ControlStoreAddressDebug : std_logic_vector(8 downto 0);
+signal Junk : std_logic_vector(8 downto 0);
 signal INT_HIGH_REG_IN : std_logic_vector(7 downto 0);
 signal JMPC : std_logic;
 signal LOAD_INTCTL : std_logic;
@@ -332,19 +331,24 @@ AddrSel : AddressSelector port map (
 	INT_OCCURRED => INT_OCCURRED,
 	OUTPUT => AddressSelectorOut);
 
-ControlStoreNextAddress <= HighBitOut & AddressSelectorOut;
-Control_Store : ControlStore port map (ControlStoreNextAddress, ControlStoreOut);
--- SP_REG: CompoundRegister port map (my_clock,  reset , c_bus, b_bus, sp_out,  enable_sp,  load_sp);
-TmpAddress <= 		"0000000" & ControlStoreNextAddress;
-ControlStoreNextAddressDebug: 
-	CompoundRegister port map (
-		n_my_clock,
-		reset, --  reset 
-		TmpAddress, -- TmpAddress <= "0000000" & ControlStoreNextAddress;
-		ControlStoreAddressDebug,
-		Junk,
-		'1', 
-		'1');
+	ControlStoreNextAddress <= HighBitOut & AddressSelectorOut;
+	Control_Store : ControlStore port map (ControlStoreNextAddress, ControlStoreOut);
+	
+	-- This register serves a single purpose which is to make the next address 
+	-- visible for debugging
+	ControlStoreNextAddressDebug:  entity work.compound_register 
+		generic map(
+			width => 9
+		)
+		port map (
+			n_my_clock,
+			reset, --  reset 
+			ControlStoreNextAddress, 
+			ControlStoreAddressDebug,
+			Junk,
+			'1', 
+			'1'
+		);
 
 FourTo16 : FourTo16Decoder port map (MIROut(3 downto 0), DecoderOut);
 	-- DO NOT USE DecoderOut(0) !!!
@@ -512,7 +516,7 @@ dispSelector : DisplaySelector port map (
 	word19 => mir_b,
 
 	word20 => mir_shift,
-	word21 => ControlStoreAddressDebug,
+	word21 => "0000000" & ControlStoreAddressDebug,
 	word22 => mar_out,
 	word23 => mdr_out,
 	word24 => mbr_out,
