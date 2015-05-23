@@ -1,0 +1,141 @@
+
+;================================	
+
+V_2: DS 1
+
+V_1: DW 3 ENDDW
+;================================	
+
+
+
+	
+MAIN:
+	; Test JMPF instruction (assuming DOLIT works...)
+	1
+	JMPF L_HALT_2
+	
+	0
+	JMPF L_1
+
+	0x1003
+	HALT
+	
+L_1:	
+
+	; Test == 
+	7 7 ==
+	JMPF  L_HALT_1
+	
+	
+	3 7 + 10 ==
+	JMPF L_HALT_3
+	
+
+	17 32 DROP
+	17 ==
+	JMPF L_HALT_4
+	
+	9 DUP + 
+	18 ==
+	JMPF L_HALT_5
+	
+	
+	3 7 SWAP
+	3 ==
+	JMPF L_HALT_6
+	
+	7 == 
+	JMPF L_HALT_7
+	
+	V_1 FETCH 3 ==
+	JMPF L_HALT_8
+	
+	19  V_2 STORE
+	3 7 + DROP ; muddy the waters
+	V_2 FETCH
+	19 ==
+	JMPF L_HALT_9
+	
+	V_2 13 STORE2
+	V_2 FETCH
+	13 == 
+	JMPF L_HALT_A
+	
+	V_2 19 STORE2
+	V_2 FETCH
+	19 == 
+	JMPF L_HALT_B
+	
+	JSR JSR_TEST
+	V_2 FETCH
+	21 == 
+	JMPF L_HALT_C
+	
+	
+	0x1717
+	HALT
+;================================	
+
+JSR_TEST:
+	V_2 21 STORE2
+	RET
+;================================	
+
+;================================	
+	
+
+;================================	
+; Land here if initial == check failed	
+L_HALT_1:	
+	0x1001
+	HALT
+	
+; Land here if JMPF didn't work	
+L_HALT_2:
+	0x1002
+	HALT
+	
+L_HALT_3:
+	0x1003
+	HALT
+	
+L_HALT_4:
+	0x1004
+	HALT
+	
+L_HALT_5:
+	0x1005
+	HALT
+	
+L_HALT_6:
+	0x1006
+	HALT
+	
+L_HALT_7:
+	0x1007
+	HALT
+	
+L_HALT_8:
+	0x1008
+	HALT
+	
+L_HALT_9:
+	0x1009
+	HALT
+	
+L_HALT_A:
+	0x100A
+	HALT
+	
+L_HALT_B:
+	0x100B
+	HALT
+	
+L_HALT_C:
+	0x100C
+	HALT
+	
+;================================	
+
+	
+	
