@@ -161,12 +161,6 @@ component Shifter is
            output : out std_logic_vector(15 downto 0));
 end component;
 
-component FlipFlop is
-    Port ( input : in std_logic;
-           output : out std_logic;
-           clock : in std_logic);
-end component;
-
 component HighBit is
     Port ( N : in std_logic;
            Z : in std_logic;
@@ -574,10 +568,50 @@ MDR_REG : mdr port map (
 	p3 => b_bus,
 	p4 => mdr_out);
 
-RD_FF : FlipFlop port map (MIROut(5), RD_FF_OUT, my_clock);
-FETCH_FF : FlipFlop port map (MIROut(4), FETCH_FF_OUT, my_clock);
-WR_FF : FlipFlop port map (MIROut(6), WR_FF_OUT, my_clock);
-ES_FF : FlipFlop port map (MIROut(40), ES_FF_OUT, my_clock);
+	
+
+RD_FF : entity work.FlipFlop
+	port map (
+		clk => clkin,
+		input => MIROUT(5),
+		output => RD_FF_OUT,
+		load => cpu_finish
+	);
+
+FETCH_FF : entity work.FlipFlop
+	port map (
+		clk => clkin,
+		input => MIROUT(4),
+		output => FETCH_FF_OUT,
+		load => cpu_finish
+	);
+
+WR_FF : entity work.FlipFlop
+	port map (
+		clk => clkin,
+		input => MIROUT(6),
+		output => WR_FF_OUT,
+		load => cpu_finish
+	);
+
+ES_FF : entity work.FlipFlop
+	port map (
+		clk => clkin,
+		input => MIROUT(40),
+		output => ES_FF_OUT,
+		load => cpu_finish
+	);
+	
+-- RD_FF : FlipFlop port map (clkin, MIROut(5), RD_FF_OUT, cpu_finish);
+-- FETCH_FF : FlipFlop port map (clkin, MIROut(4), FETCH_FF_OUT, cpu_finish);
+-- WR_FF : FlipFlop port map (clkin, MIROut(6), WR_FF_OUT, cpu_finish);
+-- ES_FF : FlipFlop port map (clkin, MIROut(40), ES_FF_OUT, cpu_finish);
+
+
+
+
+
+
 N_RD <= NOT (RD_FF_OUT OR FETCH_FF_OUT);
 N_WR <= NOT WR_FF_OUT;
 RD_INDICATOR <= RD_FF_OUT;
@@ -699,9 +733,41 @@ ALU: alu1 port map (b_bus, alu_b_bus, ctl_lines, alu_output, N, Z, C);
 --
 -- These flip flops store the last N & Z outputs from the ALU.
 --
-N_FF : FlipFlop port map (N, N_FF_OUT, my_clock);
-Z_FF : FlipFlop port map (Z, Z_FF_OUT, my_clock);
-C_FF : FlipFlop port map (C, C_FF_OUT, my_clock);
+
+
+
+N_FF : entity work.FlipFlop
+	port map (
+		clk => clkin,
+		input => N,
+		output => N_FF_OUT,
+		load => cpu_finish
+	);
+
+Z_FF : entity work.FlipFlop
+	port map (
+		clk => clkin,
+		input => Z,
+		output => Z_FF_OUT,
+		load => cpu_finish
+	);
+
+C_FF : entity work.FlipFlop
+	port map (
+		clk => clkin,
+		input => C,
+		output => C_FF_OUT,
+		load => cpu_finish
+	);
+
+
+
+-- N_FF : FlipFlop port map (N, N_FF_OUT, my_clock);
+-- Z_FF : FlipFlop port map (Z, Z_FF_OUT, my_clock);
+-- C_FF : FlipFlop port map (C, C_FF_OUT, my_clock);
+
+
+
 --N_Indicator <= N_FF_OUT;
 --Z_Indicator <= Z_FF_OUT;
 N_Indicator <= '0';
