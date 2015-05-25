@@ -125,15 +125,6 @@ signal INT_HIGH_REG_IN : std_logic_vector(7 downto 0);
 signal JMPC : std_logic;
 signal LOAD_INTCTL : std_logic;
 
-component CompoundRegister is
-    Port ( clk           : in std_logic;
-           reset         : in std_logic;
-           in1           : in  std_logic_vector((15) downto 0);
-           out1          : out std_logic_vector((15) downto 0);
-           out2          : out std_logic_vector((15) downto 0);
-           output_enable : in  std_logic;
-			  latch         : in  std_logic );
-end component;
 
 component CompoundRegister8 is
     Port ( clk           : in std_logic;
@@ -397,7 +388,6 @@ FourTo16 : FourTo16Decoder port map (MIROut(3 downto 0), DecoderOut);
 -- enable_XX enables output onto the b_bus
 -- load_XX loads XX from the c_bus on the rising edge of the clock
 --
--- SP_REG: CompoundRegister port map (my_clock,  reset , c_bus, b_bus, sp_out,  enable_sp,  load_sp);
 
 
 	SP_REG : entity work.compound_register
@@ -536,10 +526,42 @@ INT_HIGH_REG_IN(7 downto 1) <= "0000000";
 -- load_sp loads sp from the c_bus on the rising edge of the clock
 --
 enable_h <= '1';
-H_REG: CompoundRegister port map (my_clock, reset, c_bus, alu_b_bus, h_out, enable_h, load_h);
 
--- MAR_REG: CompoundRegister port map (my_clock,  reset , c_bus, MAR_Mem_Addr_bus, mar_out,  '0' , load_mar);
-MAR_REG: CompoundRegister port map (my_clock,  reset , c_bus, b_bus, mar_out,  '0' , load_mar);
+		
+H_REG: entity work.compound_register
+		generic map(
+			width => 16
+		)
+		port map (
+			reset => reset,
+			clk  => clkin,
+			load_enable => cpu_finish,
+			in1   => c_bus,
+			out1  => alu_b_bus,
+			out2  => h_out,
+			output_enable => enable_h,
+			latch => load_h		
+		);
+		
+
+		
+MAR_REG: entity work.compound_register
+		generic map(
+			width => 16
+		)
+		port map (
+			reset => reset,
+			clk  => clkin,
+			load_enable => cpu_finish,
+			in1   => c_bus,
+			out1  => b_bus,
+			out2  => mar_out,
+			output_enable => '0',
+			latch => load_mar
+		);
+		
+
+
 
 MDR_REG : mdr port map (
 	clock => my_clock,
@@ -596,9 +618,6 @@ MBR_REG: entity work.compound_register
 		
 		
 
--- PC_REG:  CompoundRegister port map (my_clock, reset , c_bus, b_bus, pc_out,  enable_pc, load_pc);
--- MBR_REG: CompoundRegister port map (my_clock,  reset , mem_data_bus, b_bus, 
---												mbr_out,  enable_mbr1, FETCH_FF_OUT);
 
 mem_ff_out <= RD_FF_OUT OR WR_FF_OUT;
 
