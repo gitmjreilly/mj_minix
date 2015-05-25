@@ -562,11 +562,43 @@ RD_INDICATOR <= RD_FF_OUT;
 WR_INDICATOR <= WR_FF_OUT;
 FETCH_INDICATOR <= FETCH_FF_OUT;
 
+		
+PC_REG: entity work.compound_register
+		generic map(
+			width => 16
+		)
+		port map (
+			reset => reset,
+			clk  => clkin,
+			load_enable => cpu_finish,
+			in1   => c_bus,
+			out1  => b_bus,
+			out2  => pc_out,
+			output_enable => enable_pc,
+			latch => load_pc		
+		);
+		
+		
+MBR_REG: entity work.compound_register
+		generic map(
+			width => 16
+		)
+		port map (
+			reset => reset,
+			clk  => clkin,
+			load_enable => cpu_finish,
+			in1   => c_bus,
+			out1  => b_bus,
+			out2  => mbr_out,
+			output_enable => enable_mbr1,
+			latch => FETCH_FF_OUT		
+		);
+		
+		
 
---opc_REG: CompoundRegister port map (my_clock, reset , c_bus, b_bus, opc_out, enable_opc, load_opc);
-  PC_REG:  CompoundRegister port map (my_clock, reset , c_bus, b_bus, pc_out,  enable_pc, load_pc);
-MBR_REG: CompoundRegister port map (my_clock,  reset , mem_data_bus, b_bus, 
-												mbr_out,  enable_mbr1, FETCH_FF_OUT);
+-- PC_REG:  CompoundRegister port map (my_clock, reset , c_bus, b_bus, pc_out,  enable_pc, load_pc);
+-- MBR_REG: CompoundRegister port map (my_clock,  reset , mem_data_bus, b_bus, 
+--												mbr_out,  enable_mbr1, FETCH_FF_OUT);
 
 mem_ff_out <= RD_FF_OUT OR WR_FF_OUT;
 
