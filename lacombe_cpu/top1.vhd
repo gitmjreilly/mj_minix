@@ -467,45 +467,60 @@ TOS_REG: entity work.compound_register
 		
 		
 
--- LV_REG: CompoundRegister port map (my_clock,  reset , c_bus, b_bus, lv_out,  enable_lv,  load_lv);
--- CPP_REG: CompoundRegister port map (my_clock, reset , c_bus, b_bus, cpp_out, enable_cpp, load_cpp);
--- TOS_REG: CompoundRegister port map (my_clock, reset , c_bus, b_bus, tos_out, enable_tos, load_tos);
--- opc_REG: CompoundRegister port map (my_clock, reset , c_bus, b_bus, opc_out, enable_opc, load_opc);
 INTCTL_HIGH_REG: CompoundRegister8 port map (my_clock, reset, INT_HIGH_REG_IN, b_bus(15 downto 8), INTCTL_HIGH_OUT, enable_intctl, '1');
 INTCTL_LOW_REG:  CompoundRegister8 port map (my_clock, reset, c_bus(7 downto 0), b_bus(7 downto 0), INTCTL_LOW_OUT, enable_intctl, load_intctl);
 
--- Segment registers on the datapath
-ES_REG : CompoundRegister port map (
-   clk => my_clock  ,
-	reset => reset ,
-	in1   => c_bus ,
-	out1  => b_bus ,
-	out2  => es_out ,
-	output_enable  => DecoderOut(3),
-	latch => MIROut(37) 
-);
-
-CS_REG : CompoundRegister port map (
-   clk => my_clock  ,
-	reset => reset ,
-	in1   => c_bus ,
-	out1  => b_bus ,
-	out2  => cs_out ,
-	output_enable  => DecoderOut(8),
-	latch => MIROut(38) 
-);
-
-DS_REG : CompoundRegister port map (
-   clk => my_clock  ,
-	reset => reset ,
-	in1   => c_bus ,
-	out1  => b_bus ,
-	out2  => ds_out ,
-	output_enable  => DecoderOut(11),
-	latch => MIROut(39) 
-);
 
 
+-- Three Segment registers on the datapath		
+ES_REG: entity work.compound_register
+		generic map(
+			width => 16
+		)
+		port map (
+			reset => reset,
+			clk  => clkin,
+			load_enable => cpu_finish,
+			in1   => c_bus,
+			out1  => b_bus,
+			out2  => es_out,
+			output_enable => DecoderOut(3),
+			latch => MIROut(37)		
+		);
+		
+		
+CS_REG: entity work.compound_register
+		generic map(
+			width => 16
+		)
+		port map (
+			reset => reset,
+			clk  => clkin,
+			load_enable => cpu_finish,
+			in1   => c_bus,
+			out1  => b_bus,
+			out2  => cs_out,
+			output_enable => DecoderOut(8),
+			latch => MIROut(38)		
+		);
+		
+		
+DS_REG: entity work.compound_register
+		generic map(
+			width => 16
+		)
+		port map (
+			reset => reset,
+			clk  => clkin,
+			load_enable => cpu_finish,
+			in1   => c_bus,
+			out1  => b_bus,
+			out2  => ds_out,
+			output_enable => DecoderOut(11),
+			latch => MIROut(39)		
+		);
+		
+		
 
 
 --------------------------------------------------------------------------------------------------
