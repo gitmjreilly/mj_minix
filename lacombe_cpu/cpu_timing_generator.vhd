@@ -11,8 +11,7 @@ entity cpu_timing_generator is
 		clk : in  STD_LOGIC;
 		reset : in STD_LOGIC;
 		cpu_start : out  STD_LOGIC;
-		cpu_finish : out  STD_LOGIC;
-		pause : in  STD_LOGIC
+		cpu_finish : out  STD_LOGIC
 	);
 end cpu_timing_generator;
 
@@ -60,6 +59,9 @@ begin
 	-- process (state_reg, count_0, count_2)
 	begin
 		state_next <= state_reg;
+		-- Initializing the signals below to avoid generating latches
+		count_0_next <= count_0;
+		count_2_next <= count_2;
 		
 		case state_reg is 
 			when state_idle =>

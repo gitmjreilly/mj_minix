@@ -131,9 +131,8 @@ architecture structural of system is
 
 	signal cpu_start : std_logic;
 	signal cpu_finish : std_logic;
-	signal pause : std_logic;
 	
-	---------------------------------------------------------------------
+---------------------------------------------------------------------
 
 ---------------------------------------------------------------------
 begin
@@ -156,8 +155,7 @@ begin
 			clk => clk,
 			reset => reset,
 			cpu_start => cpu_start,
-			cpu_finish => cpu_finish,
-			pause => pause
+			cpu_finish => cpu_finish
 		);
 	---------------------------------------------------------------------
 

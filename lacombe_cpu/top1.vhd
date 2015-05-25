@@ -417,8 +417,24 @@ FourTo16 : FourTo16Decoder port map (MIROut(3 downto 0), DecoderOut);
 
 
 
+		
+LV_REG: entity work.compound_register
+		generic map(
+			width => 16
+		)
+		port map (
+			reset => reset,
+			clk  => clkin,
+			load_enable => cpu_finish,
+			in1   => c_bus,
+			out1  => b_bus,
+			out2  => lv_out,
+			output_enable => enable_lv,
+			latch => load_lv		
+		);
+		
 
-LV_REG: CompoundRegister port map (my_clock,  reset , c_bus, b_bus, lv_out,  enable_lv,  load_lv);
+-- LV_REG: CompoundRegister port map (my_clock,  reset , c_bus, b_bus, lv_out,  enable_lv,  load_lv);
 CPP_REG: CompoundRegister port map (my_clock, reset , c_bus, b_bus, cpp_out, enable_cpp, load_cpp);
 TOS_REG: CompoundRegister port map (my_clock, reset , c_bus, b_bus, tos_out, enable_tos, load_tos);
 -- opc_REG: CompoundRegister port map (my_clock, reset , c_bus, b_bus, opc_out, enable_opc, load_opc);
