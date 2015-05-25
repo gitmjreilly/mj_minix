@@ -6,7 +6,11 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 entity cpu1 is
 	Port ( 
 		reset : in std_logic;																		
-		clkin : in std_logic;	-- this should be the 50Mhz Clock
+		
+		clkin : in std_logic;	-- this should be the synchronous system clock
+		cpu_start : in std_logic;
+		cpu_finish : in std_logic;
+		
 		N_indicator : out std_logic;
 		Z_indicator : out std_logic;
 		RD_INDICATOR : out std_logic;
@@ -341,14 +345,33 @@ AddrSel : AddressSelector port map (
 			width => 9
 		)
 		port map (
-			n_my_clock,
-			reset, --  reset 
-			ControlStoreNextAddress, 
-			ControlStoreAddressDebug,
-			Junk,
-			'1', 
-			'1'
+			reset => reset,
+			clk  => n_my_clock,
+			load_enable => cpu_finish,
+			in1   => ControlStoreNextAddress,
+			out1  => ControlStoreAddressDebug,
+			out2  => Junk,
+			output_enable => cpu_start,
+			latch => '1' 		
 		);
+
+
+
+		-- generic map(
+			-- width => 9
+		-- )
+		-- port map (
+			-- n_my_clock,
+			-- reset, --  reset 
+			-- ControlStoreNextAddress, 
+			-- ControlStoreAddressDebug,
+			-- Junk,
+			-- '1', 
+			-- '1'
+		-- )		
+		
+		
+				
 
 FourTo16 : FourTo16Decoder port map (MIROut(3 downto 0), DecoderOut);
 	-- DO NOT USE DecoderOut(0) !!!
@@ -374,7 +397,27 @@ FourTo16 : FourTo16Decoder port map (MIROut(3 downto 0), DecoderOut);
 -- enable_XX enables output onto the b_bus
 -- load_XX loads XX from the c_bus on the rising edge of the clock
 --
-SP_REG: CompoundRegister port map (my_clock,  reset , c_bus, b_bus, sp_out,  enable_sp,  load_sp);
+-- SP_REG: CompoundRegister port map (my_clock,  reset , c_bus, b_bus, sp_out,  enable_sp,  load_sp);
+
+
+	SP_REG : entity work.compound_register
+		generic map(
+			width => 16
+		)
+		port map (
+			reset => reset,
+			clk  => clkin,
+			load_enable => cpu_finish,
+			in1   => c_bus,
+			out1  => b_bus,
+			out2  => sp_out,
+			output_enable => enable_sp,
+			latch => load_sp 		
+		);
+
+
+
+
 LV_REG: CompoundRegister port map (my_clock,  reset , c_bus, b_bus, lv_out,  enable_lv,  load_lv);
 CPP_REG: CompoundRegister port map (my_clock, reset , c_bus, b_bus, cpp_out, enable_cpp, load_cpp);
 TOS_REG: CompoundRegister port map (my_clock, reset , c_bus, b_bus, tos_out, enable_tos, load_tos);

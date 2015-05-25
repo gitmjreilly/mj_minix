@@ -18,7 +18,7 @@ end cpu_timing_generator;
 
 architecture Behavioral of cpu_timing_generator is
 
-	constant N : unsigned := "00011";
+	constant N : unsigned := "01010";
 
 	type state_type is (state_idle, state_0, state_1, state_2);
 	signal state_reg, state_next : state_type;

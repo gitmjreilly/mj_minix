@@ -128,7 +128,10 @@ architecture structural of system is
 
 	signal en_16x_baud : std_logic;
 	signal baud_count : integer range 0 to 500 := 0; 
-	
+
+	signal cpu_start : std_logic;
+	signal cpu_finish : std_logic;
+	signal pause : std_logic;
 	
 	---------------------------------------------------------------------
 
@@ -147,6 +150,18 @@ begin
 	cellular_ram_adv <= '0';
 	cellular_ram_cre <= '0';
 
+	---------------------------------------------------------------------
+	timing_generator : entity work.cpu_timing_generator
+		port map (
+			clk => clk,
+			reset => reset,
+			cpu_start => cpu_start,
+			cpu_finish => cpu_finish,
+			pause => pause
+		);
+	---------------------------------------------------------------------
+
+	
 	---------------------------------------------------------------------
 	clk_divider : entity work.ClockDivider 
 		port map (
@@ -198,7 +213,9 @@ begin
 	the_cpu : entity work.cpu1 
 		port map (
 			reset => reset,
-			clkin => my_clock,
+			clkin => clk,
+			cpu_start => cpu_start,
+			cpu_finish => cpu_finish,
 			n_indicator => n_ind,
 			z_indicator => z_ind,
 			rd_indicator => rd_ind,
