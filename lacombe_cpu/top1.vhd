@@ -126,16 +126,6 @@ signal JMPC : std_logic;
 signal LOAD_INTCTL : std_logic;
 
 
-component CompoundRegister8 is
-    Port ( clk           : in std_logic;
-           reset         : in std_logic;
-           in1           : in  std_logic_vector((7) downto 0);
-           out1          : out std_logic_vector((7) downto 0);
-           out2          : out std_logic_vector((7) downto 0);
-           output_enable : in  std_logic;
-			  latch         : in  std_logic );
-end component;
-
 component MIRRegister is
     Port ( in1           : in  std_logic_vector((40) downto 0);
            out1          : out std_logic_vector((40) downto 0);
@@ -450,9 +440,40 @@ TOS_REG: entity work.compound_register
 		);
 		
 		
+INTCTL_HIGH_REG: entity work.compound_register
+		generic map(
+			width => 8
+		)
+		port map (
+			reset => reset,
+			clk  => clkin,
+			load_enable => cpu_finish,
+			in1   => INT_HIGH_REG_IN,
+			out1  => b_bus(15 downto 8),
+			out2  => INTCTL_HIGH_OUT,
+			output_enable => enable_intctl,
+			latch => '1'
+		);
+		
+		
+INTCTL_LOW_REG: entity work.compound_register
+		generic map(
+			width => 8
+		)
+		port map (
+			reset => reset,
+			clk  => clkin,
+			load_enable => cpu_finish,
+			in1   => c_bus(7 downto 0),
+			out1  => b_bus(7 downto 0),
+			out2  => INTCTL_LOW_OUT,
+			output_enable => enable_intctl,
+			latch => load_intctl
+		);
+				
 
-INTCTL_HIGH_REG: CompoundRegister8 port map (my_clock, reset, INT_HIGH_REG_IN, b_bus(15 downto 8), INTCTL_HIGH_OUT, enable_intctl, '1');
-INTCTL_LOW_REG:  CompoundRegister8 port map (my_clock, reset, c_bus(7 downto 0), b_bus(7 downto 0), INTCTL_LOW_OUT, enable_intctl, load_intctl);
+-- INTCTL_HIGH_REG: CompoundRegister8 port map (my_clock, reset, INT_HIGH_REG_IN, b_bus(15 downto 8), INTCTL_HIGH_OUT, enable_intctl, '1');
+-- INTCTL_LOW_REG:  CompoundRegister8 port map (my_clock, reset, c_bus(7 downto 0), b_bus(7 downto 0), INTCTL_LOW_OUT, enable_intctl, load_intctl);
 
 
 
@@ -759,12 +780,6 @@ C_FF : entity work.FlipFlop
 		output => C_FF_OUT,
 		load => cpu_finish
 	);
-
-
-
--- N_FF : FlipFlop port map (N, N_FF_OUT, my_clock);
--- Z_FF : FlipFlop port map (Z, Z_FF_OUT, my_clock);
--- C_FF : FlipFlop port map (C, C_FF_OUT, my_clock);
 
 
 
