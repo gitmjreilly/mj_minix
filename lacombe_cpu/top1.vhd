@@ -264,7 +264,6 @@ constant WordAll0 : std_logic_vector := "0000000000000000";
 begin	 
 
 
--- my_clock <= buttonclock;
 my_clock <= clkin;
 n_my_clock <= NOT my_clock;
 
@@ -332,21 +331,6 @@ AddrSel : AddressSelector port map (
 
 
 
-		-- generic map(
-			-- width => 9
-		-- )
-		-- port map (
-			-- n_my_clock,
-			-- reset, --  reset 
-			-- ControlStoreNextAddress, 
-			-- ControlStoreAddressDebug,
-			-- Junk,
-			-- '1', 
-			-- '1'
-		-- )		
-		
-		
-				
 
 FourTo16 : FourTo16Decoder port map (MIROut(3 downto 0), DecoderOut);
 	-- DO NOT USE DecoderOut(0) !!!
@@ -365,12 +349,10 @@ FourTo16 : FourTo16Decoder port map (MIROut(3 downto 0), DecoderOut);
 -- Instantiate Regs which live on both C and B bus
 -- and are not connected to memory interface.
 --		sp, lv, cpp, tos, opc
--- They use the slow "buttonclock".
--- reset is forced low.
 -- Their input comes from the c_bus; output goes to the b_bus
 -- XX_out is the (always on) output
 -- enable_XX enables output onto the b_bus
--- load_XX loads XX from the c_bus on the rising edge of the clock
+-- load_XX loads XX from the c_bus on the rising edge of the clock and cpu_finish
 --
 
 
@@ -472,11 +454,6 @@ INTCTL_LOW_REG: entity work.compound_register
 		);
 				
 
--- INTCTL_HIGH_REG: CompoundRegister8 port map (my_clock, reset, INT_HIGH_REG_IN, b_bus(15 downto 8), INTCTL_HIGH_OUT, enable_intctl, '1');
--- INTCTL_LOW_REG:  CompoundRegister8 port map (my_clock, reset, c_bus(7 downto 0), b_bus(7 downto 0), INTCTL_LOW_OUT, enable_intctl, load_intctl);
-
-
-
 -- Three Segment registers on the datapath		
 ES_REG: entity work.compound_register
 		generic map(
@@ -533,12 +510,6 @@ DS_REG: entity work.compound_register
 INT_HIGH_REG_IN(0) <= INT;
 INT_HIGH_REG_IN(7 downto 1) <= "0000000";
 
---
--- Instantiate H Reg.  Its A in put comes from the B Bus.  Its B input comes directly from H Reg.
--- It uses the slow "buttonclock".
--- reset is forced low.
--- Its input comes from the c_bus; output goes to the b_bus
--- load_sp loads sp from the c_bus on the rising edge of the clock
 --
 enable_h <= '1';
 
@@ -622,14 +593,6 @@ ES_FF : entity work.FlipFlop
 		output => ES_FF_OUT,
 		load => cpu_finish
 	);
-	
--- RD_FF : FlipFlop port map (clkin, MIROut(5), RD_FF_OUT, cpu_finish);
--- FETCH_FF : FlipFlop port map (clkin, MIROut(4), FETCH_FF_OUT, cpu_finish);
--- WR_FF : FlipFlop port map (clkin, MIROut(6), WR_FF_OUT, cpu_finish);
--- ES_FF : FlipFlop port map (clkin, MIROut(40), ES_FF_OUT, cpu_finish);
-
-
-
 
 
 
