@@ -123,7 +123,7 @@ architecture structural of system is
 	signal cpu_int : std_logic;
 	signal counter_is_zero : std_logic;
 	
-	signal wiznet_int_pulse : std_logic;
+	-- n_ext_input_port_4 was used by wiznet
 	signal n_external_input_port_4 : std_logic;
 
 	signal en_16x_baud : std_logic;
@@ -326,18 +326,7 @@ begin
 	-- For USB Wiz Ready, generate an interrupt when data IS ready
 	multiple_int_sources(5) <= external_input_port_2; -- USB Wiz Data is READY; 
 
-   -- The generic wiznet interrupt line (active low)
-   n_external_input_port_4 <= NOT external_input_port_4;
-   
-	u_wiznet_int_pulse : entity work.pulse_gen 
-		port map (
-			clk => clk_counter(5), -- From Wiznet - IGNORE - clock should be half system clock
-			input => n_external_input_port_4,
-			output => wiznet_int_pulse
-		);
-	multiple_int_sources(6) <= wiznet_int_pulse;
-   	
-	multiple_int_sources(15 downto 7) <= "000000000";
+  	multiple_int_sources(15 downto 6) <= "0000000000";
    
 
 
