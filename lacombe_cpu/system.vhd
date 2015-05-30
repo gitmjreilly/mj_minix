@@ -85,16 +85,16 @@ end system;
 
 
 architecture structural of system is
-	constant RAM_CS                       : integer := 0;
-	constant ROM_CS                       : integer := 1;
-	constant UART_0_CS                    : integer := 2;
-	constant COUNTER_0_CS                 : integer := 3;
-	constant DISK_CTLR_CS                 : integer := 4;
-	constant INTERRUPT_CONTROLLER_CS      : integer := 5;
+	constant RAM_CS                       : integer := 0; -- in use
+	constant ROM_CS                       : integer := 1; -- in use
+	constant UART_0_CS                    : integer := 2; -- in use for console
+	constant COUNTER_0_CS                 : integer := 3; -- in use
+	constant DISK_CTLR_CS                 : integer := 4; -- available
+	constant INTERRUPT_CONTROLLER_CS      : integer := 5; -- in use
 	constant SPI_2_CS                     : integer := 6; -- available
-	constant OUTPUT_PORT_0_CS             : integer := 7;
-	constant DISK_CTLR_UART_CS            : integer := 8;
-	constant INPUT_PORT_0_CS              : integer := 9;
+	constant OUTPUT_PORT_0_CS             : integer := 7; -- in use
+	constant DISK_CTLR_UART_CS            : integer := 8; -- available
+	constant INPUT_PORT_0_CS              : integer := 9; -- in use
 	constant SPI_0_CS                     : integer := 10; -- available
 	constant SPI_1_CS                     : integer := 11; -- available
 
@@ -123,9 +123,6 @@ architecture structural of system is
 	signal cpu_int : std_logic;
 	signal counter_is_zero : std_logic;
 	
-	-- n_ext_input_port_4 was used by wiznet
-	signal n_external_input_port_4 : std_logic;
-
 	signal en_16x_baud : std_logic;
 	signal baud_count : integer range 0 to 500 := 0; 
 
@@ -319,14 +316,7 @@ begin
 	multiple_int_sources(1) <= counter_is_zero;
 	multiple_int_sources(2) <= NOT tx_busy_n;
 	multiple_int_sources(3) <= int_sw_out;
-	
-	
-	-- For USB Wiz BUSY, generate an interrupt when it is NOT busy
-	multiple_int_sources(4) <= NOT external_input_port_0; -- USB Wiz BUSY; 
-	-- For USB Wiz Ready, generate an interrupt when data IS ready
-	multiple_int_sources(5) <= external_input_port_2; -- USB Wiz Data is READY; 
-
-  	multiple_int_sources(15 downto 6) <= "0000000000";
+  	multiple_int_sources(15 downto 4) <= "000000000000";
    
 
 
@@ -407,12 +397,7 @@ begin
 	---------------------------------------------------------------------
 
 
-	---------------------------------------------------------------------
-   -- bit 0 is the USB Wiz READY bit
-	--input_port_0 : data_bus <= external_input_port_0 when
-	--	(n_rd_bus = '0' AND cs_bus(INPUT_PORT_0_CS) = '0') else
-	--	"ZZZZZZZZZZZZZZZZ";
-	---------------------------------------------------------------------
+	----------------------------------------------------
 
    input_port_0: data_bus <=
 	   "000000000000000" & external_input_port_0 when (n_rd_bus = '0' AND cs_bus(INPUT_PORT_0_CS) = '0') AND local_addr_bus(3 downto 0) = x"0000" else
