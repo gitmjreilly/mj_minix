@@ -83,8 +83,6 @@ signal INT_ENABLE : std_logic;
 signal INT_OCCURRED : std_logic;
 signal INT_POSSIBLE : std_logic;
 
-signal my_clock : std_logic;
--- ise complains when NOT my_clock is used as actual parameter
 signal n_my_clock : std_logic;
 
 signal ControlStoreOut : std_logic_vector(40 downto 0);
@@ -264,8 +262,8 @@ constant WordAll0 : std_logic_vector := "0000000000000000";
 begin	 
 
 
-my_clock <= clkin;
-n_my_clock <= NOT my_clock;
+
+n_my_clock <= NOT clkin;
 
 four_digits <= display_selector_output;
 
@@ -320,7 +318,7 @@ AddrSel : AddressSelector port map (
 		)
 		port map (
 			reset => reset,
-			clk  => n_my_clock,
+			clk  => n_my_clock,  -- Still 
 			load_enable => cpu_finish,
 			in1   => ControlStoreNextAddress,
 			out1  => ControlStoreAddressDebug,
@@ -550,7 +548,7 @@ MAR_REG: entity work.compound_register
 
 
 MDR_REG : mdr port map (
-	clock => my_clock,
+	clock => clkin,
 	p1 => MEM_DATA_BUS,
 	p2 => c_bus,
 	loadp1 => rd_ff_out,
