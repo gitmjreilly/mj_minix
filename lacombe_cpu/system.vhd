@@ -77,7 +77,21 @@ entity system is port (
 	output_port_E : out std_logic;
 	output_port_F : out std_logic;
 	
-	clock_selector_switch : in std_logic
+   usbwiz_mosi : out std_logic;
+   usbwiz_miso : in std_logic;
+   usbwiz_sclk : out std_logic;
+   
+   wiznet_mosi : out std_logic;
+   wiznet_miso : in std_logic;
+   wiznet_sclk : out std_logic;
+   
+	clock_selector_switch : in std_logic;
+
+	rx0_in : in std_logic;
+	tx0_out : out std_logic;
+
+	rx1_in : in std_logic;
+	tx1_out : out std_logic
 	
 );
 end system;
@@ -85,20 +99,41 @@ end system;
 
 
 architecture structural of system is
-	constant RAM_CS                       : integer := 0; -- in use
-	constant ROM_CS                       : integer := 1; -- in use
-	constant UART_0_CS                    : integer := 2; -- in use for console
-	constant COUNTER_0_CS                 : integer := 3; -- in use
-	constant DISK_CTLR_CS                 : integer := 4; -- available
-	constant INTERRUPT_CONTROLLER_CS      : integer := 5; -- in use
-	constant SPI_2_CS                     : integer := 6; -- available
-	constant OUTPUT_PORT_0_CS             : integer := 7; -- in use
-	constant DISK_CTLR_UART_CS            : integer := 8; -- available
-	constant INPUT_PORT_0_CS              : integer := 9; -- in use
-	constant SPI_0_CS                     : integer := 10; -- available
-	constant SPI_1_CS                     : integer := 11; -- available
+	constant RAM_CS                       : integer := 0;
+	constant ROM_CS                       : integer := 1;
+	constant UART_0_CS                    : integer := 2;
+	constant COUNTER_0_CS                 : integer := 3;
+	constant DISK_CTLR_CS                 : integer := 4;
+	constant INTERRUPT_CONTROLLER_CS      : integer := 5;
+	constant SPI_2_CS                     : integer := 6;
+	constant OUTPUT_PORT_0_CS             : integer := 7;
+	constant DISK_CTLR_UART_CS            : integer := 8;
+	constant INPUT_PORT_0_CS              : integer := 9;
+	constant SPI_0_CS                     : integer := 10;
+	constant SPI_1_CS                     : integer := 11;
 
 		
+	
+	---------------------------------------------------------------------
+	component pb_uart_lacombe is 
+		generic (
+			data_width : natural := 16;
+			addr_width : natural := 4
+		);
+		port (
+			clk : in std_logic; -- Assume 100Mhz, NOT the CPU clock
+			reset : in std_logic;
+			n_cs : in std_logic;
+			n_oe : in std_logic;
+			n_wr : in std_logic;
+			addr_bus : in std_logic_vector((addr_width - 1) downto 0);
+			data_bus : inout std_logic_vector((data_width - 1) downto 0);
+			en_16x_baud : in std_logic;
+			serial_in : in std_logic;
+			serial_out : out std_logic
+		);
+	end component;
+	---------------------------------------------------------------------
 	
 	
 	---------------------------------------------------------------------
@@ -123,13 +158,14 @@ architecture structural of system is
 	signal cpu_int : std_logic;
 	signal counter_is_zero : std_logic;
 	
+	signal wiznet_int_pulse : std_logic;
+	signal n_external_input_port_4 : std_logic;
+
 	signal en_16x_baud : std_logic;
 	signal baud_count : integer range 0 to 500 := 0; 
-
-	signal cpu_start : std_logic;
-	signal cpu_finish : std_logic;
 	
----------------------------------------------------------------------
+	
+	---------------------------------------------------------------------
 
 ---------------------------------------------------------------------
 begin
@@ -147,22 +183,11 @@ begin
 	cellular_ram_cre <= '0';
 
 	---------------------------------------------------------------------
-	timing_generator : entity work.cpu_timing_generator
-		port map (
-			clk => clk,
-			reset => reset,
-			cpu_start => cpu_start,
-			cpu_finish => cpu_finish
-		);
-	---------------------------------------------------------------------
-
-	
-	---------------------------------------------------------------------
 	clk_divider : entity work.ClockDivider 
 		port map (
 			reset => reset,
 			clkin => clk,
-			slowout => clk_counter  -- This is the clk_divider output
+			slowout => clk_counter
 		);
 	---------------------------------------------------------------------
 
@@ -170,7 +195,7 @@ begin
 	---------------------------------------------------------------------
 	u_switch_clock : entity work.switch_debounce 
 		port map (
-			clock => clk_counter(20),  -- For switch debounce; no clk changes required
+			clock => clk_counter(20),
 			sw => clock_sw,
 			y => sw_clock_out
 		);
@@ -180,14 +205,16 @@ begin
 	---------------------------------------------------------------------
 	INT_SW_1 : entity work.switch_debounce 
 		port map (
-			clock => clk_counter(20),  -- For switch debounce; no clk changes required
+			clock => clk_counter(20),
 			sw => INT_SW,
 			y => INT_SW_OUT
 		);
 	---------------------------------------------------------------------
 
 -- Divide 50Mhz Clock by 2 on Spartan 3 starter ; Divide 100Mhz by 8 on Nexys3
-
+--	my_clock <= sw_clock_out when clock_selector_switch = '1' else clk_counter(0);
+--	my_clock <= sw_clock_out when clock_selector_switch = '1' else clk_counter(1);
+--	my_clock <= sw_clock_out when clock_selector_switch = '1' else clk_counter(10);
 	my_clock <= clk_counter(2);
 	p5_clock <= clk_counter(3);
 
@@ -206,9 +233,7 @@ begin
 	the_cpu : entity work.cpu1 
 		port map (
 			reset => reset,
-			clkin => clk,
-			cpu_start => cpu_start,
-			cpu_finish => cpu_finish,
+			clkin => my_clock,
 			n_indicator => n_ind,
 			z_indicator => z_ind,
 			rd_indicator => rd_ind,
@@ -241,7 +266,7 @@ begin
 			four_digits (11 downto 8),
 			four_digits (7 downto 4),
 			four_digits (3 downto 0),
-			clk_counter(15),  -- For 7 Seg Driver - No clock concerns
+			clk_counter(15), 
 			SevenSegSegments, 
 			SevenSegAnodes
 		);
@@ -275,7 +300,7 @@ begin
 	---------------------------------------------------------------------
 	counter_0: entity work.mem_based_counter 
 		port map (
-			clock => my_clock,  -- divided clock for use with mem mapped counter
+			clock => my_clock,
 			reset => reset,
 			n_rd => n_rd_bus,
 			n_cs => cs_bus(COUNTER_0_CS),
@@ -287,7 +312,7 @@ begin
 	---------------------------------------------------------------------
 	u_uart : entity work.mmu_uart_top 
 		port map (
-			Clk => clk_counter(1), -- Fundamental clock 0->Spartan 1->Nexys for use with mmu_uart no clk changes
+			Clk => clk_counter(1),						-- Fundamental clock 0->Spartan 1->Nexys
 			Reset_n => reset_n,					-- neg assertion reset
 			TXD => TXD_BUS,
 			RXD => RXD_BUS,
@@ -316,9 +341,87 @@ begin
 	multiple_int_sources(1) <= counter_is_zero;
 	multiple_int_sources(2) <= NOT tx_busy_n;
 	multiple_int_sources(3) <= int_sw_out;
-  	multiple_int_sources(15 downto 4) <= "000000000000";
+	
+	
+	-- For USB Wiz BUSY, generate an interrupt when it is NOT busy
+	multiple_int_sources(4) <= NOT external_input_port_0; -- USB Wiz BUSY; 
+	-- For USB Wiz Ready, generate an interrupt when data IS ready
+	multiple_int_sources(5) <= external_input_port_2; -- USB Wiz Data is READY; 
+
+   -- The generic wiznet interrupt line (active low)
+   n_external_input_port_4 <= NOT external_input_port_4;
+   
+	u_wiznet_int_pulse : entity work.pulse_gen 
+		port map (
+			clk => clk_counter(5), -- clock should be half system clock
+			input => n_external_input_port_4,
+			output => wiznet_int_pulse
+		);
+	multiple_int_sources(6) <= wiznet_int_pulse;
+   	
+	multiple_int_sources(15 downto 7) <= "000000000";
+   
+	---------------------------------------------------------------------
+   --- Memory mapped SPI Port for usbwiz
+	u_spi_port_0 : entity work.spi_mem_mapped 
+		port map (      
+			clock => my_clock,
+			reset => reset,
+			n_cs  => cs_bus(SPI_0_CS),
+			n_oe  => n_rd_bus,
+			n_we  => n_wr_bus,
+			address_bus => local_addr_bus(1 downto 0),
+			data_bus => data_bus,
+			real_sclock => usbwiz_sclk,
+			mosi => usbwiz_mosi,
+			miso => usbwiz_miso
+		);
+	---------------------------------------------------------------------
    
 
+	---------------------------------------------------------------------
+   --- Memory mapped SPI Port for wiznet tcp/ip chip
+	u_spi_port_1 : entity work.wiznet_spi_mem_mapped 
+		port map (
+			clock => my_clock,
+			reset => reset,
+			n_cs  => cs_bus(SPI_1_CS),
+			n_oe  => n_rd_bus,
+			n_we  => n_wr_bus,
+			address_bus => local_addr_bus(1 downto 0),
+			data_bus => data_bus,
+			real_sclock => wiznet_sclk,
+			mosi => wiznet_mosi,
+			miso => wiznet_miso
+		);
+	---------------------------------------------------------------------
+   
+	
+
+	u_pb_disk_ctlr:  entity work.pb_disk_ctlr 
+		port map (
+			clk => clk,
+			reset => reset,
+			
+			uart0_en_16x => en_16x_baud, -- ok 
+			uart1_en_16x => en_16x_baud, -- ok
+			
+			rx0_in => rx0_in, -- ok, from entity
+			tx0_out => tx0_out, -- ok, from entity
+			
+			rx1_in => rx1_in, -- ok
+			tx1_out => tx1_out, -- ok
+			
+			-- These signals are for parallel interface to dp ram
+			addr_bus => local_addr_bus(3 downto 0),
+			data_bus => data_bus,
+			n_wr => n_wr_bus,
+			n_rd => n_rd_bus,
+			n_cs => cs_bus(DISK_CTLR_CS)
+		);	
+
+		
+		
 
 	baud_rate: process(clk)
 		begin
@@ -333,13 +436,29 @@ begin
 			end if;
 		end process baud_rate;
 	
+	
+	-- u_pb_uart_lacombe_1 : pb_uart_lacombe port map (
+			-- clk => clk,
+			-- reset => reset,
+			-- n_cs => cs_bus(disk_ctlr_uart_cs),
+			-- n_oe => n_rd_bus,
+			-- n_wr => n_wr_bus,
+			-- addr_bus => local_addr_bus(3 downto 0),
+			-- data_bus => data_bus,
+			-- en_16x_baud => en_16x_baud,
+			-- serial_in => test_serial_in,
+			-- serial_out => test_serial_out
+		-- );
+	
+			
+	
 		
 	
 	
 	---------------------------------------------------------------------
 	int_controller_1 :  entity work.mem_based_int_controller 
 		port map (
-			clock => my_clock,  -- divided clock for use with interrupt controller
+			clock => my_clock,
 			reset => reset,
 			address => local_addr_bus(1 downto 0),
 			data_bus_0 => data_bus(0),
@@ -370,7 +489,7 @@ begin
 	---------------------------------------------------------------------
 	u_output_port :  entity work.output_port_16_bits 
 		port map (	
-			clock => my_clock,  -- output port uses divided clock
+			clock => my_clock,
 			reset => reset,
 			n_rd => n_rd_bus,
 			n_wr => n_wr_bus,
@@ -397,7 +516,12 @@ begin
 	---------------------------------------------------------------------
 
 
-	----------------------------------------------------
+	---------------------------------------------------------------------
+   -- bit 0 is the USB Wiz READY bit
+	--input_port_0 : data_bus <= external_input_port_0 when
+	--	(n_rd_bus = '0' AND cs_bus(INPUT_PORT_0_CS) = '0') else
+	--	"ZZZZZZZZZZZZZZZZ";
+	---------------------------------------------------------------------
 
    input_port_0: data_bus <=
 	   "000000000000000" & external_input_port_0 when (n_rd_bus = '0' AND cs_bus(INPUT_PORT_0_CS) = '0') AND local_addr_bus(3 downto 0) = x"0000" else
