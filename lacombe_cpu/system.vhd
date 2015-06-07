@@ -77,14 +77,8 @@ entity system is port (
 	output_port_E : out std_logic;
 	output_port_F : out std_logic;
 	
-	clock_selector_switch : in std_logic;
+	clock_selector_switch : in std_logic
 
-	rx0_in : in std_logic;
-	tx0_out : out std_logic;
-
-	rx1_in : in std_logic;
-	tx1_out : out std_logic
-	
 );
 end system;
 
@@ -99,35 +93,14 @@ architecture structural of system is
 	constant INTERRUPT_CONTROLLER_CS      : integer := 5;
 	constant SPI_2_CS                     : integer := 6; -- available
 	constant OUTPUT_PORT_0_CS             : integer := 7;
-	constant DISK_CTLR_UART_CS            : integer := 8;
+	constant DISK_CTLR_UART_CS            : integer := 8; -- 
 	constant INPUT_PORT_0_CS              : integer := 9;
 	constant SPI_0_CS                     : integer := 10; -- available
 	constant SPI_1_CS                     : integer := 11; -- available
 
 		
 	
-	---------------------------------------------------------------------
-	component pb_uart_lacombe is 
-		generic (
-			data_width : natural := 16;
-			addr_width : natural := 4
-		);
-		port (
-			clk : in std_logic; -- Assume 100Mhz, NOT the CPU clock
-			reset : in std_logic;
-			n_cs : in std_logic;
-			n_oe : in std_logic;
-			n_wr : in std_logic;
-			addr_bus : in std_logic_vector((addr_width - 1) downto 0);
-			data_bus : inout std_logic_vector((data_width - 1) downto 0);
-			en_16x_baud : in std_logic;
-			serial_in : in std_logic;
-			serial_out : out std_logic
-		);
-	end component;
-	---------------------------------------------------------------------
-	
-	
+
 	---------------------------------------------------------------------
 	signal my_clock : std_logic;
 	signal p5_clock : std_logic;
@@ -153,10 +126,6 @@ architecture structural of system is
 	signal wiznet_int_pulse : std_logic;
 	signal n_external_input_port_4 : std_logic;
 
-	signal en_16x_baud : std_logic;
-	signal baud_count : integer range 0 to 500 := 0; 
-	
-	
 	---------------------------------------------------------------------
 
 ---------------------------------------------------------------------
@@ -355,62 +324,6 @@ begin
    
 
 
-	u_pb_disk_ctlr:  entity work.pb_disk_ctlr 
-		port map (
-			clk => clk,
-			reset => reset,
-			
-			uart0_en_16x => en_16x_baud, -- ok 
-			uart1_en_16x => en_16x_baud, -- ok
-			
-			rx0_in => rx0_in, -- ok, from entity
-			tx0_out => tx0_out, -- ok, from entity
-			
-			rx1_in => rx1_in, -- ok
-			tx1_out => tx1_out, -- ok
-			
-			-- These signals are for parallel interface to dp ram
-			addr_bus => local_addr_bus(3 downto 0),
-			data_bus => data_bus,
-			n_wr => n_wr_bus,
-			n_rd => n_rd_bus,
-			n_cs => cs_bus(DISK_CTLR_CS)
-		);	
-
-		
-		
-
-	baud_rate: process(clk)
-		begin
-			if clk'event and clk = '1' then
-				if baud_count = 53 then                    -- counts 54 states including zero
-					baud_count <= 0;
-					en_16x_baud <= '1';                     -- single cycle enable pulse
-				else
-					baud_count <= baud_count + 1;
-					en_16x_baud <= '0';
-				end if;
-			end if;
-		end process baud_rate;
-	
-	
-	-- u_pb_uart_lacombe_1 : pb_uart_lacombe port map (
-			-- clk => clk,
-			-- reset => reset,
-			-- n_cs => cs_bus(disk_ctlr_uart_cs),
-			-- n_oe => n_rd_bus,
-			-- n_wr => n_wr_bus,
-			-- addr_bus => local_addr_bus(3 downto 0),
-			-- data_bus => data_bus,
-			-- en_16x_baud => en_16x_baud,
-			-- serial_in => test_serial_in,
-			-- serial_out => test_serial_out
-		-- );
-	
-			
-	
-		
-	
 	
 	---------------------------------------------------------------------
 	int_controller_1 :  entity work.mem_based_int_controller 

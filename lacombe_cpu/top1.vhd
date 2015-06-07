@@ -184,21 +184,6 @@ component HighBit is
            OUTPUT : out std_logic);
 end component;
 
-component mdr is
-    Port (	clock : in std_logic;
-	 			p1 : inout std_logic_vector(15 downto 0);
-	 			p2 : in std_logic_vector(15 downto 0);
-				loadp1 : in std_logic;
-				loadp2 : in std_logic;
-				outp1 : in std_logic;
-				outp3 : in std_logic;
-				p3 : out std_logic_vector(15 downto 0);
-				p4 : out std_logic_vector(15 downto 0)
-				);
-end component;
-
-
-
 
 component DisplaySelector		is port (
 				word0 : in std_logic_vector(15 downto 0);
@@ -430,16 +415,16 @@ H_REG: CompoundRegister port map (my_clock, reset, c_bus, alu_b_bus, h_out, enab
 -- MAR_REG: CompoundRegister port map (my_clock,  reset , c_bus, MAR_Mem_Addr_bus, mar_out,  '0' , load_mar);
 MAR_REG: CompoundRegister port map (my_clock,  reset , c_bus, b_bus, mar_out,  '0' , load_mar);
 
-MDR_REG : mdr port map (
+MDR_REG : entity work.mdr port map (
 	clock => my_clock,
-	p1 => MEM_DATA_BUS,
-	p2 => c_bus,
-	loadp1 => rd_ff_out,
-	loadp2 => load_mdr,
-	outp1 => wr_ff_out,
-	outp3 => enable_mdr,
-	p3 => b_bus,
-	p4 => mdr_out);
+	mem_data_bus => MEM_DATA_BUS,
+	c_bus => c_bus,
+	load_mem_data_bus => rd_ff_out,
+	load_c_bus => load_mdr,
+	out_mem_data_bus => wr_ff_out,
+	out_b_bus => enable_mdr,
+	b_bus => b_bus,
+	always_out => mdr_out);
 
 RD_FF : FlipFlop port map (MIROut(5), RD_FF_OUT, my_clock);
 FETCH_FF : FlipFlop port map (MIROut(4), FETCH_FF_OUT, my_clock);
