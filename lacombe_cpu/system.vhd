@@ -121,6 +121,8 @@ architecture structural of system is
 	signal tx_busy_n : std_logic;
 	signal cpu_int : std_logic;
 	signal counter_is_zero : std_logic;
+	signal	cpu_start  : std_logic;
+	signal	cpu_finish : std_logic;
 	
 	---------------------------------------------------------------------
 
@@ -181,13 +183,22 @@ begin
 	n_ub <= '0';
 	n_lb <= '0';
 
+	---------------------------------------------------------------------
+	the_cpu_timing_generator  : entity work.cpu_timing_generator 
+		port map( 
+		clk => clk,
+		reset => reset,
+		cpu_start => cpu_start,
+		cpu_finish => cpu_finish
+	);
+	---------------------------------------------------------------------
 	
 	
 	---------------------------------------------------------------------
 	the_cpu : entity work.cpu1 
 		port map (
 			reset => reset,
-			clkin => my_clock, -- This is the CPU's clock and definitely needs work
+			my_clock => my_clock, -- This is the CPU's clock and definitely needs work
 			n_indicator => n_ind,
 			z_indicator => z_ind,
 			rd_indicator => rd_ind,

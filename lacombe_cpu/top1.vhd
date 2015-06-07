@@ -6,7 +6,7 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 entity cpu1 is
 	Port ( 
 		reset : in std_logic;																		
-		clkin : in std_logic;	-- this should be the 50Mhz Clock
+		my_clock : in std_logic;	-- this should be the 50Mhz Clock
 		N_indicator : out std_logic;
 		Z_indicator : out std_logic;
 		RD_INDICATOR : out std_logic;
@@ -79,9 +79,7 @@ signal INT_ENABLE : std_logic;
 signal INT_OCCURRED : std_logic;
 signal INT_POSSIBLE : std_logic;
 
-signal my_clock : std_logic;
--- ise complains when NOT my_clock is used as actual parameter
-signal n_my_clock : std_logic;
+signal n_my_clock : std_logic; -- ise complains when NOT my_clock is used as actual parameter
 
 signal ControlStoreOut : std_logic_vector(40 downto 0);
 
@@ -244,8 +242,6 @@ constant WordAll0 : std_logic_vector := "0000000000000000";
 begin	 
 
 
--- my_clock <= buttonclock;
-my_clock <= clkin;
 n_my_clock <= NOT my_clock;
 
 four_digits <= display_selector_output;
@@ -264,9 +260,6 @@ mir_b <= 		"000000000000" & MIROut(3 downto 0);
 --- The MIR is the register with the micro code word produced by the
 --- ControlStore.  It is loaded upon the falling edge of the clock.
 ---
--- MIR_REG : MIRRegister port map (ControlStoreOut, MIROut, my_clock, reset);
-
-
 MIR_REG : entity work.compound_register 
 	generic map(
 		width => 41
@@ -310,7 +303,7 @@ AddrSel : AddressSelector port map (
 
 ControlStoreNextAddress <= HighBitOut & AddressSelectorOut;
 Control_Store : ControlStore port map (ControlStoreNextAddress, ControlStoreOut);
--- SP_REG: compound_register port map (my_clock,  reset , c_bus, b_bus, sp_out,  enable_sp,  load_sp);
+
 TmpAddress <= 		"0000000" & ControlStoreNextAddress;
 ControlStoreNextAddressDebug: 
 	entity work.compound_register port map (
@@ -431,7 +424,6 @@ INT_HIGH_REG_IN(7 downto 1) <= "0000000";
 enable_h <= '1';
 H_REG: entity work.compound_register port map (my_clock, reset, c_bus, alu_b_bus, h_out, enable_h, load_h);
 
--- MAR_REG: compound_register port map (my_clock,  reset , c_bus, MAR_Mem_Addr_bus, mar_out,  '0' , load_mar);
 MAR_REG: entity work.compound_register port map (my_clock,  reset , c_bus, b_bus, mar_out,  '0' , load_mar);
 
 MDR_REG : entity work.mdr port map (
@@ -456,8 +448,7 @@ WR_INDICATOR <= WR_FF_OUT;
 FETCH_INDICATOR <= FETCH_FF_OUT;
 
 
---opc_REG: compound_register port map (my_clock, reset , c_bus, b_bus, opc_out, enable_opc, load_opc);
-  PC_REG:  entity work.compound_register port map (my_clock, reset , c_bus, b_bus, pc_out,  enable_pc, load_pc);
+PC_REG:  entity work.compound_register port map (my_clock, reset , c_bus, b_bus, pc_out,  enable_pc, load_pc);
 MBR_REG: entity work.compound_register port map (my_clock,  reset , mem_data_bus, b_bus, 
 												mbr_out,  enable_mbr1, FETCH_FF_OUT);
 
