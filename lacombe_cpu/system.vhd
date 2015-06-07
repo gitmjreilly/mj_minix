@@ -102,11 +102,10 @@ architecture structural of system is
 	
 
 	---------------------------------------------------------------------
-	signal my_clock : std_logic;
-	signal p5_clock : std_logic;
+	signal my_clock : std_logic; -- derived clock to be deprecated
 	signal four_digits : std_logic_vector(15 downto 0);
 	signal sw_clock_out : std_logic;
-	signal clk_counter : std_logic_vector(23 downto 0);
+	signal clk_counter : std_logic_vector(23 downto 0); -- OK Driven by clk
 	signal cs_bus : std_logic_vector(15 downto 0);
 	signal local_addr_bus : std_logic_vector(19 downto 0);
 	signal multiple_int_sources : std_logic_vector(15 downto 0);
@@ -123,9 +122,6 @@ architecture structural of system is
 	signal cpu_int : std_logic;
 	signal counter_is_zero : std_logic;
 	
-	signal wiznet_int_pulse : std_logic;
-	signal n_external_input_port_4 : std_logic;
-
 	---------------------------------------------------------------------
 
 ---------------------------------------------------------------------
@@ -148,7 +144,7 @@ begin
 		port map (
 			reset => reset,
 			clkin => clk,
-			slowout => clk_counter
+			slowout => clk_counter -- clk_counter is derived from clk OK
 		);
 	---------------------------------------------------------------------
 
@@ -156,7 +152,7 @@ begin
 	---------------------------------------------------------------------
 	u_switch_clock : entity work.switch_debounce 
 		port map (
-			clock => clk_counter(20),
+			clock => clk_counter(20), -- switch debounce clock - OK
 			sw => clock_sw,
 			y => sw_clock_out
 		);
@@ -166,19 +162,16 @@ begin
 	---------------------------------------------------------------------
 	INT_SW_1 : entity work.switch_debounce 
 		port map (
-			clock => clk_counter(20),
+			clock => clk_counter(20), -- another switch debounce clock - OK
 			sw => INT_SW,
 			y => INT_SW_OUT
 		);
 	---------------------------------------------------------------------
 
 -- Divide 50Mhz Clock by 2 on Spartan 3 starter ; Divide 100Mhz by 8 on Nexys3
---	my_clock <= sw_clock_out when clock_selector_switch = '1' else clk_counter(0);
---	my_clock <= sw_clock_out when clock_selector_switch = '1' else clk_counter(1);
---	my_clock <= sw_clock_out when clock_selector_switch = '1' else clk_counter(10);
-	my_clock <= clk_counter(2);
-	p5_clock <= clk_counter(3);
+	my_clock <= clk_counter(2);  -- What's up with this?
 
+	
 	clk_hi_ind <= 	my_clock;
 	clk_low_ind <= NOT my_clock;
 
@@ -194,7 +187,7 @@ begin
 	the_cpu : entity work.cpu1 
 		port map (
 			reset => reset,
-			clkin => my_clock,
+			clkin => my_clock, -- This is the CPU's clock and definitely needs work
 			n_indicator => n_ind,
 			z_indicator => z_ind,
 			rd_indicator => rd_ind,
@@ -227,7 +220,7 @@ begin
 			four_digits (11 downto 8),
 			four_digits (7 downto 4),
 			four_digits (3 downto 0),
-			clk_counter(15), 
+			clk_counter(15), -- This is OK as - is for digit driver
 			SevenSegSegments, 
 			SevenSegAnodes
 		);
@@ -261,7 +254,7 @@ begin
 	---------------------------------------------------------------------
 	counter_0: entity work.mem_based_counter 
 		port map (
-			clock => my_clock,
+			clock => my_clock,  -- counter clock MAY be OK - Confirm!!!
 			reset => reset,
 			n_rd => n_rd_bus,
 			n_cs => cs_bus(COUNTER_0_CS),
@@ -273,7 +266,7 @@ begin
 	---------------------------------------------------------------------
 	u_uart : entity work.mmu_uart_top 
 		port map (
-			Clk => clk_counter(1),						-- Fundamental clock 0->Spartan 1->Nexys
+			Clk => clk_counter(1), -- Fundamental clock 0->Spartan 1->Nexys for mmu UART OK as is 
 			Reset_n => reset_n,					-- neg assertion reset
 			TXD => TXD_BUS,
 			RXD => RXD_BUS,
@@ -309,18 +302,8 @@ begin
 	-- For USB Wiz Ready, generate an interrupt when data IS ready
 	multiple_int_sources(5) <= external_input_port_2; -- USB Wiz Data is READY; 
 
-   -- The generic wiznet interrupt line (active low)
-   n_external_input_port_4 <= NOT external_input_port_4;
    
-	u_wiznet_int_pulse : entity work.pulse_gen 
-		port map (
-			clk => clk_counter(5), -- clock should be half system clock
-			input => n_external_input_port_4,
-			output => wiznet_int_pulse
-		);
-	multiple_int_sources(6) <= wiznet_int_pulse;
-   	
-	multiple_int_sources(15 downto 7) <= "000000000";
+	multiple_int_sources(15 downto 6) <= "0000000000";
    
 
 
@@ -328,7 +311,7 @@ begin
 	---------------------------------------------------------------------
 	int_controller_1 :  entity work.mem_based_int_controller 
 		port map (
-			clock => my_clock,
+			clock => my_clock, -- TODO fix clock for interrupt controller
 			reset => reset,
 			address => local_addr_bus(1 downto 0),
 			data_bus_0 => data_bus(0),
@@ -359,7 +342,7 @@ begin
 	---------------------------------------------------------------------
 	u_output_port :  entity work.output_port_16_bits 
 		port map (	
-			clock => my_clock,
+			clock => my_clock, -- TODO fix clock work for output_port
 			reset => reset,
 			n_rd => n_rd_bus,
 			n_wr => n_wr_bus,

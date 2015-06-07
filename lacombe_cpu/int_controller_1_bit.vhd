@@ -39,7 +39,7 @@ begin
 
 u_and : and_out <= int_in and mask_status;
 
-u_interrupt_status_reg : process (clock, status_reset, reset)
+u_interrupt_status_reg : process (clock, status_reset, reset, interrupt_status_reg_in)
 begin
 	if ((status_reset OR reset) = '1') then
 		interrupt_status <= '0';
@@ -48,7 +48,7 @@ begin
 	end if;
 end process;
 
-u_clear_reg : process (clock, reset)
+u_clear_reg : process (clock, reset, data_bus)
 begin
 	if (reset = '1') then
 		clear_status <= '0';
@@ -59,7 +59,7 @@ begin
 	end if;
 end process;
 
-u_mask_reg : process (clock, reset)
+u_mask_reg : process (clock, reset, data_bus)
 begin
 	if (reset = '1') then
 		mask_status <= '0';
