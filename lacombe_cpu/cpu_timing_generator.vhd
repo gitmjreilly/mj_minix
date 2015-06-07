@@ -66,29 +66,24 @@ begin
 		case state_reg is 
 			when state_idle =>
 				state_next <= state_0;
+				L <= '0';
+				H <= '0';
+			when state_0 =>
+				state_next <= state_1;
 				L <= '1';
 				H <= '0';
-				count_0_next <= N - 1;
-			when state_0 =>
+				count_0_next <= N;
+			when state_1 =>
 				count_0_next <= count_0 - 1;
 				if (count_0_next = 0) then
-					state_next <= state_1;
+					state_next <= state_2;
 				end if;
 				L <= '0';
 				H <= '0';
-			when state_1 =>
-				state_next <= state_2;
-				L <= '0';
-				H <= '1';
-				count_2_next <= N;
 			when state_2 =>
-				count_2_next <= count_2 - 1;
-				if (count_2_next = 0) then
-					state_next <= state_0;
-					count_0_next <= N - 1;
-				end if;
-				L <= '1';
-				H <= '0'; 
+				state_next <= state_0;
+				L <= '0';
+				H <= '1'; 
 		end case;
 	end process;
 	-----------------------------------------------------------------

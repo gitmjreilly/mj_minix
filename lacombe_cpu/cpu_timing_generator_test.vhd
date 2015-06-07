@@ -18,8 +18,7 @@ ARCHITECTURE behavior OF cpu_timing_generator_test IS
          clk : IN  std_logic;
          reset : IN  std_logic;
          cpu_start : OUT  std_logic;
-         cpu_finish : OUT  std_logic;
-         pause : IN  std_logic
+         cpu_finish : OUT  std_logic
         );
     END COMPONENT;
     
@@ -43,9 +42,8 @@ BEGIN
           clk => clk,
           reset => reset,
           cpu_start => cpu_start,
-          cpu_finish => cpu_finish,
-          pause => pause
-        );
+          cpu_finish => cpu_finish
+		  );
 
    -- Clock process definitions
    clk_process :process
