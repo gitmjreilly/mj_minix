@@ -273,7 +273,25 @@ mir_b <= 		"000000000000" & MIROut(3 downto 0);
 --- The MIR is the register with the micro code word produced by the
 --- ControlStore.  It is loaded upon the falling edge of the clock.
 ---
-MIR_REG : MIRRegister port map (ControlStoreOut, MIROut, my_clock, reset);
+-- MIR_REG : MIRRegister port map (ControlStoreOut, MIROut, my_clock, reset);
+
+
+MIR_REG : entity work.compound_register 
+	generic map(
+		width => 41
+	)
+	port map (
+		clk => not (my_clock)  ,
+		reset => reset ,
+		in1   => ControlStoreOut,
+		out1  => MIROUt ,
+		output_enable  => '1' ,
+		latch => '1' 
+	);
+
+
+
+
 load_mar <= MIROut(7);
 load_mdr <= MIROut(8);
 load_pc <= MIROut(9);
