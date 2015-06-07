@@ -81,8 +81,6 @@ signal INT_ENABLE : std_logic;
 signal INT_OCCURRED : std_logic;
 signal INT_POSSIBLE : std_logic;
 
-signal n_my_clock : std_logic; -- ise complains when NOT my_clock is used as actual parameter
-
 signal ControlStoreOut : std_logic_vector(40 downto 0);
 
 ---------------------------------------------------------------------
@@ -243,9 +241,6 @@ constant DummyReg : std_logic_vector := "0000000000000000";
 constant WordAll0 : std_logic_vector := "0000000000000000";
 
 begin	 
-
-
-n_my_clock <= NOT my_clock;
 
 four_digits <= display_selector_output;
 

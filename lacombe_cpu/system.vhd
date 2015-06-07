@@ -256,7 +256,7 @@ begin
 	external_ram_cs <= cs_bus(RAM_CS);
  
 	---------------------------------------------------------------------
-	the_rom : entity work.rom 
+	the_rom : entity work.rom  -- no sync clock issues - This is combinatorial
 		port map (
 			addr => local_addr_bus(15 downto 0),
 			data => data_bus,
@@ -278,7 +278,7 @@ begin
 	---------------------------------------------------------------------
 
 	---------------------------------------------------------------------
-	u_uart : entity work.mmu_uart_top 
+	u_uart : entity work.mmu_uart_top   -- works with sync clock regime
 		port map (
 			Clk => clk_counter(1), -- Fundamental clock 0->Spartan 1->Nexys for mmu UART OK as is 
 			Reset_n => reset_n,					-- neg assertion reset
@@ -354,6 +354,8 @@ begin
 
 
 	---------------------------------------------------------------------
+	-- TODO Fix this; almost certainly doesn't work as expected t
+	-- with sync clock regime
 	u_output_port :  entity work.output_port_16_bits 
 		port map (	
 			clock => my_clock, -- TODO fix clock work for output_port
@@ -383,13 +385,8 @@ begin
 	---------------------------------------------------------------------
 
 
-	---------------------------------------------------------------------
-   -- bit 0 is the USB Wiz READY bit
-	--input_port_0 : data_bus <= external_input_port_0 when
-	--	(n_rd_bus = '0' AND cs_bus(INPUT_PORT_0_CS) = '0') else
-	--	"ZZZZZZZZZZZZZZZZ";
-	---------------------------------------------------------------------
-
+	
+	-- 
    input_port_0: data_bus <=
 	   "000000000000000" & external_input_port_0 when (n_rd_bus = '0' AND cs_bus(INPUT_PORT_0_CS) = '0') AND local_addr_bus(3 downto 0) = x"0000" else
 --	   "000000000000000" & external_input_port_1 when (n_rd_bus = '0' AND cs_bus(INPUT_PORT_0_CS) = '0') AND local_addr_bus(3 downto 0) = x"0001" else
