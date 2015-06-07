@@ -123,16 +123,6 @@ signal JMPC : std_logic;
 signal LOAD_INTCTL : std_logic;
 
 
-
-component MIRRegister is
-    Port ( in1           : in  std_logic_vector((40) downto 0);
-           out1          : out std_logic_vector((40) downto 0);
-			  latch         : in  std_logic;
-			  reset				: in std_logic);
-end component;
-
-
-
 component alu1 is
     Port ( A : in std_logic_vector(15 downto 0);
            B : in std_logic_vector(15 downto 0);
@@ -154,6 +144,7 @@ component FlipFlop is
            output : out std_logic;
            clock : in std_logic);
 end component;
+
 
 component HighBit is
     Port ( N : in std_logic;
