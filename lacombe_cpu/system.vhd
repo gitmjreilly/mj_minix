@@ -171,7 +171,8 @@ begin
 	---------------------------------------------------------------------
 
 -- Divide 50Mhz Clock by 2 on Spartan 3 starter ; Divide 100Mhz by 8 on Nexys3
-	my_clock <= clk_counter(2);  -- What's up with this?
+	-- my_clock <= clk_counter(2);  -- What's up with this?
+	my_clock <= clk;
 
 	
 	clk_hi_ind <= 	my_clock;
@@ -199,6 +200,8 @@ begin
 		port map (
 			reset => reset,
 			my_clock => my_clock, -- This is the CPU's clock and definitely needs work
+			cpu_start => cpu_start,
+			cpu_finish => cpu_finish,
 			n_indicator => n_ind,
 			z_indicator => z_ind,
 			rd_indicator => rd_ind,

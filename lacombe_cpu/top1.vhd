@@ -18,7 +18,9 @@ entity cpu1 is
 		Mem_Data_bus : inout std_logic_vector(15 downto 0);
 		N_WR : out std_logic;
 		N_RD : out std_logic;
-		INT : in std_logic
+		INT : in std_logic;
+		cpu_start : in std_logic;
+		cpu_finish : in std_logic
 	);
 end cpu1;
 
@@ -140,7 +142,8 @@ end component;
 component FlipFlop is
     Port ( input : in std_logic;
            output : out std_logic;
-           clock : in std_logic);
+           clock : in std_logic;
+		   enable : in std_logic);
 end component;
 
 
@@ -260,17 +263,18 @@ mir_b <= 		"000000000000" & MIROut(3 downto 0);
 --- The MIR is the register with the micro code word produced by the
 --- ControlStore.  It is loaded upon the falling edge of the clock.
 ---
-MIR_REG : entity work.compound_register 
+MIR_REG : entity work.compound_register  -- adjusted for sync clk
 	generic map(
 		width => 41
 	)
 	port map (
-		clk => not (my_clock)  ,
+		clk => my_clock ,
 		reset => reset ,
 		in1   => ControlStoreOut,
 		out1  => MIROUt ,
 		output_enable  => '1' ,
-		latch => '1' 
+		latch => '1' , 
+		enable => cpu_start -- Notice MIR is loaded on cpu_start !!!!
 	);
 
 
@@ -305,15 +309,17 @@ ControlStoreNextAddress <= HighBitOut & AddressSelectorOut;
 Control_Store : ControlStore port map (ControlStoreNextAddress, ControlStoreOut);
 
 TmpAddress <= 		"0000000" & ControlStoreNextAddress;
-ControlStoreNextAddressDebug: 
-	entity work.compound_register port map (
-		n_my_clock,
+ControlStoreNextAddressDebug: entity work.compound_register -- adjusted for sync clock
+	port map (
+		my_clock,
 		reset, --  reset 
 		TmpAddress, -- TmpAddress <= "0000000" & ControlStoreNextAddress;
 		ControlStoreAddressDebug,
 		Junk,
 		'1', 
-		'1');
+		'1',
+		cpu_finish
+	);
 
 FourTo16 : FourTo16Decoder port map (MIROut(3 downto 0), DecoderOut);
 	-- DO NOT USE DecoderOut(0) !!!
@@ -339,12 +345,57 @@ FourTo16 : FourTo16Decoder port map (MIROut(3 downto 0), DecoderOut);
 -- enable_XX enables output onto the b_bus
 -- load_XX loads XX from the c_bus on the rising edge of the clock
 --
-SP_REG: entity work.compound_register port map (my_clock,  reset , c_bus, b_bus, sp_out,  enable_sp,  load_sp);
-LV_REG: entity work.compound_register port map (my_clock,  reset , c_bus, b_bus, lv_out,  enable_lv,  load_lv);
-CPP_REG: entity work.compound_register port map (my_clock, reset , c_bus, b_bus, cpp_out, enable_cpp, load_cpp);
-TOS_REG: entity work.compound_register port map (my_clock, reset , c_bus, b_bus, tos_out, enable_tos, load_tos);
+SP_REG: entity work.compound_register -- adjusted for sync clock
+	port map (
+		my_clock,  
+		reset , 
+		c_bus, 
+		b_bus, 
+		sp_out,  
+		enable_sp,  
+		load_sp,
+		cpu_finish
+	);
 
-INTCTL_HIGH_REG : entity work.compound_register 
+LV_REG: entity work.compound_register -- adjusted for sync clock
+	port map (
+		my_clock,  
+		reset , 
+		c_bus, 
+		b_bus, 
+		lv_out,  
+		enable_lv,  
+		load_lv,
+		cpu_finish
+	);
+
+CPP_REG: entity work.compound_register -- adjusted for sync clock
+	port map (
+		my_clock, 
+		reset , 
+		c_bus, 
+		b_bus, 
+		cpp_out, 
+		enable_cpp, 
+		load_cpp,
+		cpu_finish
+	);
+
+TOS_REG: entity work.compound_register -- adjusted for sync clock
+	port map (
+		my_clock, 
+		reset , 
+		c_bus, 
+		b_bus, 
+		tos_out, 
+		enable_tos, 
+		load_tos, 
+		cpu_finish
+	);
+
+-- This is the reg which gets single interrupt
+-- It is enabled by cpu_finish to interrupts are only caught on end of an instruction cycle
+INTCTL_HIGH_REG : entity work.compound_register -- adjusted for sync clock
 	generic map(
 		width => 8
 	)
@@ -355,11 +406,12 @@ INTCTL_HIGH_REG : entity work.compound_register
 		out1  => b_bus(15 downto 8) ,
 		out2  => INTCTL_HIGH_OUT,
 		output_enable  => enable_intctl,
-		latch => '1' 
+		latch => '1' ,
+		enable => cpu_finish
 	);
 
 
-INTCTL_LOW_REG : entity work.compound_register 
+INTCTL_LOW_REG : entity work.compound_register -- ajusted for sync clock
 	generic map(
 		width => 8
 	)
@@ -370,41 +422,48 @@ INTCTL_LOW_REG : entity work.compound_register
 		out1  => b_bus(7 downto 0) ,
 		out2  => INTCTL_LOW_OUT,
 		output_enable  => enable_intctl,
-		latch => load_intctl 
+		latch => load_intctl ,
+		enable => cpu_finish
 	);
 
 
 
 -- Segment registers on the datapath
-ES_REG : entity work.compound_register port map (
-   clk => my_clock  ,
-	reset => reset ,
-	in1   => c_bus ,
-	out1  => b_bus ,
-	out2  => es_out ,
-	output_enable  => DecoderOut(3),
-	latch => MIROut(37) 
-);
+ES_REG : entity work.compound_register -- adjusted for sync clock
+	port map (
+	    clk => my_clock  ,
+		reset => reset ,
+		in1   => c_bus ,
+		out1  => b_bus ,
+		out2  => es_out ,
+		output_enable  => DecoderOut(3),
+		latch => MIROut(37) ,
+		enable => cpu_finish
+	);
 
-CS_REG : entity work.compound_register port map (
-   clk => my_clock  ,
-	reset => reset ,
-	in1   => c_bus ,
-	out1  => b_bus ,
-	out2  => cs_out ,
-	output_enable  => DecoderOut(8),
-	latch => MIROut(38) 
-);
+CS_REG : entity work.compound_register -- adjusted for sync clock
+	port map (
+		clk => my_clock  ,
+		reset => reset ,
+		in1   => c_bus ,
+		out1  => b_bus ,
+		out2  => cs_out ,
+		output_enable  => DecoderOut(8),
+		latch => MIROut(38) ,
+		enable => cpu_finish
+	);
 
-DS_REG : entity work.compound_register port map (
-   clk => my_clock  ,
-	reset => reset ,
-	in1   => c_bus ,
-	out1  => b_bus ,
-	out2  => ds_out ,
-	output_enable  => DecoderOut(11),
-	latch => MIROut(39) 
-);
+DS_REG : entity work.compound_register -- adjusted for sync clock
+	port map (
+	    clk => my_clock  ,
+		reset => reset ,
+		in1   => c_bus ,
+		out1  => b_bus ,
+		out2  => ds_out ,
+		output_enable  => DecoderOut(11),
+		latch => MIROut(39) ,
+		enable => cpu_finish
+	);
 
 
 
@@ -422,25 +481,48 @@ INT_HIGH_REG_IN(7 downto 1) <= "0000000";
 -- load_sp loads sp from the c_bus on the rising edge of the clock
 --
 enable_h <= '1';
-H_REG: entity work.compound_register port map (my_clock, reset, c_bus, alu_b_bus, h_out, enable_h, load_h);
+H_REG: entity work.compound_register -- adjusted for synch clock
+	port map (
+		my_clock, 
+		reset, 
+		c_bus, 
+		alu_b_bus, 
+		h_out, 
+		enable_h, 
+		load_h,
+		cpu_finish
+	);
 
-MAR_REG: entity work.compound_register port map (my_clock,  reset , c_bus, b_bus, mar_out,  '0' , load_mar);
+MAR_REG: entity work.compound_register -- adjusted for sync clock
+	port map (
+		my_clock,  
+		reset , 
+		c_bus, 
+		b_bus, 
+		mar_out,
+		'0' ,  -- notice MAR is never enabled on b_bus
+		load_mar,
+		cpu_finish
+	);
 
-MDR_REG : entity work.mdr port map (
-	clock => my_clock,
-	mem_data_bus => MEM_DATA_BUS,
-	c_bus => c_bus,
-	load_mem_data_bus => rd_ff_out,
-	load_c_bus => load_mdr,
-	out_mem_data_bus => wr_ff_out,
-	out_b_bus => enable_mdr,
-	b_bus => b_bus,
-	always_out => mdr_out);
+MDR_REG : entity work.mdr 
+	port map (
+		clock => my_clock,
+		mem_data_bus => MEM_DATA_BUS,
+		c_bus => c_bus,
+		load_mem_data_bus => rd_ff_out,
+		load_c_bus => load_mdr,
+		out_mem_data_bus => wr_ff_out,
+		out_b_bus => enable_mdr,
+		b_bus => b_bus,
+		always_out => mdr_out,
+		enable => cpu_finish
+	);
 
-RD_FF : FlipFlop port map (MIROut(5), RD_FF_OUT, my_clock);
-FETCH_FF : FlipFlop port map (MIROut(4), FETCH_FF_OUT, my_clock);
-WR_FF : FlipFlop port map (MIROut(6), WR_FF_OUT, my_clock);
-ES_FF : FlipFlop port map (MIROut(40), ES_FF_OUT, my_clock);
+RD_FF : FlipFlop port map (MIROut(5), RD_FF_OUT, my_clock, cpu_finish);
+FETCH_FF : FlipFlop port map (MIROut(4), FETCH_FF_OUT, my_clock, cpu_finish);
+WR_FF : FlipFlop port map (MIROut(6), WR_FF_OUT, my_clock, cpu_finish);
+ES_FF : FlipFlop port map (MIROut(40), ES_FF_OUT, my_clock, cpu_finish);
 N_RD <= NOT (RD_FF_OUT OR FETCH_FF_OUT);
 N_WR <= NOT WR_FF_OUT;
 RD_INDICATOR <= RD_FF_OUT;
@@ -448,9 +530,29 @@ WR_INDICATOR <= WR_FF_OUT;
 FETCH_INDICATOR <= FETCH_FF_OUT;
 
 
-PC_REG:  entity work.compound_register port map (my_clock, reset , c_bus, b_bus, pc_out,  enable_pc, load_pc);
-MBR_REG: entity work.compound_register port map (my_clock,  reset , mem_data_bus, b_bus, 
-												mbr_out,  enable_mbr1, FETCH_FF_OUT);
+PC_REG:  entity work.compound_register  -- set up for synch clock
+	port map (
+		my_clock, 
+		reset , 
+		c_bus, 
+		b_bus, 
+		pc_out,  
+		enable_pc, 
+		load_pc,
+		cpu_finish
+	);
+
+MBR_REG: entity work.compound_register -- set up for synch clock
+	port map (
+		my_clock,  
+		reset , 
+		mem_data_bus, 
+		b_bus, 
+		mbr_out,  
+		enable_mbr1, 
+		FETCH_FF_OUT,
+		cpu_finish
+	);
 
 mem_ff_out <= RD_FF_OUT OR WR_FF_OUT;
 
@@ -532,9 +634,9 @@ ALU: alu1 port map (b_bus, alu_b_bus, ctl_lines, alu_output, N, Z, C);
 --
 -- These flip flops store the last N & Z outputs from the ALU.
 --
-N_FF : FlipFlop port map (N, N_FF_OUT, my_clock);
-Z_FF : FlipFlop port map (Z, Z_FF_OUT, my_clock);
-C_FF : FlipFlop port map (C, C_FF_OUT, my_clock);
+N_FF : FlipFlop port map (N, N_FF_OUT, my_clock, cpu_finish);
+Z_FF : FlipFlop port map (Z, Z_FF_OUT, my_clock, cpu_finish);
+C_FF : FlipFlop port map (C, C_FF_OUT, my_clock, cpu_finish);
 --N_Indicator <= N_FF_OUT;
 --Z_Indicator <= Z_FF_OUT;
 N_Indicator <= '0';
