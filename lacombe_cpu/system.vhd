@@ -33,30 +33,13 @@ entity system is port (
 	cellular_ram_cre : out std_logic;
 	--
 	parallel_pcm_cs : out std_logic;
-   parallel_pcm_rst : out std_logic;
+	parallel_pcm_rst : out std_logic;
 	-- End of signals for Nexys 3
 	INT_SW : in std_logic;
 
 
-	
    -- 16 single bit outputs	
-	-- output_port_0 : out std_logic;
-	-- output_port_1 : out std_logic;
-	output_port_2 : out std_logic;
-	output_port_3 : out std_logic;
-   -- Formerly used by wiznet code
-	output_port_4 : out std_logic;
---	output_port_5 : out std_logic;
---	output_port_6 : out std_logic;
-	output_port_7 : out std_logic;
-	output_port_8 : out std_logic;
-	output_port_9 : out std_logic;
-	output_port_A : out std_logic;
-	output_port_B : out std_logic;
-	output_port_C : out std_logic;
-	output_port_D : out std_logic;
-	output_port_E : out std_logic;
-	output_port_F : out std_logic
+	output_port_0 : out std_logic
 	
 );
 end system;
@@ -316,42 +299,25 @@ begin
 
 
 	---------------------------------------------------------------------
-	-- TODO Fix this; almost certainly doesn't work as expected t
-	-- with sync clock regime
-	u_output_port :  entity work.output_port_16_bits 
-		port map (	
-			clock => my_clock, -- TODO fix clock work for output_port
-			reset => reset,
-			n_rd => n_rd_bus,
-			n_wr => n_wr_bus,
-			n_cs => cs_bus(OUTPUT_PORT_0_CS),
-			address => local_addr_bus(3 downto 0),
-	--		out_0 => output_port_0,
-	--		out_1 => output_port_1,
-			out_2 => output_port_2,
-			out_3 => output_port_3,
-			out_4 => output_port_4,
-	--		out_5 => output_port_5,
-	--		out_6 => output_port_6,
-			out_7 => output_port_7,
-			out_8 => output_port_8,
-			out_9 => output_port_9,
-			out_A => output_port_A,
-			out_B => output_port_B,
-			out_C => output_port_C,
-			out_D => output_port_D,
-			out_E => output_port_E,
-			out_F => output_port_F,
-			data_bus => data_bus
-		);
+	u_output_port_0 : process (clk, reset, data_bus)
+	begin
+		if (reset = '1') then
+			output_port_0 <= '0';
+		elsif (rising_edge(my_clock)) then
+			if (cpu_finish = '1' and n_wr_bus = '0' and cs_bus(OUTPUT_PORT_0_CS) = '0')  then
+				output_port_0 <= data_bus(0);
+			end if;
+		end if;
+	end process;
 	---------------------------------------------------------------------
-
-
 	
+	
+	---------------------------------------------------------------------
 	-- The logic below works for a simple, unbuffered input, no clock required.
 	input_port_0: data_bus <=
 		"0000000000000" & address_switches(7 downto 5)  when (n_rd_bus = '0' AND cs_bus(INPUT_PORT_0_CS) = '0') AND local_addr_bus(3 downto 0) = x"0000" else
 		"ZZZZZZZZZZZZZZZZ";
+	---------------------------------------------------------------------
 		
 
 end structural;

@@ -127,24 +127,7 @@ NET "uart_rx"  LOC = "K2"  ;
 NET "uart_tx"  LOC = "K1"  ; 
 
 
-# TODO External, mem mapped ports
-# NET "output_port_0" LOC = "K6" ;
-# NET "output_port_1" LOC = "G1" ;
-NET "output_port_2" LOC = "J7" ;
-NET "output_port_3" LOC = "J6" ;
-NET "output_port_4" LOC = "E11" ;
-#NET "output_port_5" LOC = "F10" ;
-#NET "output_port_6" LOC = "G11" ;
-NET "output_port_7" LOC = "C12" ;
-#NET "output_port_8" LOC = "B11" ;
-
-#
-# output_port 8 pmod_128m N_CS
-# output_port 9 pmod_128m N_WP
-# output_port A pmod_128m N_HOLD
-# NET "output_port_8" LOC = "K2" ;
-# NET "output_port_9" LOC = "J1" ;
-# NET "output_port_A" LOC = "K3" ;
+NET "output_port_0" LOC = "N11" ;
 
 
 
