@@ -333,7 +333,6 @@ FourTo16 : FourTo16Decoder port map (MIROut(3 downto 0), DecoderOut);
 -- Instantiate Regs which live on both C and B bus
 -- and are not connected to memory interface.
 --		sp, lv, cpp, tos, opc
--- They use the slow "buttonclock".
 -- reset is forced low.
 -- Their input comes from the c_bus; output goes to the b_bus
 -- XX_out is the (always on) output
@@ -470,7 +469,6 @@ INT_HIGH_REG_IN(7 downto 1) <= "0000000";
 
 --
 -- Instantiate H Reg.  Its A in put comes from the B Bus.  Its B input comes directly from H Reg.
--- It uses the slow "buttonclock".
 -- reset is forced low.
 -- Its input comes from the c_bus; output goes to the b_bus
 -- load_sp loads sp from the c_bus on the rising edge of the clock
