@@ -20,8 +20,8 @@ entity system is port (
 	addr_bus : out std_logic_vector(25 downto 0);
 	SevenSegAnodes : out std_logic_vector(3 downto 0);
 	SevenSegSegments : out std_logic_vector(7 downto 0);
-	address_switches : in std_logic_vector(4 downto 0);
-	clock_sw : in std_logic;
+	address_switches : in std_logic_vector(7 downto 0);
+	
 	uart_tx : out std_logic;
 	uart_rx : in std_logic;
 	N_UB : out std_logic;
@@ -38,25 +38,6 @@ entity system is port (
 	INT_SW : in std_logic;
 
 
-	-- 16 single bit inputs
-	external_input_port_0 : in std_logic;
-	-- external_input_port_1 : in std_logic;
-	external_input_port_2 : in std_logic;
-
-   -- Formerly used by Wiznet
---	external_input_port_3 : in std_logic;
-	external_input_port_4 : in std_logic;
-	external_input_port_5 : in std_logic;
-	external_input_port_6 : in std_logic;
-	external_input_port_7 : in std_logic;
-	external_input_port_8 : in std_logic;
-	external_input_port_9 : in std_logic;
-	external_input_port_A : in std_logic;
-	external_input_port_B : in std_logic;
-	external_input_port_C : in std_logic;
-	external_input_port_D : in std_logic;
-	external_input_port_E : in std_logic;
-	external_input_port_F : in std_logic;
 	
    -- 16 single bit outputs	
 	-- output_port_0 : out std_logic;
@@ -75,10 +56,8 @@ entity system is port (
 	output_port_C : out std_logic;
 	output_port_D : out std_logic;
 	output_port_E : out std_logic;
-	output_port_F : out std_logic;
+	output_port_F : out std_logic
 	
-	clock_selector_switch : in std_logic
-
 );
 end system;
 
@@ -104,9 +83,10 @@ architecture structural of system is
 	---------------------------------------------------------------------
 	signal my_clock : std_logic; -- derived clock to be deprecated
 	signal four_digits : std_logic_vector(15 downto 0);
-	signal sw_clock_out : std_logic;
 	signal clk_counter : std_logic_vector(23 downto 0); -- OK Driven by clk
+
 	signal cs_bus : std_logic_vector(15 downto 0);
+
 	signal local_addr_bus : std_logic_vector(19 downto 0);
 	signal multiple_int_sources : std_logic_vector(15 downto 0);
 
@@ -149,17 +129,6 @@ begin
 			slowout => clk_counter -- clk_counter is derived from clk OK
 		);
 	---------------------------------------------------------------------
-
-
-	---------------------------------------------------------------------
-	u_switch_clock : entity work.switch_debounce 
-		port map (
-			clock => clk_counter(20), -- switch debounce clock - OK
-			sw => clock_sw,
-			y => sw_clock_out
-		);
-	---------------------------------------------------------------------
-
 
 	---------------------------------------------------------------------
 	INT_SW_1 : entity work.switch_debounce 
@@ -208,7 +177,7 @@ begin
 			wr_indicator => wr_ind,
 			fetch_indicator => fetch_ind,
 			four_digits => four_digits,
-			address_switches => address_switches,
+			address_switches => address_switches(4 downto 0),
 			Mem_Addr_bus => local_addr_bus,
 			Mem_Data_bus => data_bus,
 			N_WR => n_wr_bus,
@@ -309,15 +278,8 @@ begin
 	multiple_int_sources(1) <= counter_is_zero;
 	multiple_int_sources(2) <= NOT tx_busy_n;
 	multiple_int_sources(3) <= int_sw_out;
-	
-	
-	-- For USB Wiz BUSY, generate an interrupt when it is NOT busy
-	multiple_int_sources(4) <= NOT external_input_port_0; -- USB Wiz BUSY; 
-	-- For USB Wiz Ready, generate an interrupt when data IS ready
-	multiple_int_sources(5) <= external_input_port_2; -- USB Wiz Data is READY; 
-
-   
-	multiple_int_sources(15 downto 6) <= "0000000000";
+	  
+	multiple_int_sources(15 downto 4) <= "000000000000";
    
 
 
@@ -386,24 +348,9 @@ begin
 
 
 	
-	-- 
-   input_port_0: data_bus <=
-	   "000000000000000" & external_input_port_0 when (n_rd_bus = '0' AND cs_bus(INPUT_PORT_0_CS) = '0') AND local_addr_bus(3 downto 0) = x"0000" else
---	   "000000000000000" & external_input_port_1 when (n_rd_bus = '0' AND cs_bus(INPUT_PORT_0_CS) = '0') AND local_addr_bus(3 downto 0) = x"0001" else
-	   "000000000000000" & external_input_port_2 when (n_rd_bus = '0' AND cs_bus(INPUT_PORT_0_CS) = '0') AND local_addr_bus(3 downto 0) = x"0002" else
---	   "000000000000000" & external_input_port_3 when (n_rd_bus = '0' AND cs_bus(INPUT_PORT_0_CS) = '0') AND local_addr_bus(3 downto 0) = x"0003" else
-	   "000000000000000" & external_input_port_4 when (n_rd_bus = '0' AND cs_bus(INPUT_PORT_0_CS) = '0') AND local_addr_bus(3 downto 0) = x"0004" else
-	   "000000000000000" & external_input_port_5 when (n_rd_bus = '0' AND cs_bus(INPUT_PORT_0_CS) = '0') AND local_addr_bus(3 downto 0) = x"0005" else
-	   "000000000000000" & external_input_port_6 when (n_rd_bus = '0' AND cs_bus(INPUT_PORT_0_CS) = '0') AND local_addr_bus(3 downto 0) = x"0006" else
-	   "000000000000000" & external_input_port_7 when (n_rd_bus = '0' AND cs_bus(INPUT_PORT_0_CS) = '0') AND local_addr_bus(3 downto 0) = x"0007" else
-	   "000000000000000" & external_input_port_8 when (n_rd_bus = '0' AND cs_bus(INPUT_PORT_0_CS) = '0') AND local_addr_bus(3 downto 0) = x"0008" else
-	   "000000000000000" & external_input_port_9 when (n_rd_bus = '0' AND cs_bus(INPUT_PORT_0_CS) = '0') AND local_addr_bus(3 downto 0) = x"0009" else
-	   "000000000000000" & external_input_port_A when (n_rd_bus = '0' AND cs_bus(INPUT_PORT_0_CS) = '0') AND local_addr_bus(3 downto 0) = x"000A" else
-	   "000000000000000" & external_input_port_B when (n_rd_bus = '0' AND cs_bus(INPUT_PORT_0_CS) = '0') AND local_addr_bus(3 downto 0) = x"000B" else
-	   "000000000000000" & external_input_port_C when (n_rd_bus = '0' AND cs_bus(INPUT_PORT_0_CS) = '0') AND local_addr_bus(3 downto 0) = x"000C" else
-	   "000000000000000" & external_input_port_D when (n_rd_bus = '0' AND cs_bus(INPUT_PORT_0_CS) = '0') AND local_addr_bus(3 downto 0) = x"000D" else
-	   "000000000000000" & external_input_port_E when (n_rd_bus = '0' AND cs_bus(INPUT_PORT_0_CS) = '0') AND local_addr_bus(3 downto 0) = x"000E" else
-	   "000000000000000" & external_input_port_F when (n_rd_bus = '0' AND cs_bus(INPUT_PORT_0_CS) = '0') AND local_addr_bus(3 downto 0) = x"000F" else
+	-- The logic below works for a simple, unbuffered input, no clock required.
+	input_port_0: data_bus <=
+		"0000000000000" & address_switches(7 downto 5)  when (n_rd_bus = '0' AND cs_bus(INPUT_PORT_0_CS) = '0') AND local_addr_bus(3 downto 0) = x"0000" else
 		"ZZZZZZZZZZZZZZZZ";
 		
 

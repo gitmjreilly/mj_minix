@@ -73,6 +73,11 @@ NET "address_switches<1>"  LOC = "T9"  ;
 NET "address_switches<2>"  LOC = "V9"  ; 
 NET "address_switches<3>"  LOC = "M8"  ; 
 NET "address_switches<4>"  LOC = "N8"  ; 
+
+# Nexys 3 General Purpose Inputs.
+NET "address_switches<5>"  LOC = "U8"  ; 
+NET "address_switches<6>"  LOC = "V8"  ; 
+NET "address_switches<7>"  LOC = "T5"  ; 
 #
 # Revised for Nexys 3 (Clock is 100Mhz on Nexys3, 50Mhz on Spartan 3)
 NET "clk"  LOC = "V10"  ; 
@@ -81,10 +86,7 @@ NET "clk"  LOC = "V10"  ;
 NET "clk_hi_ind"  LOC = "T11"  ; 
 NET "clk_low_ind"  LOC = "R11"  ; 
 #
-# Revised For Nexys 3 Switches 7/6
-NET "clock_selector_switch"  LOC = "T5"  ; 
-NET "clock_sw"  LOC = "V8"  ; 
-#
+
 #
 # Revised for Nexys 3 ( R/W/F LED's 2/1/0)
 NET "fetch_ind"  LOC = "U16"  ; 
@@ -144,19 +146,6 @@ NET "output_port_7" LOC = "C12" ;
 # NET "output_port_9" LOC = "J1" ;
 # NET "output_port_A" LOC = "K3" ;
 
-
-
-#
-NET "external_input_port_0"  LOC = "L7"  ; 
-# NET "external_input_port_1"  LOC = "G3"  ; 
-NET "external_input_port_2"  LOC = "H3"  ; 
-#NET "external_input_port_3"  LOC = "F11"  ; 
-NET "external_input_port_4"  LOC = "D12"  ; 
-
-# never got pmod working properly...
-# NET "pmod_128m_sclk" LOC = "L3" ;
-# NET "pmod_128m_mosi" LOC = "K1" ;
-# NET "pmod_128m_miso" LOC = "L4"  ; 
 
 
 #	JA1
