@@ -303,18 +303,18 @@ AddrSel : AddressSelector port map (
 ControlStoreNextAddress <= HighBitOut & AddressSelectorOut;
 Control_Store : ControlStore port map (ControlStoreNextAddress, ControlStoreOut);
 
-TmpAddress <= 		"0000000" & ControlStoreNextAddress;
-ControlStoreNextAddressDebug: entity work.compound_register -- adjusted for sync clock
-	port map (
-		my_clock,
-		reset, --  reset 
-		TmpAddress, -- TmpAddress <= "0000000" & ControlStoreNextAddress;
-		ControlStoreAddressDebug,
-		Junk,
-		'1', 
-		'1',
-		cpu_finish
-	);
+-- TmpAddress <= 		"0000000" & ControlStoreNextAddress;
+-- ControlStoreNextAddressDebug: entity work.compound_register -- adjusted for sync clock
+	-- port map (
+		-- my_clock,
+		-- reset, --  reset 
+		-- TmpAddress, -- TmpAddress <= "0000000" & ControlStoreNextAddress;
+		-- ControlStoreAddressDebug,
+		-- Junk,
+		-- '1', 
+		-- '1',
+		-- cpu_finish
+	-- );
 
 FourTo16 : FourTo16Decoder port map (MIROut(3 downto 0), DecoderOut);
 	-- DO NOT USE DecoderOut(0) !!!
@@ -602,7 +602,7 @@ dispSelector : DisplaySelector port map (
 	word19 => mir_b,
 
 	word20 => mir_shift,
-	word21 => ControlStoreAddressDebug,
+	word21 => X"FFFF",  -- ControlStoreAddressDebug,
 	word22 => mar_out,
 	word23 => mdr_out,
 	word24 => mbr_out,

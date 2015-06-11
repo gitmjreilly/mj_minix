@@ -58,7 +58,7 @@ architecture structural of system is
 	constant DISK_CTLR_UART_CS            : integer := 8; -- 
 	constant INPUT_PORT_0_CS              : integer := 9;
 	constant SPI_0_CS                     : integer := 10; -- available
-	constant SPI_1_CS                     : integer := 11; -- available
+	constant SPI_1_CS                     : integer := 11; -- used by mem mapped fsm test
 
 		
 	
@@ -299,7 +299,7 @@ begin
 
 
 	---------------------------------------------------------------------
-	u_output_port_0 : process (clk, reset, data_bus)
+	u_output_port_0 : process (my_clock, reset, data_bus)
 	begin
 		if (reset = '1') then
 			output_port_0 <= '0';
@@ -318,6 +318,22 @@ begin
 		"0000000000000" & address_switches(7 downto 5)  when (n_rd_bus = '0' AND cs_bus(INPUT_PORT_0_CS) = '0') AND local_addr_bus(3 downto 0) = x"0000" else
 		"ZZZZZZZZZZZZZZZZ";
 	---------------------------------------------------------------------
-		
+
+	---------------------------------------------------------------------
+	mem_mapped_peripheral : entity work.mem_mapped_fsm
+		port map (
+			clk => my_clock,
+			reset => reset,
+			cpu_start => cpu_start,
+			cpu_finish => cpu_finish,
+			n_cs => cs_bus(SPI_1_CS),
+			n_rd => n_rd_bus,
+			n_wr => n_wr_bus,
+			data_bus => data_bus,
+			addr_bus => local_addr_bus(3 downto 0)
+		);
+	---------------------------------------------------------------------
+
+	
 
 end structural;

@@ -94,11 +94,11 @@ begin
 				if (is_read_in_progress = '1') then
 					r_state_next <= state_idle;
 					case addr_bus is
-						when X"0" => val_next <= X"1000";
-						when X"1" => val_next <= X"1001";
-						when X"2" => val_next <= X"1002";
-						when X"3" => val_next <= X"1003";
-						when others  => val_next <= X"10FF";
+						when X"0" => val_next <= X"B000";
+						when X"1" => val_next <= X"B001";
+						when X"2" => val_next <= X"B002";
+						when X"3" => val_next <= X"B003";
+						when others  => val_next <= X"B0FF";
 					end case;
 				else
 					r_state_next <= state_idle;
