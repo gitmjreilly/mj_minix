@@ -57,8 +57,8 @@ architecture structural of system is
 	constant OUTPUT_PORT_0_CS             : integer := 7;
 	constant DISK_CTLR_UART_CS            : integer := 8; -- 
 	constant INPUT_PORT_0_CS              : integer := 9;
-	constant SPI_0_CS                     : integer := 10; -- available
-	constant SPI_1_CS                     : integer := 11; -- used by mem mapped fsm test
+	constant SPI_0_CS                     : integer := 10; -- used by mem mapped fsm test
+	constant SPI_1_CS                     : integer := 11; -- available
 
 		
 	
@@ -124,7 +124,9 @@ begin
 
 -- Divide 50Mhz Clock by 2 on Spartan 3 starter ; Divide 100Mhz by 8 on Nexys3
 	-- my_clock <= clk_counter(2);  -- What's up with this?
-	my_clock <= clk;
+	-- In ise build, on 13 June, max clock speed is about 75Mhz.
+	-- Will take Nexys3 100Mhz and divide by 2
+	my_clock <= clk_counter(0);
 
 	
 	clk_hi_ind <= 	my_clock;
@@ -139,7 +141,7 @@ begin
 	---------------------------------------------------------------------
 	the_cpu_timing_generator  : entity work.cpu_timing_generator 
 		port map( 
-		clk => clk,
+		clk => my_clock,
 		reset => reset,
 		cpu_start => cpu_start,
 		cpu_finish => cpu_finish
@@ -326,7 +328,7 @@ begin
 			reset => reset,
 			cpu_start => cpu_start,
 			cpu_finish => cpu_finish,
-			n_cs => cs_bus(SPI_1_CS),
+			n_cs => cs_bus(SPI_0_CS),
 			n_rd => n_rd_bus,
 			n_wr => n_wr_bus,
 			data_bus => data_bus,

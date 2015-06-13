@@ -24,7 +24,8 @@ end mem_mapped_fsm;
 
 architecture behavioral of mem_mapped_fsm is
 
-	type state_type is (state_idle, state_0);
+	-- type state_type is (state_idle, state_0);
+	type state_type is (state_idle, state_0, state_pause_1, state_pause_2);
 	signal r_state_reg, r_state_next : state_type;
 	signal w_state_reg, w_state_next : state_type;
 	
@@ -128,7 +129,8 @@ begin
 					r_state_next <= state_idle;
 				end if;
 				
-				
+			when others =>
+				r_state_next <= r_state_reg;
 		end case;
 	end process;
 	-----------------------------------------------------------------
@@ -155,7 +157,15 @@ begin
 
 				if (cpu_finish = '1') then
 					w_state_next <= state_0;
+					-- w_state_next <= state_pause_1;
 				end if;
+				
+			-- when state_pause_1 =>
+				-- w_state_next <= state_pause_2;
+				
+			-- when state_pause_2 =>
+				-- w_state_next <= state_0;
+				
 				
 			-- We know a memory cycle may be in progress;
 			-- Is it addressed to us?
