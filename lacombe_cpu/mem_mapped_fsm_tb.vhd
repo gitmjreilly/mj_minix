@@ -82,6 +82,9 @@ BEGIN
 		reset <= '1';
 		wait for clk_period * 5;
 		reset <= '0';
+
+		wait for clk_period * 3;
+
 		
 		-- insert stimulus here 
 
@@ -90,9 +93,63 @@ BEGIN
 		wait until rising_edge(clk);
 		cpu_finish <= '0';
 
+		-- n_cs <= '0';
+		-- n_wr <= '0';
+		-- addr_bus <= X"1";
+		-- data_bus <= X"2017";
+
+		-- -- wait for 5 * clk_period;
+		-- n_cs <= '1';
+		-- n_wr <= '1';
+		-- wait until rising_edge(clk);
+		-- cpu_finish <= '1';
+		-- wait until rising_edge(clk);
+		-- cpu_finish <= '0';
+		
+		-- data_bus <= (others => 'Z');
+		
+		wait for 5 * clk_period;
+
+		
+		-- n_cs <= '0';
+		-- n_wr <= '0';
+		-- addr_bus <= X"2";
+		-- data_bus <= X"4017";
+
+		-- wait for 5 * clk_period;
+		-- n_cs <= '1';
+		-- n_wr <= '1';
+		-- wait until rising_edge(clk);
+		-- cpu_finish <= '1';
+		-- wait until rising_edge(clk);
+		-- cpu_finish <= '0';
+		
+		-- data_bus <= (others => 'Z');
+		
+		
+		
+		wait until rising_edge(clk);
+		cpu_finish <= '1';
+		wait until rising_edge(clk);
+		cpu_finish <= '0';
+
 		n_cs <= '0';
 		n_rd <= '0';
 		addr_bus <= X"1";
+
+		wait for 5 * clk_period;
+		n_cs <= '1';
+		n_rd <= '1';
+		
+		
+		wait until rising_edge(clk);
+		cpu_finish <= '1';
+		wait until rising_edge(clk);
+		cpu_finish <= '0';
+
+		n_cs <= '0';
+		n_rd <= '0';
+		addr_bus <= X"2";
 
 		wait for 5 * clk_period;
 		n_cs <= '1';
