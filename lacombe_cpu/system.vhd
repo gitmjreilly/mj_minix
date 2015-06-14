@@ -122,10 +122,11 @@ begin
 		);
 	---------------------------------------------------------------------
 
--- Divide 50Mhz Clock by 2 on Spartan 3 starter ; Divide 100Mhz by 8 on Nexys3
-	-- my_clock <= clk_counter(2);  -- What's up with this?
-	-- In ise build, on 13 June, max clock speed is about 75Mhz.
-	-- Will take Nexys3 100Mhz and divide by 2
+
+	-- my_clock is the fundamental clock of the system.
+	-- As of June 13, 2015, ISE claims the clock speed is limited to about 
+	-- 75Mhz. Since the target is Spartan 6 Nexys 3 board, with 100Mhz clock,
+	-- we use the clock divided by 2.
 	my_clock <= clk_counter(0);
 
 	
@@ -139,6 +140,8 @@ begin
 	n_lb <= '0';
 
 	---------------------------------------------------------------------
+	-- Notice the timing generator which generates cpu_start and cpu_finish
+	-- pulses uses my_clock as the fundamental clock for the system.
 	the_cpu_timing_generator  : entity work.cpu_timing_generator 
 		port map( 
 		clk => my_clock,
@@ -153,7 +156,7 @@ begin
 	the_cpu : entity work.cpu1 
 		port map (
 			reset => reset,
-			my_clock => my_clock, -- This is the CPU's clock and definitely needs work
+			my_clock => my_clock, 
 			cpu_start => cpu_start,
 			cpu_finish => cpu_finish,
 			n_indicator => n_ind,
@@ -301,6 +304,7 @@ begin
 
 
 	---------------------------------------------------------------------
+	-- Test output port - no actual use.
 	u_output_port_0 : process (my_clock, reset, data_bus)
 	begin
 		if (reset = '1') then
@@ -316,6 +320,7 @@ begin
 	
 	---------------------------------------------------------------------
 	-- The logic below works for a simple, unbuffered input, no clock required.
+	-- Test input port - no actual use
 	input_port_0: data_bus <=
 		"0000000000000" & address_switches(7 downto 5)  when (n_rd_bus = '0' AND cs_bus(INPUT_PORT_0_CS) = '0') AND local_addr_bus(3 downto 0) = x"0000" else
 		"ZZZZZZZZZZZZZZZZ";

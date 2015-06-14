@@ -25,7 +25,7 @@ end mem_mapped_fsm;
 architecture behavioral of mem_mapped_fsm is
 
 	-- type state_type is (state_idle, state_0);
-	type state_type is (state_idle, state_0, state_pause_1, state_pause_2);
+	type state_type is (state_idle, state_0);
 	signal r_state_reg, r_state_next : state_type;
 	signal w_state_reg, w_state_next : state_type;
 	
@@ -67,8 +67,6 @@ begin
 			reg_2 <= X"1802";
 			reg_3 <= X"1803";
 			
-			-- L <= '1';
-			-- H <= '0';
 		elsif (rising_edge(clk)) then
 			r_state_reg <= r_state_next;
 			w_state_reg <= w_state_next;
@@ -126,11 +124,11 @@ begin
 						when others  => val_next <= X"B0FF";
 					end case;
 				else
-					r_state_next <= state_idle;
+				 	r_state_next <= state_idle;
 				end if;
 				
-			when others =>
-				r_state_next <= r_state_reg;
+			-- when others =>
+				-- r_state_next <= r_state_reg;
 		end case;
 	end process;
 	-----------------------------------------------------------------
@@ -157,14 +155,7 @@ begin
 
 				if (cpu_finish = '1') then
 					w_state_next <= state_0;
-					-- w_state_next <= state_pause_1;
 				end if;
-				
-			-- when state_pause_1 =>
-				-- w_state_next <= state_pause_2;
-				
-			-- when state_pause_2 =>
-				-- w_state_next <= state_0;
 				
 				
 			-- We know a memory cycle may be in progress;
@@ -175,23 +166,20 @@ begin
 					case addr_bus is
 						when X"0" => reg_0_next <= data_bus;
 						when X"1" => reg_1_next <= data_bus; 
-						when X"2" => reg_2_next <= X"2022";
-						when X"3" => reg_3_next <= X"330F";
+						when X"2" => reg_2_next <= data_bus;
+						when X"3" => reg_3_next <= data_bus;
 						when others  => reg_0_next <= reg_0;
 					end case;
 				else
 					w_state_next <= state_idle;
 				end if;
-				
-			when others =>
-				w_state_next <= w_state_reg;
+		
 				
 		end case;
 	end process;
 	-----------------------------------------------------------------
 
 
-	
 	-----------------------------------------------------------------
 	process (is_read_in_progress, val_reg)
 	begin
