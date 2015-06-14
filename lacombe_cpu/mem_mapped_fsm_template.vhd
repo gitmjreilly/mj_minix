@@ -1,6 +1,15 @@
 ---------------------------------------------------------------------
 -- Template for creating a mem mapped peripheral
 -- Using an fsm
+--
+-- This module contains 2 independent FSM's driven by the same clk.
+-- One for reads, one for writes
+-- Reads and writes 4 internal registers addressed as 0..3.
+-- Each FSM starts in the "idle" state and leaves it
+-- when cpu_finish is detected.
+-- To know if a read or write operation is addressed to this module,
+-- n_cs, n_rd and n_wr are checked.
+--    See is_read_in_progress and is_write_in_progress for details
 -- 
 ---------------------------------------------------------------------
 library IEEE;
@@ -56,7 +65,12 @@ begin
 	-- Synchronous process 
 	-- All that happens here is the state change
 	-- AND assignment of any internal storage
-	process(clk, reset, r_state_next, w_state_next, val_next, reg_0_next, reg_2_next, reg_2_next, reg_3_next )
+	process(
+		clk, reset, 
+		r_state_next, w_state_next, 
+		val_next, 
+		reg_0_next, reg_2_next, reg_2_next, reg_3_next 
+	)
 	begin
 		if reset = '1' then
 			r_state_reg <= state_idle;
@@ -83,21 +97,15 @@ begin
 
 	
 	-----------------------------------------------------------------
-	-- Combinational State selection and state based output (i.e. Moore output)
+	-- Combinational State selection
 	-- This process handles read requests from a host
-
-	-- Leads to state 0 being N -1  cycles long; state 1 being 1 cycle long
-	-- state 2 being N cycles long
-	-- For a TOTAL of 2N cycles.
-	
 	process (
-		r_state_next, 
 		r_state_reg, 
 		val_reg,
-		is_read_in_progress, addr_bus, cpu_finish, val_next, reg_0, reg_1, reg_2, reg_3)
-
-	-- This process statement is NG; count (nexts) have to be included
-	-- process (r_state_reg, count_0, count_2)
+		is_read_in_progress, 
+		addr_bus, cpu_finish, 
+		reg_0, reg_1, reg_2, reg_3
+	)
 	begin
 		r_state_next <= r_state_reg;
 		val_next <= val_reg;
@@ -126,9 +134,6 @@ begin
 				else
 				 	r_state_next <= state_idle;
 				end if;
-				
-			-- when others =>
-				-- r_state_next <= r_state_reg;
 		end case;
 	end process;
 	-----------------------------------------------------------------
@@ -136,8 +141,12 @@ begin
 
 	
 	-- -----------------------------------------------------------------
-	process (w_state_next, w_state_reg, is_write_in_progress, 
-		addr_bus, cpu_finish, data_bus,
+	process (
+		w_state_reg, 
+		is_write_in_progress, 
+		addr_bus, 
+		cpu_finish, 
+		data_bus,
 		reg_0, reg_1, reg_2, reg_3)
 
 
@@ -181,6 +190,10 @@ begin
 
 
 	-----------------------------------------------------------------
+	-- If a read is in progress (determined combinatorially),
+	-- we drive the data bus with the register containing the 
+	-- the requested value val_reg.  val_reg was populated
+	-- by the state machine above.
 	process (is_read_in_progress, val_reg)
 	begin
 		if (is_read_in_progress = '1') then
