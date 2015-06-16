@@ -8,7 +8,7 @@ use IEEE.NUMERIC_STD.ALL;
 entity uart_tx_test is
 	generic (
 		DBIT : integer := 8;
-		SB_TICK : integer := 2
+		SB_TICK : integer := 16
 	);
     port ( 
 		clk : in  STD_LOGIC; -- TODO For now, we assume 50MHz
@@ -90,7 +90,8 @@ begin
 	ticker: entity work.mod_m 
 		generic map(
 			N => 10, -- num bits
-			M => 2  -- MOD M
+			-- 50 * 10^6 / (16 * 19200)
+			M => 163  -- MOD M (Should lead to 19200 bps w/50MHz clock)
 		)
 		port map(
 			clk => clk, 

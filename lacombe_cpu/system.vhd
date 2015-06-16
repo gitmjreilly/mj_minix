@@ -37,7 +37,9 @@ entity system is port (
 	-- End of signals for Nexys 3
 	INT_SW : in std_logic;
 
-
+	-- Test Pong uart TX
+	pong_tx : out std_logic;
+	
    -- 16 single bit outputs	
 	output_port_0 : out std_logic
 	
@@ -58,7 +60,7 @@ architecture structural of system is
 	constant DISK_CTLR_UART_CS            : integer := 8; -- 
 	constant INPUT_PORT_0_CS              : integer := 9;
 	constant SPI_0_CS                     : integer := 10; -- used by mem mapped fsm test
-	constant SPI_1_CS                     : integer := 11; -- available
+	constant SPI_1_CS                     : integer := 11; -- used by pong uart
 
 		
 	
@@ -341,6 +343,22 @@ begin
 		);
 	---------------------------------------------------------------------
 
+
+	---------------------------------------------------------------------
+	u_pong_tx: entity work.uart_tx_test
+		port map ( 
+			clk => my_clock,
+			reset => reset,
+			cpu_start => cpu_start,
+			cpu_finish => cpu_finish,
+			n_cs => cs_bus(SPI_1_CS),
+			n_rd => n_rd_bus,
+			n_wr => n_wr_bus,
+			data_bus => data_bus,
+			addr_bus => local_addr_bus(3 downto 0),
+			tx => pong_tx
+		);
+	---------------------------------------------------------------------
 	
 
 end structural;

@@ -46,15 +46,16 @@ ARCHITECTURE behavior OF uart_tx_test_tb IS
    signal reset : std_logic := '0';
    signal cpu_start : std_logic := '0';
    signal cpu_finish : std_logic := '0';
-   signal n_cs : std_logic := '0';
-   signal n_rd : std_logic := '0';
-   signal n_wr : std_logic := '0';
+   signal n_cs : std_logic := '1';
+   signal n_rd : std_logic := '1';
+   signal n_wr : std_logic := '1';
    signal addr_bus : std_logic_vector(3 downto 0) := (others => '0');
    signal tx : std_logic;
 
 	--BiDirs
    signal data_bus : std_logic_vector(15 downto 0);
 
+   
    -- Clock period definitions
    constant clk_period : time := 10 ps;
  
@@ -64,7 +65,7 @@ BEGIN
    uut: uart_tx_test 
 		generic map (
 			dbit => 8,
-			sb_tick => 2
+			sb_tick => 16
 		)
 		PORT MAP (
           clk => clk,
@@ -122,7 +123,7 @@ BEGIN
 	
 
 
-		wait for 100 * clk_period;
+		wait for 3000 * clk_period;
 		assert false
 		report "Simulation is done."
 		severity failure;   

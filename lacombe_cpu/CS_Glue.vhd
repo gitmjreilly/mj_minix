@@ -22,7 +22,7 @@ architecture Behavioral of CS_Glue is
 	constant DISK_CTLR_UART_CS : std_logic_vector(15 downto 0) := "1111111011111111";
 	constant INPUT_PORT_0_CS : std_logic_vector(15 downto 0)   := "1111110111111111";
 	constant SPI_0_CS : std_logic_vector(15 downto 0)          := "1111101111111111"; -- mem_mapped_peripheral
-	constant SPI_1_CS : std_logic_vector(15 downto 0)          := "1111011111111111"; -- available
+	constant SPI_1_CS : std_logic_vector(15 downto 0)          := "1111011111111111"; -- used by pong uart
 	constant NO_CS : std_logic_vector(15 downto 0)             := "1111111111111111";
 
    signal local_addr : std_logic_vector(15 downto 0);
