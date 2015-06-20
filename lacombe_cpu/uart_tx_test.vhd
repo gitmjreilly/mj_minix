@@ -39,6 +39,11 @@ architecture behavioral of uart_tx_test is
 	signal s_tick : std_logic;
 	
 	signal is_write_in_progress : std_logic;
+	signal is_read_in_progress  : std_logic;
+	
+	signal is_transmitter_busy  : std_logic;
+	
+	signal val_reg : std_logic_vector(15 downto 0);
 	
 	
 begin
@@ -51,6 +56,8 @@ begin
 	-- It is NOT edge based.
 	-- Please note all reads and writes are from the host's perspective
 	is_write_in_progress <= '1' when ((n_cs = '0') and (n_wr = '0')) else '0';
+	-- is_read_in_progress  <= '1' when ((n_cs = '0') and (n_rd = '0')) else '0';
+	is_read_in_progress  <= '0';
 	-----------------------------------------------------------------
 
  
@@ -81,6 +88,7 @@ begin
 			b_reg <= b_next;
 			
 			tx_reg <= tx_next;
+			
 		end if;	
 	end process;
 	-----------------------------------------------------------------
@@ -122,12 +130,14 @@ begin
 		b_next <= b_reg;
 		tx_next <= tx_reg;
 		
+		is_transmitter_busy <= '0';
 		-- tx_done_tick <= '0';
 
 		case state_reg is 
 			-- A memory cycle can't begin until cpu_finish is asserted
 			-- so we wait for it in the idle state.
 			when state_idle =>
+				tx_next <= '1';
 				if (cpu_finish = '1') then
 					state_next <= state_0;
 				end if;
@@ -135,6 +145,7 @@ begin
 			-- We know a memory cycle may be in progress;
 			-- Is it addressed to us?
 			when state_0 =>
+				-- tx_next <= '1';
 				if (is_write_in_progress = '1') then
 					state_next <= state_start_bit;
 					b_next <= data_bus(7 downto 0);
@@ -143,6 +154,7 @@ begin
 				end if;
 
 			when state_start_bit =>
+				is_transmitter_busy <= '1';
 				-- Drive the start bit and 
 				-- hold it for 16 cycles
 				tx_next <= '0'; 
@@ -157,6 +169,7 @@ begin
 				end if;
 
 			when state_data =>
+				is_transmitter_busy <= '1';
 				tx_next <= b_reg(0);
 				if (s_tick = '1') then
 					if  (s_reg = (SB_TICK - 1)) then
@@ -173,6 +186,7 @@ begin
 				end if;
 				
 			when state_stop_bit =>
+				is_transmitter_busy <= '1';
 				tx_next <= '1';
 				if (s_tick = '1') then
 					if (s_reg = (SB_TICK - 1)) then 
@@ -186,6 +200,24 @@ begin
 	end process;
 	
 	tx <= tx_reg;
+	
+	val_reg <= X"000" & "000" & is_transmitter_busy;
+	
+	-----------------------------------------------------------------
+	-- If a read is in progress (determined combinatorially),
+	-- we drive the data bus with the register containing the 
+	-- the requested value val_reg.  val_reg was populated
+	-- by the state machine above.
+	process (is_read_in_progress, val_reg)
+	begin
+		if (is_read_in_progress = '1') then
+			data_bus <= val_reg;
+		else
+			data_bus <= (others => 'Z');
+		end if;	
+	end process;
+	-----------------------------------------------------------------
+		
 	
 end behavioral;
 
