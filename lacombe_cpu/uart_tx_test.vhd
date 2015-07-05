@@ -9,6 +9,8 @@ entity uart_tx_test is
 	generic (
 		DBIT : integer := 8;
 		SB_TICK : integer := 16
+		-- For simulation only
+		-- SB_TICK : integer := 2
 	);
     port ( 
 		clk : in  STD_LOGIC; -- TODO For now, we assume 50MHz
@@ -56,8 +58,7 @@ begin
 	-- It is NOT edge based.
 	-- Please note all reads and writes are from the host's perspective
 	is_write_in_progress <= '1' when ((n_cs = '0') and (n_wr = '0')) else '0';
-	-- is_read_in_progress  <= '1' when ((n_cs = '0') and (n_rd = '0')) else '0';
-	is_read_in_progress  <= '0';
+	is_read_in_progress  <= '1' when ((n_cs = '0') and (n_rd = '0')) else '0';
 	-----------------------------------------------------------------
 
  
@@ -99,7 +100,9 @@ begin
 		generic map(
 			N => 10, -- num bits
 			-- 50 * 10^6 / (16 * 19200)
-			M => 163  -- MOD M (Should lead to 19200 bps w/50MHz clock)
+			-- M => 163  -- MOD M (Should lead to 19200 bps w/50MHz clock)
+			M => 27  -- MOD M (Should lead to 115200 bps w/50MHz clock)
+			-- M => 2 -- for simulation only
 		)
 		port map(
 			clk => clk, 
@@ -149,6 +152,7 @@ begin
 				if (is_write_in_progress = '1') then
 					state_next <= state_start_bit;
 					b_next <= data_bus(7 downto 0);
+					s_next <= (others => '0');
 				else
 				 	state_next <= state_idle;
 				end if;

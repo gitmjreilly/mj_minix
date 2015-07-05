@@ -65,7 +65,7 @@ BEGIN
    uut: uart_tx_test 
 		generic map (
 			dbit => 8,
-			sb_tick => 16
+			sb_tick => 2
 		)
 		PORT MAP (
           clk => clk,
@@ -94,25 +94,31 @@ BEGIN
    stim_proc: process
    begin
 
+		-- Reset the whole mess
 		reset <= '1';
 		wait for clk_period * 5;
 		reset <= '0';
 
+		-- Initialize the memory control lines
 		n_cs <= '1';
 		n_wr <= '1';
 		wait for clk_period * 3;
 
    
+		-- Pulse the finish signal just before 
+		-- asserting mem contol lines
 		wait until rising_edge(clk);
 		cpu_finish <= '1';
 		wait until rising_edge(clk);
 		cpu_finish <= '0';
 
+		-- Do the WRITE
 		n_cs <= '0';
 		n_wr <= '0';
 		addr_bus <= X"1";
 		data_bus <= X"0009";
 
+		-- Deassert mem control
 		wait for 5 * clk_period;
 		n_cs <= '1';
 		n_wr <= '1';
@@ -122,6 +128,35 @@ BEGIN
 		cpu_finish <= '0';
 	
 
+		-- Wait a while before transmitting another char
+		--
+		
+		wait for 40 * clk_period;
+		-- Pulse the finish signal just before 
+		-- asserting mem contol lines
+		wait until rising_edge(clk);
+		cpu_finish <= '1';
+		wait until rising_edge(clk);
+		cpu_finish <= '0';
+
+		-- Do the WRITE
+		n_cs <= '0';
+		n_wr <= '0';
+		addr_bus <= X"1";
+		data_bus <= X"00A3";
+
+		-- Deassert mem control
+		wait for 5 * clk_period;
+		n_cs <= '1';
+		n_wr <= '1';
+		wait until rising_edge(clk);
+		cpu_finish <= '1';
+		wait until rising_edge(clk);
+		cpu_finish <= '0';
+	
+
+	
+	
 
 		wait for 3000 * clk_period;
 		assert false
