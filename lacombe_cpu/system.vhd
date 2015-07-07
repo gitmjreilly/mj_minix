@@ -39,6 +39,7 @@ entity system is port (
 
 	-- Test Pong uart TX
 	pong_tx : out std_logic;
+	pong_rx : in std_logic;
 	
    -- 16 single bit outputs	
 	output_port_0 : out std_logic
@@ -53,7 +54,7 @@ architecture structural of system is
 	constant ROM_CS                       : integer := 1;
 	constant UART_0_CS                    : integer := 2;
 	constant COUNTER_0_CS                 : integer := 3;
-	constant DISK_CTLR_CS                 : integer := 4;
+	constant PCHU_RX_CS                   : integer := 4; -- used by pchu rx
 	constant INTERRUPT_CONTROLLER_CS      : integer := 5;
 	constant SPI_2_CS                     : integer := 6; -- available
 	constant OUTPUT_PORT_0_CS             : integer := 7;
@@ -361,4 +362,18 @@ begin
 	---------------------------------------------------------------------
 	
 
+	u_pchu_rx: entity work.uart_rx
+		port map ( 
+			clk  => my_clock,
+			rx => pong_rx,
+			reset => reset,
+			cpu_finish => cpu_finish,
+			n_cs => cs_bus(PCHU_RX_CS),
+			n_rd => n_rd_bus,
+			n_wr => n_wr_bus,
+			data_bus => data_bus,
+			addr_bus => local_addr_bus(3 downto 0)
+		);
+	
+	
 end structural;
