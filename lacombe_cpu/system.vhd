@@ -58,7 +58,7 @@ architecture structural of system is
 	constant INTERRUPT_CONTROLLER_CS      : integer := 5;
 	constant SPI_2_CS                     : integer := 6; -- available
 	constant OUTPUT_PORT_0_CS             : integer := 7;
-	constant DISK_CTLR_UART_CS            : integer := 8; -- 
+	constant FIFO_CS                      : integer := 8; -- 
 	constant INPUT_PORT_0_CS              : integer := 9;
 	constant SPI_0_CS                     : integer := 10; -- used by mem mapped fsm test
 	constant SPI_1_CS                     : integer := 11; -- used by pong uart
@@ -369,6 +369,21 @@ begin
 			reset => reset,
 			cpu_finish => cpu_finish,
 			n_cs => cs_bus(PCHU_RX_CS),
+			n_rd => n_rd_bus,
+			n_wr => n_wr_bus,
+			data_bus => data_bus,
+			addr_bus => local_addr_bus(3 downto 0)
+		);
+	
+	
+	
+
+	u_fifo: entity  work.fifo_test 
+		port map ( 
+			clk => my_clock,
+			reset => reset,
+			cpu_finish => cpu_finish,
+			n_cs => cs_bus(FIFO_CS),
 			n_rd => n_rd_bus,
 			n_wr => n_wr_bus,
 			data_bus => data_bus,

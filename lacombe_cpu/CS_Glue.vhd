@@ -19,7 +19,7 @@ architecture Behavioral of CS_Glue is
 	constant INT_CONTROLLER_CS : std_logic_vector(15 downto 0) := "1111111111011111";
 	constant BLANK_CS : std_logic_vector(15 downto 0)          := "1111111110111111"; -- available
 	constant OUTPUT_BUFFER_CS  : std_logic_vector(15 downto 0) := "1111111101111111";
-	constant DISK_CTLR_UART_CS : std_logic_vector(15 downto 0) := "1111111011111111";
+	constant FIFO_CS : std_logic_vector(15 downto 0)           := "1111111011111111";
 	constant INPUT_PORT_0_CS : std_logic_vector(15 downto 0)   := "1111110111111111";
 	constant SPI_0_CS : std_logic_vector(15 downto 0)          := "1111101111111111"; -- mem_mapped_peripheral
 	constant SPI_1_CS : std_logic_vector(15 downto 0)          := "1111011111111111"; -- used by pong uart
@@ -37,7 +37,7 @@ begin
 		INT_CONTROLLER_CS when (local_addr >= x"F010" AND local_addr <= x"F01F") else
 		BLANK_CS          when (local_addr >= x"F020" AND local_addr <= x"F02F") else
 		OUTPUT_BUFFER_CS  when (local_addr >= x"F030" AND local_addr <= x"F03F") else
-		DISK_CTLR_UART_CS when (local_addr >= x"F040" AND local_addr <= x"F04F") else
+		FIFO_CS           when (local_addr >= x"F040" AND local_addr <= x"F04F") else
 		INPUT_PORT_0_CS   when (local_addr >= x"F050" AND local_addr <= x"F05F") else
 		COUNTER1_CS       when (local_addr >= x"F060" AND local_addr <= x"F06F") else 
 		SPI_0_CS          when (local_addr >= x"F070" AND local_addr <= x"F07F") else 
