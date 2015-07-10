@@ -23,7 +23,7 @@ end fifo_test;
 architecture Behavioral of fifo_test is
 
 
-	type r_state_type is (r_state_idle, r_state_0);
+	type r_state_type is (r_state_idle, r_state_0, r_state_1);
 	type w_state_type is (w_state_idle, w_state_0, w_state_1);
 
 	signal r_state_reg, r_state_next : r_state_type;
@@ -68,10 +68,10 @@ begin
 		PORT MAP (
 			clka => clk, -- clk from entity
 			wea => wea,
-			addra => addra,
+			addra =>  addra,
 			dina => data_bus(7 downto 0),
 			clkb => clk,
-			addrb =>  addrb,
+			addrb => addrb,
 			doutb => doutb
 		);
 
@@ -118,7 +118,6 @@ begin
 	-----------------------------------------------------------------
 
 
-		
 	
 	-----------------------------------------------------------------
 	process (
@@ -154,10 +153,8 @@ begin
 				end if;
 		
 			when w_state_1 =>
-				if (is_write_in_progress = '1') then
-					w_state_next <= w_state_idle;
-				end if;
-		
+				w_state_next <= w_state_idle;
+				
 				
 		end case;
 	end process;
@@ -194,11 +191,16 @@ begin
 			-- Is it addressed to us?
 			when r_state_0 =>
 				if (is_read_in_progress = '1') then
-					r_state_next <= r_state_idle;
-					val_next <= X"00" & doutb;
+					r_state_next <= r_state_1;
 				else
 				 	r_state_next <= r_state_idle;
 				end if;
+				
+			when r_state_1 =>
+				r_state_next <= r_state_idle;
+				val_next <= X"00" & doutb;
+				
+				
 		end case;
 	end process;
 	-----------------------------------------------------------------
