@@ -362,7 +362,7 @@ begin
 	---------------------------------------------------------------------
 	
 
-	u_pchu_rx: entity work.uart_rx
+	u_pchu_rx: entity work.uart_w_fifo
 		port map ( 
 			clk  => my_clock,
 			rx => pong_rx,
