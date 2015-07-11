@@ -71,12 +71,15 @@ architecture behavioral of uart_w_fifo is
 	signal flag_out : std_logic;
 	
 	
-	signal num_bytes_in_rx_fifo_next, num_bytes_in_rx_fifo_reg : std_logic_vector(9 downto 0);
 	signal rx_fifo_in_addr_next, rx_fifo_in_addr : std_logic_vector(9 downto 0);
 	signal rx_fifo_out_addr_next, rx_fifo_out_addr : std_logic_vector(9 downto 0);
 	signal wea_reg, wea_next, wea : std_logic_vector(0 downto 0);
 	
 	signal rx_fifo_data_out : std_logic_vector(7 downto 0);
+
+	signal num_bytes_in_rx_fifo : std_logic_vector(9 downto 0);
+	signal inc_num_bytes_in_rx_fifo_tick : std_logic;
+	signal dec_num_bytes_in_rx_fifo_tick : std_logic;
 	
 
 	COMPONENT blk_mem_gen_v7_3
@@ -173,7 +176,6 @@ begin
 		n_next <= n_reg;
 		b_next <= b_reg;
 		rx_done_tick <= '0';
-		
 
 		case state_reg is 
 			when state_idle =>
@@ -279,7 +281,6 @@ begin
 			read_state_reg <= read_state_idle;
 			wea_reg <= "0";
 			rx_fifo_in_addr <= (others => '0');
-			num_bytes_in_rx_fifo_reg <= (others => '0');
 			rx_fifo_out_addr <= (others => '0');
 			val_reg <= (others => '0');
 			
@@ -290,7 +291,6 @@ begin
 			wea_reg <= wea_next;
 			rx_fifo_in_addr <= rx_fifo_in_addr_next;
 			rx_fifo_out_addr <= rx_fifo_out_addr_next;
-			num_bytes_in_rx_fifo_reg <= num_bytes_in_rx_fifo_next;
 		end if;	
 	end process;
 	-----------------------------------------------------------------
@@ -305,13 +305,13 @@ begin
 		w_state_reg, 
 		is_write_in_progress, 
 		rx_done_tick,
-		rx_fifo_in_addr,
-		num_bytes_in_rx_fifo_reg
+		rx_fifo_in_addr
 	)
 	begin
 		w_state_next <= w_state_reg;
 		wea_next <= "0";
 		rx_fifo_in_addr_next <= rx_fifo_in_addr;
+		inc_num_bytes_in_rx_fifo_tick <= '0';
 		
 		case w_state_reg is 
 			-- A memory cycle can't begin until cpu_finish is asserted
@@ -331,7 +331,7 @@ begin
 				else
 					rx_fifo_in_addr_next <= rx_fifo_in_addr + 1;
 				end if;
-				num_bytes_in_rx_fifo_next <= num_bytes_in_rx_fifo_reg + 1;
+				inc_num_bytes_in_rx_fifo_tick <= '1';
 				
 		end case;
 	end process;
@@ -350,12 +350,16 @@ begin
 		is_rx_fifo_read_in_progress,
 		rx_fifo_data_out,
 		rx_fifo_out_addr,
-		cpu_finish
+		cpu_finish,
+		addr_bus,
+		num_bytes_in_rx_fifo,
+		dec_num_bytes_in_rx_fifo_tick
 	)
 	begin
 		read_state_next <= read_state_reg;
 		val_next <= val_reg;
 		rx_fifo_out_addr_next <= rx_fifo_out_addr;
+		dec_num_bytes_in_rx_fifo_tick <= '0';
 		
 		case read_state_reg is 
 			-- A memory cycle can't begin until cpu_finish is asserted
@@ -370,13 +374,21 @@ begin
 			-- Is it addressed to us?
 			when read_state_0 =>
 				if (is_rx_fifo_read_in_progress = '1') then
-					read_state_next <= read_state_idle;
-					val_next <= X"00" & rx_fifo_data_out;
-					if (rx_fifo_out_addr = 1023) then
-						rx_fifo_out_addr_next <= (others => '0');
-					else
-						rx_fifo_out_addr_next <= rx_fifo_out_addr + 1;
+
+					if (addr_bus = X"0") then
+						read_state_next <= read_state_idle;
+						val_next <= X"00" & rx_fifo_data_out;
+						if (rx_fifo_out_addr = 1023) then
+							rx_fifo_out_addr_next <= (others => '0');
+						else
+							rx_fifo_out_addr_next <= rx_fifo_out_addr + 1;
+						end if;
+						dec_num_bytes_in_rx_fifo_tick <= '1';
+					elsif (addr_bus = X"7") then
+						val_next <= "000000" & num_bytes_in_rx_fifo;
 					end if;
+
+
 				else
 				 	read_state_next <= read_state_idle;
 				end if;
@@ -386,6 +398,32 @@ begin
 	end process;
 	-----------------------------------------------------------------
 
+	
+	-----------------------------------------------------------------
+	-- Keep track of inc_num_bytes_in_rx_fifo.
+	-- The count is driven by inc and dec signals.
+	-- The inc tick is asserted when a new char is serially recvd.
+	-- The dec signal is asserted when the host reads from the fifo.
+	process (
+		clk, 
+		reset, 
+		inc_num_bytes_in_rx_fifo_tick, 
+		dec_num_bytes_in_rx_fifo_tick
+	)
+	begin
+		if (reset = '1') then
+			num_bytes_in_rx_fifo <= (others => '0');
+		elsif (rising_edge(clk)) then
+			if (inc_num_bytes_in_rx_fifo_tick= '1' and dec_num_bytes_in_rx_fifo_tick = '0') then
+				num_bytes_in_rx_fifo <= num_bytes_in_rx_fifo + 1; 
+			elsif (inc_num_bytes_in_rx_fifo_tick = '0' and dec_num_bytes_in_rx_fifo_tick= '1') then
+				num_bytes_in_rx_fifo <= num_bytes_in_rx_fifo - 1; 
+			end if;
+		end if;		
+	end process;
+	-----------------------------------------------------------------
+	
+	
 	
 
 	-----------------------------------------------------------------
