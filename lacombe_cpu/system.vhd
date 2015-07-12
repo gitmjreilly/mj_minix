@@ -345,27 +345,28 @@ begin
 	---------------------------------------------------------------------
 
 
-	---------------------------------------------------------------------
-	u_pong_tx: entity work.uart_tx_test
-		port map ( 
-			clk => my_clock,
-			reset => reset,
-			cpu_start => cpu_start,
-			cpu_finish => cpu_finish,
-			n_cs => cs_bus(SPI_1_CS),
-			n_rd => n_rd_bus,
-			n_wr => n_wr_bus,
-			data_bus => data_bus,
-			addr_bus => local_addr_bus(3 downto 0),
-			tx => pong_tx
-		);
-	---------------------------------------------------------------------
+	-- ---------------------------------------------------------------------
+	-- u_pong_tx: entity work.uart_tx_test
+		-- port map ( 
+			-- clk => my_clock,
+			-- reset => reset,
+			-- cpu_start => cpu_start,
+			-- cpu_finish => cpu_finish,
+			-- n_cs => cs_bus(SPI_1_CS),
+			-- n_rd => n_rd_bus,
+			-- n_wr => n_wr_bus,
+			-- data_bus => data_bus,
+			-- addr_bus => local_addr_bus(3 downto 0),
+			-- tx => pong_tx
+		-- );
+	-- ---------------------------------------------------------------------
 	
 
 	u_pchu_rx: entity work.uart_w_fifo
 		port map ( 
 			clk  => my_clock,
 			rx => pong_rx,
+			tx => pong_tx,
 			reset => reset,
 			cpu_finish => cpu_finish,
 			n_cs => cs_bus(PCHU_RX_CS),
