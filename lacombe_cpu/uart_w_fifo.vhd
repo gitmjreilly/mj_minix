@@ -34,6 +34,9 @@ end uart_w_fifo;
 
 architecture behavioral of uart_w_fifo is
 
+	constant MAX_ADDR : integer    := 1023;
+
+
 	-- uart RX fifo write states
 	-- These are the states the fifo fsm can be in.
 	type w_state_type is (w_state_idle, w_state_0);
@@ -346,7 +349,7 @@ begin
 			-- Is it addressed to us?
 			when w_state_0 =>
 				w_state_next <= w_state_idle;
-				if (rx_fifo_in_addr = 1023) then
+				if (rx_fifo_in_addr = MAX_ADDR) then
 					rx_fifo_in_addr_next <= (others => '0');
 				else
 					rx_fifo_in_addr_next <= rx_fifo_in_addr + 1;
@@ -399,7 +402,7 @@ begin
 					if (addr_bus = X"0") then
 						read_state_next <= read_state_idle;
 						val_next <= X"00" & rx_fifo_data_out;
-						if (rx_fifo_out_addr = 1023) then
+						if (rx_fifo_out_addr = MAX_ADDR) then
 							rx_fifo_out_addr_next <= (others => '0');
 						else
 							rx_fifo_out_addr_next <= rx_fifo_out_addr + 1;
@@ -621,7 +624,7 @@ begin
 		
 			when tx_fsm_w_state_1 =>
 				tx_fsm_w_state_next <= tx_fsm_w_state_2;
-				if (tx_fifo_in_addr = 1023) then
+				if (tx_fifo_in_addr = MAX_ADDR) then
 					tx_fifo_in_addr_next <= (others => '0');
 				else
 					tx_fifo_in_addr_next <= tx_fifo_in_addr + 1;
@@ -751,7 +754,7 @@ begin
 					tx_fsm2_b_next <= tx_fifo_data_out;
 					tx_fsm2_s_next <= (others => '0');
 					dec_num_bytes_in_tx_fifo_tick <= '1';
-					if (tx_fifo_out_addr = 1023) then
+					if (tx_fifo_out_addr = MAX_ADDR) then
 						tx_fifo_out_addr_next <= (others => '0');
 					else
 						tx_fifo_out_addr_next <= tx_fifo_out_addr + 1;

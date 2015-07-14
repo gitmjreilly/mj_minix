@@ -54,14 +54,14 @@ architecture structural of system is
 	constant ROM_CS                       : integer := 1;
 	constant UART_0_CS                    : integer := 2;
 	constant COUNTER_0_CS                 : integer := 3;
-	constant PCHU_RX_CS                   : integer := 4; -- used by pchu rx
+	constant PCHU_UART_CS                 : integer := 4; -- used by pchu fifo uart!
 	constant INTERRUPT_CONTROLLER_CS      : integer := 5;
 	constant SPI_2_CS                     : integer := 6; -- available
 	constant OUTPUT_PORT_0_CS             : integer := 7;
-	constant FIFO_CS                      : integer := 8; -- 
+	constant FIFO_CS                      : integer := 8; -- available
 	constant INPUT_PORT_0_CS              : integer := 9;
 	constant SPI_0_CS                     : integer := 10; -- used by mem mapped fsm test
-	constant SPI_1_CS                     : integer := 11; -- used by pong uart
+	constant SPI_1_CS                     : integer := 11; -- available
 
 		
 	
@@ -345,31 +345,15 @@ begin
 	---------------------------------------------------------------------
 
 
-	-- ---------------------------------------------------------------------
-	-- u_pong_tx: entity work.uart_tx_test
-		-- port map ( 
-			-- clk => my_clock,
-			-- reset => reset,
-			-- cpu_start => cpu_start,
-			-- cpu_finish => cpu_finish,
-			-- n_cs => cs_bus(SPI_1_CS),
-			-- n_rd => n_rd_bus,
-			-- n_wr => n_wr_bus,
-			-- data_bus => data_bus,
-			-- addr_bus => local_addr_bus(3 downto 0),
-			-- tx => pong_tx
-		-- );
-	-- ---------------------------------------------------------------------
-	
 
-	u_pchu_rx: entity work.uart_w_fifo
+	u_pchu_uart: entity work.uart_w_fifo
 		port map ( 
 			clk  => my_clock,
 			rx => pong_rx,
 			tx => pong_tx,
 			reset => reset,
 			cpu_finish => cpu_finish,
-			n_cs => cs_bus(PCHU_RX_CS),
+			n_cs => cs_bus(PCHU_UART_CS),
 			n_rd => n_rd_bus,
 			n_wr => n_wr_bus,
 			data_bus => data_bus,
@@ -379,17 +363,6 @@ begin
 	
 	
 
-	u_fifo: entity  work.fifo_test 
-		port map ( 
-			clk => my_clock,
-			reset => reset,
-			cpu_finish => cpu_finish,
-			n_cs => cs_bus(FIFO_CS),
-			n_rd => n_rd_bus,
-			n_wr => n_wr_bus,
-			data_bus => data_bus,
-			addr_bus => local_addr_bus(3 downto 0)
-		);
 	
 	
 end structural;
