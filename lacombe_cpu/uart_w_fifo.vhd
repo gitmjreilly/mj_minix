@@ -25,7 +25,20 @@ entity uart_w_fifo is
 		n_rd : in STD_LOGIC;
 		n_wr : in STD_LOGIC;
 		data_bus : inout STD_LOGIC_VECTOR(15 downto 0);
-		addr_bus : in STD_LOGIC_VECTOR(3 downto 0)
+		addr_bus : in STD_LOGIC_VECTOR(3 downto 0);
+
+		-- Bunch of individual status bits to trigger interrupts
+		tx_fifo_is_empty  : out std_logic;
+		tx_fifo_is_half_empty : out std_logic;
+		tx_fifo_is_quarter_empty : out std_logic;
+		tx_fifo_is_full : out std_logic;
+
+		rx_fifo_is_empty : out std_logic;
+		rx_fifo_is_full : out std_logic;
+		rx_fifo_is_half_full : out std_logic;
+		rx_fifo_is_quarter_full : out std_logic
+		
+
 	);
 end uart_w_fifo;
 
@@ -107,7 +120,6 @@ architecture behavioral of uart_w_fifo is
 	signal tx_fsm2_n_reg, tx_fsm2_n_next : unsigned(2 downto 0);
 	signal tx_fsm2_b_reg, tx_fsm2_b_next : std_logic_vector(7 downto 0);
 	signal tx_reg, tx_next : std_logic;
-	signal tx_fifo_is_empty : std_logic; 
 	
 
 	COMPONENT blk_mem_gen_v7_3
@@ -408,7 +420,35 @@ begin
 							rx_fifo_out_addr_next <= rx_fifo_out_addr + 1;
 						end if;
 						dec_num_bytes_in_rx_fifo_tick <= '1';
+						
+
+					elsif (addr_bus = X"1") then
+						val_next <= "000000" & num_bytes_in_rx_fifo;
+
+					elsif (addr_bus = X"2") then
+						val_next <= "000000" & num_bytes_in_rx_fifo;
+
+					elsif (addr_bus = X"3") then
+						val_next <= "000000" & num_bytes_in_rx_fifo;
+
+					elsif (addr_bus = X"4") then
+						val_next <= "000000" & num_bytes_in_rx_fifo;
+
+					elsif (addr_bus = X"4") then
+						val_next <= "000000" & num_bytes_in_rx_fifo;
+
+					elsif (addr_bus = X"5") then
+						val_next <= "000000" & num_bytes_in_rx_fifo;
+
+					elsif (addr_bus = X"6") then
+						val_next <= "000000" & num_bytes_in_rx_fifo;
+
 					elsif (addr_bus = X"7") then
+						val_next <= "000000" & num_bytes_in_rx_fifo;
+
+
+						
+					elsif (addr_bus = X"E") then
 						val_next <= "000000" & num_bytes_in_rx_fifo;
 					elsif (addr_bus = X"F") then
 						val_next <= "000000" & num_bytes_in_tx_fifo;
@@ -424,6 +464,14 @@ begin
 	end process;
 	-----------------------------------------------------------------
 
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	-----------------------------------------------------------------
 	-- Keep track of inc_num_bytes_in_rx_fifo.
@@ -640,50 +688,7 @@ begin
 	-----------------------------------------------------------------
 
 
-	
-	
-	-- -----------------------------------------------------------------
-	-- -- Combinational State selection
-	-- -- for memory read FSM
-	-- -- This process handles read requests from a host
-	-- process (
-		-- r_state_reg, 
-		-- val_reg,
-		-- is_read_in_progress, 
-		-- addr_bus, cpu_finish,
-		-- tx_fifo_data_out
-	-- )
-	-- begin
-		-- r_state_next <= r_state_reg;
-		-- val_next <= val_reg;
 
-		-- case r_state_reg is 
-			-- -- A memory cycle can't begin until cpu_finish is asserted
-			-- -- so we wait for it in the idle state.
-			-- when r_state_idle =>
-
-				-- if (cpu_finish = '1') then
-					-- r_state_next <= r_state_0;
-				-- end if;
-				
-			-- -- We know a memory cycle may be in progress;
-			-- -- Is it addressed to us?
-			-- when r_state_0 =>
-				-- if (is_read_in_progress = '1') then
-					-- r_state_next <= r_state_1;
-				-- else
-				 	-- r_state_next <= r_state_idle;
-				-- end if;
-				
-			-- when r_state_1 =>
-				-- r_state_next <= r_state_idle;
-				-- val_next <= X"00" & tx_fifo_data_out;
-				
-				
-		-- end case;
-	-- end process;
-	-- -----------------------------------------------------------------
-	
 	
 	tx_fifo_is_empty <= '1' when num_bytes_in_tx_fifo = 0 else '0';
 
@@ -730,7 +735,7 @@ begin
 		tx_fsm2_n_reg,
 		tx_fsm2_b_reg,
 		s_tick,
-		tx_fifo_is_empty,
+		num_bytes_in_tx_fifo,
 		tx_fifo_data_out,
 		tx_fifo_out_addr,
 		tx_reg
@@ -748,7 +753,7 @@ begin
 		case tx_fsm2_state_reg is 
 
 			when tx_fsm2_state_idle =>
-				if (tx_fifo_is_empty = '0') then -- todo set this flag with combinational
+				if (num_bytes_in_tx_fifo > 0 ) then 
 					tx_fsm2_state_next <= tx_fsm2_state_start_bit;
 					-- The byte to be transmitted, tx_fifo_data_out, comes directly from block ram
 					tx_fsm2_b_next <= tx_fifo_data_out;
@@ -811,7 +816,16 @@ begin
 	
 
 
-	
+	-- Various transmitter and receiver status conditions
+	tx_fifo_is_empty <= '1' when num_bytes_in_tx_fifo = 0 else '0';
+	tx_fifo_is_half_empty <= '1' when num_bytes_in_tx_fifo <= (MAX_ADDR + 1)  / 2 else '0';
+	tx_fifo_is_quarter_empty <= '1' when num_bytes_in_tx_fifo <= (MAX_ADDR + 1)  / 1 else '0';
+	tx_fifo_is_full <= '1' when num_bytes_in_tx_fifo = (MAX_ADDR + 1) else '0';
+
+	rx_fifo_is_empty <= '1' when num_bytes_in_rx_fifo = 0 else '0';
+	rx_fifo_is_full <= '1' when num_bytes_in_rx_fifo = (MAX_ADDR + 1) else '0';
+	rx_fifo_is_half_full <= '1' when num_bytes_in_rx_fifo >= (MAX_ADDR + 1) / 2 else '0';
+	rx_fifo_is_quarter_full <= '1' when num_bytes_in_rx_fifo >= (MAX_ADDR + 1) / 4 else '0';
 	
 	
 	
