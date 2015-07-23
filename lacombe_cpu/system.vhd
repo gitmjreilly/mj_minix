@@ -240,11 +240,11 @@ begin
 	---------------------------------------------------------------------
 	u_uart : entity work.mmu_uart_top   -- works with sync clock regime
 		port map (
-			Clk => clk_counter(1), -- Fundamental clock 0->Spartan 1->Nexys for mmu UART OK as is 
+			Clk => my_clock, -- Fundamental clock 0->Spartan 1->Nexys for mmu UART OK as is 
 			Reset_n => reset_n,					-- neg assertion reset
 			TXD => TXD_BUS,
 			RXD => RXD_BUS,
-			ck_div => "0000000001001000", -- 72 for 115k ; 18	 (for 460 Kbps)
+			ck_div => "0000000010010000", -- 72 for 115k ; 18	 (for 460 Kbps)
 	--		ck_div => "0000001101100000", -- 72 * 12 = 864 for 9600
 			CE_N => cs_bus(UART_0_CS),
 			WR_N => n_wr_bus,
