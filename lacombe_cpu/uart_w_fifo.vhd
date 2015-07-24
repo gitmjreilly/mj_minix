@@ -33,6 +33,7 @@ entity uart_w_fifo is
 		tx_fifo_is_quarter_empty : inout std_logic;
 		tx_fifo_is_full : inout std_logic;
 
+		rx_fifo_has_char : inout std_logic;
 		rx_fifo_is_empty : inout std_logic;
 		rx_fifo_is_full : inout std_logic;
 		rx_fifo_is_half_full : inout std_logic;
@@ -394,6 +395,7 @@ begin
 		tx_fifo_is_half_empty,
 		tx_fifo_is_quarter_empty,
 		tx_fifo_is_full,
+		rx_fifo_has_char,
 		rx_fifo_is_empty,
 		rx_fifo_is_quarter_full,
 		rx_fifo_is_half_full,
@@ -444,30 +446,32 @@ begin
 	
 
 
+					elsif (addr_bus = X"1") then
+						val_next <= X"000" & "00" & rx_fifo_has_char & tx_fifo_is_empty;
 					
 
-					elsif (addr_bus = X"1") then
+					elsif (addr_bus = X"2") then
 						val_next <= X"000" & "000" & tx_fifo_is_empty;
 
-					elsif (addr_bus = X"2") then
+					elsif (addr_bus = X"3") then
 						val_next <= X"000" & "000" & tx_fifo_is_half_empty;
 
-					elsif (addr_bus = X"3") then
+					elsif (addr_bus = X"4") then
 						val_next <= X"000" & "000"  & tx_fifo_is_quarter_empty;
 
-					elsif (addr_bus = X"4") then
+					elsif (addr_bus = X"5") then
 						val_next <= X"000" & "000"  & tx_fifo_is_full;
 
-					elsif (addr_bus = X"5") then
+					elsif (addr_bus = X"6") then
 						val_next <= X"000" & "000" & rx_fifo_is_empty;
 
-					elsif (addr_bus = X"6") then
+					elsif (addr_bus = X"7") then
 						val_next <= X"000" & "000" & rx_fifo_is_half_full;
 
-					elsif (addr_bus = X"7") then
+					elsif (addr_bus = X"8") then
 						val_next <= X"000" & "000"  & rx_fifo_is_quarter_full;
 
-					elsif (addr_bus = X"8") then
+					elsif (addr_bus = X"9") then
 						val_next <= X"000" & "000"  & rx_fifo_is_full;
 
 
@@ -844,6 +848,7 @@ begin
 	tx_fifo_is_quarter_empty <= '1' when num_bytes_in_tx_fifo <= (MAX_ADDR + 1)  / 1 else '0';
 	tx_fifo_is_full <= '1' when num_bytes_in_tx_fifo = (MAX_ADDR + 1) else '0';
 
+	rx_fifo_has_char <= '1' when num_bytes_in_rx_fifo > 0 else '0';
 	rx_fifo_is_empty <= '1' when num_bytes_in_rx_fifo = 0 else '0';
 	rx_fifo_is_full <= '1' when num_bytes_in_rx_fifo = (MAX_ADDR + 1) else '0';
 	rx_fifo_is_half_full <= '1' when num_bytes_in_rx_fifo >= (MAX_ADDR + 1) / 2 else '0';
