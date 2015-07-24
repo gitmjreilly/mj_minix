@@ -237,28 +237,28 @@ begin
 		);
 	---------------------------------------------------------------------
 
-	---------------------------------------------------------------------
-	u_uart : entity work.mmu_uart_top   -- works with sync clock regime
-		port map (
-			Clk => my_clock, -- Fundamental clock 0->Spartan 1->Nexys for mmu UART OK as is 
-			Reset_n => reset_n,					-- neg assertion reset
-			TXD => TXD_BUS,
-			RXD => RXD_BUS,
-			ck_div => "0000000010010000", -- 72 for 115k ; 18	 (for 460 Kbps)
-	--		ck_div => "0000001101100000", -- 72 * 12 = 864 for 9600
-			CE_N => cs_bus(UART_0_CS),
-			WR_N => n_wr_bus,
-			RD_N => n_rd_bus,
-			A0  => local_addr_bus(0),
-			Data  => data_bus,
-			--        d_out_8   : out std_logic_vector(7 downto 0); NOT CONNECTED
-			-- interrupt signals- same signals as the status register bits
-			--        RX_full     : out std_logic;
-			--		TX_busy_n => tx_busy_n
-			RX_full => RX_FULL,
-			tx_busy_n => tx_busy_n
-		);
-	---------------------------------------------------------------------
+	-- ---------------------------------------------------------------------
+	-- u_uart : entity work.mmu_uart_top   -- works with sync clock regime
+		-- port map (
+			-- Clk => my_clock, -- Fundamental clock 0->Spartan 1->Nexys for mmu UART OK as is 
+			-- Reset_n => reset_n,					-- neg assertion reset
+			-- TXD => TXD_BUS,
+			-- RXD => RXD_BUS,
+			-- ck_div => "0000000010010000", -- 72 for 115k ; 18	 (for 460 Kbps)
+	-- --		ck_div => "0000001101100000", -- 72 * 12 = 864 for 9600
+			-- CE_N => cs_bus(UART_0_CS),
+			-- WR_N => n_wr_bus,
+			-- RD_N => n_rd_bus,
+			-- A0  => local_addr_bus(0),
+			-- Data  => data_bus,
+			-- --        d_out_8   : out std_logic_vector(7 downto 0); NOT CONNECTED
+			-- -- interrupt signals- same signals as the status register bits
+			-- --        RX_full     : out std_logic;
+			-- --		TX_busy_n => tx_busy_n
+			-- RX_full => RX_FULL,
+			-- tx_busy_n => tx_busy_n
+		-- );
+	-- ---------------------------------------------------------------------
 
 
    ---
@@ -346,6 +346,21 @@ begin
 
 
 
+	console_uart: entity work.uart_w_fifo
+		port map ( 
+			clk  => my_clock,
+			rx => RXD_BUS,
+			tx => TXD_BUS,
+			reset => reset,
+			cpu_finish => cpu_finish,
+			n_cs => cs_bus(UART_0_CS),
+			n_rd => n_rd_bus,
+			n_wr => n_wr_bus,
+			data_bus => data_bus,
+			addr_bus => local_addr_bus(3 downto 0)
+		);
+
+
 	u_pchu_uart: entity work.uart_w_fifo
 		port map ( 
 			clk  => my_clock,
@@ -360,8 +375,7 @@ begin
 			addr_bus => local_addr_bus(3 downto 0)
 		);
 	
-	
-	
+
 
 	
 	
