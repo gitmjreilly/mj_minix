@@ -237,29 +237,6 @@ begin
 		);
 	---------------------------------------------------------------------
 
-	-- ---------------------------------------------------------------------
-	-- u_uart : entity work.mmu_uart_top   -- works with sync clock regime
-		-- port map (
-			-- Clk => my_clock, -- Fundamental clock 0->Spartan 1->Nexys for mmu UART OK as is 
-			-- Reset_n => reset_n,					-- neg assertion reset
-			-- TXD => TXD_BUS,
-			-- RXD => RXD_BUS,
-			-- ck_div => "0000000010010000", -- 72 for 115k ; 18	 (for 460 Kbps)
-	-- --		ck_div => "0000001101100000", -- 72 * 12 = 864 for 9600
-			-- CE_N => cs_bus(UART_0_CS),
-			-- WR_N => n_wr_bus,
-			-- RD_N => n_rd_bus,
-			-- A0  => local_addr_bus(0),
-			-- Data  => data_bus,
-			-- --        d_out_8   : out std_logic_vector(7 downto 0); NOT CONNECTED
-			-- -- interrupt signals- same signals as the status register bits
-			-- --        RX_full     : out std_logic;
-			-- --		TX_busy_n => tx_busy_n
-			-- RX_full => RX_FULL,
-			-- tx_busy_n => tx_busy_n
-		-- );
-	-- ---------------------------------------------------------------------
-
 
    ---
 	--- Set up interrupt sources.  Those not connected to a device are
