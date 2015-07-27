@@ -25,6 +25,7 @@ entity uart_w_fifo is
 		n_rd : in STD_LOGIC;
 		n_wr : in STD_LOGIC;
 		data_bus : inout STD_LOGIC_VECTOR(15 downto 0);
+		fake_data_bus : out std_logic_vector(15 downto 0);
 		addr_bus : in STD_LOGIC_VECTOR(3 downto 0);
 
 		-- Bunch of individual status bits to trigger interrupts
@@ -55,7 +56,7 @@ architecture behavioral of uart_w_fifo is
 	-- These are the states the fifo fsm can be in.
 	type w_state_type is (w_state_idle, w_state_0);
 
-	type read_state_type is (read_state_idle, read_state_0);
+	type read_state_type is (read_state_idle, read_state_0, read_state_1);
 
 
 	signal read_state_reg, read_state_next : read_state_type;
@@ -99,7 +100,7 @@ architecture behavioral of uart_w_fifo is
 	signal inc_num_bytes_in_rx_fifo_tick : std_logic;
 	signal dec_num_bytes_in_rx_fifo_tick : std_logic;
 	
-	signal num_bytes_in_tx_fifo : std_logic_vector(9 downto 0);
+	signal num_bytes_in_tx_fifo : std_logic_vector(10 downto 0);
 	signal inc_num_bytes_in_tx_fifo_tick : std_logic;
 	signal dec_num_bytes_in_tx_fifo_tick : std_logic;
 	
@@ -137,7 +138,7 @@ architecture behavioral of uart_w_fifo is
 	
 	
 begin
-	data_bus <= (others => 'Z');
+	-- data_bus <= (others => 'Z');
 
 	
 	-----------------------------------------------------------------
@@ -419,70 +420,67 @@ begin
 			-- We know a memory cycle may be in progress;
 			-- Is it addressed to us?
 			when read_state_0 =>
+				read_state_next <= read_state_1;
+			
+			when read_state_1 =>
 				if (is_rx_fifo_read_in_progress = '1') then
 
-					if (addr_bus = X"0") then
-						read_state_next <= read_state_idle;
-						val_next <= X"00" & rx_fifo_data_out;
-						if (rx_fifo_out_addr = MAX_ADDR) then
-							rx_fifo_out_addr_next <= (others => '0');
-						else
-							rx_fifo_out_addr_next <= rx_fifo_out_addr + 1;
-						end if;
-						dec_num_bytes_in_rx_fifo_tick <= '1';
+					case addr_bus is 
 					
-
--- Various transmitter and receiver status conditions
-	-- tx_fifo_is_empty <= '1' when num_bytes_in_tx_fifo = 0 else '0';
-	-- tx_fifo_is_half_empty <= '1' when num_bytes_in_tx_fifo <= (MAX_ADDR + 1)  / 2 else '0';
-	-- tx_fifo_is_quarter_empty <= '1' when num_bytes_in_tx_fifo <= (MAX_ADDR + 1)  / 1 else '0';
-	-- tx_fifo_is_full <= '1' when num_bytes_in_tx_fifo = (MAX_ADDR + 1) else '0';
-
-	-- rx_fifo_is_empty <= '1' when num_bytes_in_rx_fifo = 0 else '0';
-	-- rx_fifo_is_full <= '1' when num_bytes_in_rx_fifo = (MAX_ADDR + 1) else '0';
-	-- rx_fifo_is_half_full <= '1' when num_bytes_in_rx_fifo >= (MAX_ADDR + 1) / 2 else '0';
-	-- rx_fifo_is_quarter_full <= '1' when num_bytes_in_rx_fifo >= (MAX_ADDR + 1) / 4 else '0';
-	
-	
-
-
-					elsif (addr_bus = X"1") then
-						val_next <= X"000" & "00" & rx_fifo_has_char & tx_fifo_is_empty;
 					
-
-					elsif (addr_bus = X"2") then
-						val_next <= X"000" & "000" & tx_fifo_is_empty;
-
-					elsif (addr_bus = X"3") then
-						val_next <= X"000" & "000" & tx_fifo_is_half_empty;
-
-					elsif (addr_bus = X"4") then
-						val_next <= X"000" & "000"  & tx_fifo_is_quarter_empty;
-
-					elsif (addr_bus = X"5") then
-						val_next <= X"000" & "000"  & tx_fifo_is_full;
-
-					elsif (addr_bus = X"6") then
-						val_next <= X"000" & "000" & rx_fifo_is_empty;
-
-					elsif (addr_bus = X"7") then
-						val_next <= X"000" & "000" & rx_fifo_is_half_full;
-
-					elsif (addr_bus = X"8") then
-						val_next <= X"000" & "000"  & rx_fifo_is_quarter_full;
-
-					elsif (addr_bus = X"9") then
-						val_next <= X"000" & "000"  & rx_fifo_is_full;
-
-
-
-
+						when X"0" =>
+							read_state_next <= read_state_idle;
+							val_next <= X"00" & rx_fifo_data_out;
+							if (rx_fifo_out_addr = MAX_ADDR) then
+								rx_fifo_out_addr_next <= (others => '0');
+							else
+								rx_fifo_out_addr_next <= rx_fifo_out_addr + 1;
+							end if;
+							dec_num_bytes_in_rx_fifo_tick <= '1';
 						
-					elsif (addr_bus = X"E") then
-						val_next <= "000000" & num_bytes_in_rx_fifo;
-					elsif (addr_bus = X"F") then
-						val_next <= "000000" & num_bytes_in_tx_fifo;
-					end if;
+
+
+						when X"1" =>
+							val_next <= X"000" & "00" & rx_fifo_has_char & tx_fifo_is_empty;
+						
+
+						when X"2" =>
+							val_next <= X"000" & "000" & tx_fifo_is_empty;
+
+						when X"3" =>
+							val_next <= X"000" & "000" & tx_fifo_is_half_empty;
+
+						when X"4" =>
+							val_next <= X"000" & "000"  & tx_fifo_is_quarter_empty;
+
+						when  X"5" =>
+							val_next <= X"000" & "000"  & tx_fifo_is_full;
+
+						when X"6" => 
+							val_next <= X"000" & "000" & rx_fifo_is_empty;
+
+						when X"7" =>
+							val_next <= X"000" & "000" & rx_fifo_is_half_full;
+
+						when X"8" =>
+							val_next <= X"000" & "000"  & rx_fifo_is_quarter_full;
+
+						when X"9" => 
+							val_next <= X"000" & "000"  & rx_fifo_is_full;
+
+
+
+
+							
+						when X"E" =>
+							val_next <= "000000" & num_bytes_in_rx_fifo;
+						when X"F" => 
+							val_next <= "00000" & num_bytes_in_tx_fifo;
+
+						when others =>
+							val_next <= X"4321";
+							
+					end case;
 
 
 				else
@@ -535,6 +533,9 @@ begin
 	-- we drive the data bus with the register containing the 
 	-- the requested value val_reg.  val_reg was populated
 	-- by the FSM above.
+	
+	fake_data_bus <= data_bus;
+
 	process (is_rx_fifo_read_in_progress, val_reg)
 	begin
 		if (is_rx_fifo_read_in_progress = '1') then
@@ -671,8 +672,7 @@ begin
 		tx_fsm_w_state_reg, 
 		is_host_write_in_progress, 
 		tx_fifo_in_addr,
-		cpu_finish, 
-		data_bus
+		cpu_finish
 	)
 	begin
 		tx_fsm_w_state_next <= tx_fsm_w_state_reg;
@@ -844,8 +844,8 @@ begin
 
 	-- Various transmitter and receiver status conditions
 	tx_fifo_is_empty <= '1' when num_bytes_in_tx_fifo = 0 else '0';
-	tx_fifo_is_half_empty <= '1' when num_bytes_in_tx_fifo <= (MAX_ADDR + 1)  / 2 else '0';
-	tx_fifo_is_quarter_empty <= '1' when num_bytes_in_tx_fifo <= (MAX_ADDR + 1)  / 1 else '0';
+	tx_fifo_is_half_empty <= '1' when (num_bytes_in_tx_fifo <= (MAX_ADDR + 1)  / 2) else '0';
+	tx_fifo_is_quarter_empty <= '1' when (num_bytes_in_tx_fifo <= (MAX_ADDR + 1)  / 4) else '0';
 	tx_fifo_is_full <= '1' when num_bytes_in_tx_fifo = (MAX_ADDR + 1) else '0';
 
 	rx_fifo_has_char <= '1' when num_bytes_in_rx_fifo > 0 else '0';
