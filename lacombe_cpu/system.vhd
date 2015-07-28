@@ -94,18 +94,6 @@ architecture structural of system is
 
 	
 	
-component jam_half_clock
-port
- (-- Clock in ports
-  CLK_IN1           : in     std_logic;
-  -- Clock out ports
-  CLK_OUT1          : out    std_logic;
-  -- Status and control signals
-  RESET             : in     std_logic
- );
-end component;
-
----------------------------------------------------------------------
 begin
 	reset_n <= NOT reset;
 	uart_tx <= txd_bus;
@@ -148,7 +136,7 @@ begin
 	-- we use the clock divided by 2.
 	-- my_clock <= clk_counter(0);
 
-jam_clock : jam_half_clock
+jam_clock : entity work.jam_half_clock
   port map
    (-- Clock in ports
     CLK_IN1 => clk,

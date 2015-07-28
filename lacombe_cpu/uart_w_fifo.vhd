@@ -96,7 +96,7 @@ architecture behavioral of uart_w_fifo is
 	
 	signal rx_fifo_data_out : std_logic_vector(7 downto 0);
 
-	signal num_bytes_in_rx_fifo : std_logic_vector(9 downto 0);
+	signal num_bytes_in_rx_fifo : std_logic_vector(10 downto 0);
 	signal inc_num_bytes_in_rx_fifo_tick : std_logic;
 	signal dec_num_bytes_in_rx_fifo_tick : std_logic;
 	
@@ -473,7 +473,7 @@ begin
 
 							
 						when X"E" =>
-							val_next <= "000000" & num_bytes_in_rx_fifo;
+							val_next <= "00000" & num_bytes_in_rx_fifo;
 						when X"F" => 
 							val_next <= "00000" & num_bytes_in_tx_fifo;
 
@@ -517,9 +517,13 @@ begin
 			num_bytes_in_rx_fifo <= (others => '0');
 		elsif (rising_edge(clk)) then
 			if (inc_num_bytes_in_rx_fifo_tick= '1' and dec_num_bytes_in_rx_fifo_tick = '0') then
-				num_bytes_in_rx_fifo <= num_bytes_in_rx_fifo + 1; 
+				if (num_bytes_in_rx_fifo < 1024) then 
+					num_bytes_in_rx_fifo <= num_bytes_in_rx_fifo + 1; 
+				end if;
 			elsif (inc_num_bytes_in_rx_fifo_tick = '0' and dec_num_bytes_in_rx_fifo_tick= '1') then
-				num_bytes_in_rx_fifo <= num_bytes_in_rx_fifo - 1; 
+				if (num_bytes_in_rx_fifo > 0) then 
+					num_bytes_in_rx_fifo <= num_bytes_in_rx_fifo - 1; 
+				end if;
 			end if;
 		end if;		
 	end process;
