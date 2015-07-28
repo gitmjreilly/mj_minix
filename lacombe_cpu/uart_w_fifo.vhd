@@ -634,9 +634,13 @@ begin
 			num_bytes_in_tx_fifo <= (others => '0');
 		elsif (rising_edge(clk)) then
 			if (inc_num_bytes_in_tx_fifo_tick= '1' and dec_num_bytes_in_tx_fifo_tick = '0') then
-				num_bytes_in_tx_fifo <= num_bytes_in_tx_fifo + 1; 
+				if (num_bytes_in_tx_fifo < 1024) then
+					num_bytes_in_tx_fifo <= num_bytes_in_tx_fifo + 1; 
+				end if;
 			elsif (inc_num_bytes_in_tx_fifo_tick = '0' and dec_num_bytes_in_tx_fifo_tick= '1') then
-				num_bytes_in_tx_fifo <= num_bytes_in_tx_fifo - 1; 
+				if (num_bytes_in_tx_fifo > 0) then
+					num_bytes_in_tx_fifo <= num_bytes_in_tx_fifo - 1; 
+				end if;
 			end if;
 		end if;		
 	end process;
