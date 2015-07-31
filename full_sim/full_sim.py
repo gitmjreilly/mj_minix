@@ -12,7 +12,6 @@ from addressspace import AddressSpace
 from mem_counter import Mem_Counter
 from ram import RAM
 from scheduler import Scheduler
-from serial_port import SerialPort
 from interrupt_controller import Interrupt_Controller
 from fifo_serial_port import FifoSerialPort
 from time import sleep
@@ -69,7 +68,13 @@ def construct_computer_system():
     global serial_1
     global serial_2
     
-    console_serial_port = SerialPort("Console")
+    console_serial_port = FifoSerialPort(
+        listen_port = 5000, 
+        input_delay = 120, 
+        output_delay = 120,
+        name = "Console")
+    
+    
     the_cpu = CPU()
     
     address_space = AddressSpace()
@@ -83,38 +88,38 @@ def construct_computer_system():
     # external terminal server process which acts as a multiplexor.
     serial_1 = FifoSerialPort(
         listen_port = 5500, 
-        input_delay = 120, 
-        output_delay = 120,
-        name = "tctlr port")
+        input_delay = 1200, 
+        output_delay = 1200,
+        name = "Pong Chu port")
     
-    # This "high" speed serial port is meant to be connected to an
-    # external disk controller process 
-    serial_2 = FifoSerialPort(
-        listen_port = 5600, 
-        input_delay = 120, 
-        output_delay = 120,
-        input_buffer_size = 600,
-        output_buffer_size = 600, 
-        name = "disk ctlr data port",
-        debug_flag = False)
+    # # This "high" speed serial port is meant to be connected to an
+    # # external disk controller process 
+    # serial_2 = FifoSerialPort(
+        # listen_port = 5600, 
+        # input_delay = 120, 
+        # output_delay = 120,
+        # input_buffer_size = 600,
+        # output_buffer_size = 600, 
+        # name = "disk ctlr data port",
+        # debug_flag = False)
     
-    # This "high" speed serial port is meant to be connected to an
-    # external disk controller process 
-    serial_3 = FifoSerialPort(
-        listen_port = 5601, 
-        input_delay = 120, 
-        output_delay = 120,
-        input_buffer_size = 16,
-        output_buffer_size = 16,
-        name = "disk ctlr ack port")
+    # # This "high" speed serial port is meant to be connected to an
+    # # external disk controller process 
+    # serial_3 = FifoSerialPort(
+        # listen_port = 5601, 
+        # input_delay = 120, 
+        # output_delay = 120,
+        # input_buffer_size = 16,
+        # output_buffer_size = 16,
+        # name = "disk ctlr ack port")
     
 
     # Please note address spaces can overlap. They are searched in FIFO order
     address_space.add_device(0xF000, 0xF00F, console_serial_port)
     address_space.add_device(0xF010, 0xF01F, interrupt_controller)
-    address_space.add_device(0xF020, 0xF02F, serial_1)
-    address_space.add_device(0xF030, 0xF03F, serial_2)
-    address_space.add_device(0xF040, 0xF04F, serial_3)
+    address_space.add_device(0xF090, 0xF09F, serial_1)
+    # address_space.add_device(0xF030, 0xF03F, serial_2)
+    # address_space.add_device(0xF040, 0xF04F, serial_3)
     address_space.add_device(0xF060, 0xF06F, counter_0)
 
     address_space.add_device(0x1F000, 0x1F00F, console_serial_port)
@@ -138,9 +143,9 @@ def construct_computer_system():
         counter_0.get_counter_is_zero, 
         1)
 
-    interrupt_controller.register_interrupt_source_function(
-        serial_3.get_input_data_available, 
-        2)
+    # interrupt_controller.register_interrupt_source_function(
+        # serial_3.get_input_data_available, 
+        # 2)
     
     
     scheduler = Scheduler()
@@ -158,9 +163,9 @@ def construct_computer_system():
     #     add_event(self, event_method, scheduled_time, name_of_event = "")
     serial_1.register_scheduler_function(scheduler.add_event)
  
-    serial_2.register_scheduler_function(scheduler.add_event)
+    # serial_2.register_scheduler_function(scheduler.add_event)
 
-    serial_3.register_scheduler_function(scheduler.add_event)
+    # serial_3.register_scheduler_function(scheduler.add_event)
     
     #
     # The timer/counter needs to schedule future events (ie. the ticks)
@@ -589,13 +594,13 @@ while (True):
         initMemoryProtection()
         continue
         
-    if (selection == "v"):    
-        serial_2.set_debug_flag(True)
-        continue
+    # if (selection == "v"):    
+        # serial_2.set_debug_flag(True)
+        # continue
            
-    if (selection == "V"):    
-        serial_2.set_debug_flag(False)
-        continue
+    # if (selection == "V"):    
+        # serial_2.set_debug_flag(False)
+        # continue
            
         
     if (selection == "q"):
