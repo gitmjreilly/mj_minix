@@ -1,0 +1,249 @@
+#!/usr/bin/python
+""" TCP based terminal server """
+
+import sys
+import socket
+import select
+from time import sleep
+
+# Constants?
+NUM_TERMINALS = 8
+BASE_TCP_PORT = 7000
+  
+   
+class Sim_Serial_Port(object):
+
+    def __init__(self, listen_port_num, description = ""):
+        print "Initializing sim serial port on tcp port %d" % listen_port_num
+        self.listen_port_num = listen_port_num
+        self.listen_socket = socket.socket()
+        self.listen_socket.bind((str(socket.INADDR_ANY) , listen_port_num))
+        self.listen_socket.listen(1)
+        self.client_socket = None
+        self.description = description
+        self.is_open = False
+        self.received_data = list()
+
+    def periodic_service(self):
+        poller_timeout_ms = 10
+
+        poller = select.poll()
+        if (self.is_open):
+            poller.register(self.client_socket, select.POLLIN)
+        else:
+            poller.register(self.listen_socket, select.POLLIN)
+
+        result_list = poller.poll(poller_timeout_ms)
+        
+        # Checks to see if poller timed out.
+        # If so, just go back and wait for more.
+        if (len(result_list) == 0) :
+            return
+
+        # We are only polling for one event so
+        # if we've gotten this far, we've either received data OR
+        # gotten a connection request to be accepted.
+        # We don't event need to look at the result list.
+        if (self.is_open):
+            print "DEBUG Got event on open socket. It is either data or close req"
+            data = self.client_socket.recv(4096)
+            if (len(data) == 0):
+                print "Read 0 data - Assumed to be a close from remote side"
+                print "Will close and stop listening to this socket"
+                self.client_socket.close()
+                self.is_open = False
+                self.received_data = list()
+            else:
+                print "DEBUG got data from [%s] adding to buffered data" % data
+                print "DEBUG appending all of it to self's received data"
+                self.received_data.extend(list(data))
+                s = "".join(self.received_data)
+                print "DEBUG new data list is [%s]" % s
+        else: # Port is not open so an event means we have recvd a connection request.
+            print "DEBUG Port was NOT open so we assume we got connection request"
+            (self.client_socket, address) = self.listen_socket.accept()
+            print "  DEBUG Accepted connection request."
+            self.is_open = True
+        
+    def get_data(self, num_bytes):
+        # This method should only be called when we KNOW num_bytes_are available
+        # while (True):
+            # if (len(self.received_data) >= num_bytes):
+                # break
+            # self.periodic_service
+            
+        print "DEBUG in get_data trying to return %d bytes" % num_bytes
+        print "DEBUG there are %d bytes in buffer" % len(self.received_data)
+        s = "".join(self.received_data[0:num_bytes])
+        self.received_data = self.received_data[num_bytes:]
+        return(s)
+        
+    def get_buffer_size(self):
+        return(len(self.received_data))
+        
+    def transmit_to_terminal(self, data):
+        if (self.is_open):
+            num_bytes_sent = self.client_socket.send(data)
+            print "DEBUG Sent %d bytes to terminal" % num_bytes_sent
+        else:
+            print "Warning terminal is not open; transmission discarded"
+            
+class CMD_Channel(object):
+
+    def __init__(self, description, dst_host, dst_port):
+        print "Initializing a command channel [%s] "
+        print "  Will attempt to connect to the simulator [%s %d]" % (dst_host, dst_port)
+        print "  Please NOTE commands are expected to end in LF only (ctl J)"
+        client_socket = socket.create_connection((dst_host, dst_port), 1)
+        if (client_socket is None):
+            print "Could not make connection; exiting."
+            sys.exit(1)
+        print "  Connection made!"
+        
+        self.description = description
+        self.socket = client_socket
+        self.active_line = ""
+        
+    def get_cmd(self):
+        #
+        # Gather up chars to form a command line
+        # If we've gathered up enough to form a line, we 
+        # return it.
+        # We buffer chars in active_line until we see EOL
+        # 
+        poller = select.poll()
+        poller.register(self.socket, select.POLLIN)
+        timeout_in_ms = 20
+        
+        while (True) :
+            result_list = poller.poll(timeout_in_ms)
+
+            if (len(result_list) == 0):
+                return("")
+            
+            data = self.socket.recv(1)
+            self.active_line += data
+                
+            if (self.active_line.endswith("\n")):
+                s = self.active_line.rstrip()
+                self.active_line = ""
+                return(s)
+
+            
+    def get_raw_data_from_host(self, num_bytes_to_receive):
+        poller = select.poll()
+        poller.register(self.socket, select.POLLIN)
+        timeout_in_ms = 20
+        data = ""
+        while (True):        
+            result_list = poller.poll(timeout_in_ms)
+        
+            # Check to see if data was received on the socket.
+            # Checks to see if poller timed out.
+            # If so, just go back and wait for more.
+            if (len(result_list) != 0) :
+                data += self.socket.recv(num_bytes_to_receive)
+                if (len(data) == num_bytes_to_receive):
+                    return(data)
+  
+    def send_to_host(self, s):
+        # TODO make sure ALL of s is sent.
+        num_sent = self.socket.send(s)
+        if (num_sent != len(s)) :
+            print "WARNING did not send all of string to host [%s]" % s
+  
+  
+def do_cmd(cmd_from_host):
+    global transmission_status
+    
+    print "DEBUG - Got command [%s] - Acting on it..." % cmd_from_host
+    if (cmd_from_host == "s"):
+        print "DEBUG received a buffer status command [%s]" % cmd_from_host
+        for serial_port_num in range(NUM_TERMINALS):
+            size = serial_ports[serial_port_num].get_buffer_size()
+            s = "%02X%1d" % (size, transmission_status[serial_port_num])
+            print "   " + s
+            # The protocol calls for line separation
+            cmd_channel.send_to_host(s + "\n")
+        print "----"
+    elif (cmd_from_host.startswith("r")):
+        # Receive FROM a terminal
+        #
+        # String is of form rPPYY
+        # pp is the port num in hex
+        # YY is the amount of data to return
+        # YY must be <= filled buffer size
+        l = list(cmd_from_host)
+        serial_port_num =   int( "".join(l[1:3]), 16)
+        num_bytes_to_send = int( "".join(l[3:7]), 16)
+        
+        print ("DEBUG Retrieiving [%04X] bytes from serial port buffer [%02x] " % 
+            (num_bytes_to_send, serial_port_num))
+        s = serial_ports[serial_port_num].get_data(num_bytes_to_send)
+        cmd_channel.send_to_host(s)
+        print "port num %d [%s]" % (serial_port_num, s)
+    elif (cmd_from_host.startswith("t")):
+        # String is of form tPPYY
+        # PP is the port num in hex
+        # YY is the amount of data to transmit
+        # Raw data comes after command line
+        l = list(cmd_from_host)
+        serial_port_num =   int( "".join(l[1:3]), 16)
+        num_bytes_to_send = int( "".join(l[3:5]), 16)
+        # Get the data from the host and transmit it to the correct terminal
+        data = cmd_channel.get_raw_data_from_host(num_bytes_to_send)
+        serial_ports[serial_port_num].transmit_to_terminal(data)
+        print "DEBUG Setting transmission status for port %d" % (serial_port_num)
+        transmission_status[serial_port_num] = 1
+        
+    elif (cmd_from_host.startswith("c")):
+        # String is of form cPP
+        # PP is the port num in hex
+        l = list(cmd_from_host)
+        serial_port_num =   int( "".join(l[1:3]), 16)
+        print "Clearing transmission status for port %d" % (serial_port_num)
+        transmission_status[serial_port_num] = 0
+        
+            
+
+  
+  
+#   
+# Main Program is Here
+# #
+    
+    
+def main():
+    global serial_ports
+    global cmd_channel
+    global transmission_status
+    
+    cmd_channel = CMD_Channel("cpu channel", "localhost", 5500)
+
+    # Transmission status per terminal
+    #   0 = no transmission in progress
+    #   1 = transmission complete
+    transmission_status = [0] * NUM_TERMINALS
+    serial_ports = dict()
+    for serial_port_num in range(NUM_TERMINALS):
+        serial_ports[serial_port_num] = Sim_Serial_Port(BASE_TCP_PORT + serial_port_num, "Serial Port %d" % serial_port_num)
+    
+    loop_delay_seconds = .1
+    loop_delay_seconds = .05
+    while (True):
+        sleep(loop_delay_seconds)
+        
+        cmd_from_cpu = cmd_channel.get_cmd()
+        if (len(cmd_from_cpu) != 0):
+            do_cmd(cmd_from_cpu)
+        
+        for serial_port_num in range(NUM_TERMINALS):
+            serial_ports[serial_port_num].periodic_service()
+
+    
+    
+    
+if (__name__ == "__main__"):
+    main()
+        
+
