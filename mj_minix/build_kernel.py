@@ -9,7 +9,7 @@ import os
 #
 # Main Program
 # 
-include_dir = "/home/mjamet/src/src-ten-year/minix_common"
+include_dir = "/home/mjamet/git-src/repo/minix_common"
 output_dir = "./obj";
 
 

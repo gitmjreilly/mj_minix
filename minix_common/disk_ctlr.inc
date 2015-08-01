@@ -4,17 +4,11 @@
 #include <strings.inc>
 
 
-(*
- * Memory Map
- *   F030 data port
- *   F040 serial interrput port
- *)
 
 
-#define DC_DATA_PORT $F030
-#define DC_STATUS_PORT $F031
-#define DC_ACK_DATA_PORT $F040
-#define DC_ACK_STATUS_PORT $F041
+#define DC_DATA_PORT $F090
+#define DC_TX_EMPTY_ADDR $F092
+#define DC_NUM_BYTES_IN_RX_ADDR $F09E
  
 #define FILE_BUFFER_SIZE 256 
  
@@ -29,7 +23,34 @@ begin
    dc_num_chars_read := 256
 end;
 (*===================================================================*)
+
    
+(*===================================================================*)
+procedure dc_wait_for_tx_empty();
+var
+   p : ^integer;
+begin
+   p := DC_TX_EMPTY_ADDR;
+   while (1) do begin
+      if (p^ = 1) then break
+   end
+end;
+(*===================================================================*)
+
+   
+(*===================================================================*)
+procedure dc_wait_for_rx_n(n : integer);
+var
+   p : ^integer;
+begin
+   p := DC_NUM_BYTES_IN_RX_ADDR;
+   while (1) do begin
+      if (p^ >= n) then break
+   end
+end;
+(*===================================================================*)
+   
+ 
  
 (*===================================================================*)
 procedure _abs_32_to_512(
@@ -83,39 +104,6 @@ end;
 
 
 (*=================================================================*)
-(* 
-    IN_EMPTY_MASK  = 0x0001
-    IN_FULL_MASK   = 0x0002
-    OUT_EMPTY_MASK = 0x0004
-    OUT_FULL_MASK  = 0x0008
-*)
-procedure disk_ctlr_wait_for_ack();
-   
-var
-   tmp : integer,
-   s : integer,
-   ack_data_port : ^integer,
-   ack_status_port : ^integer,
-   tmp_str : array[5] of integer;
-   
-begin
-   ack_data_port   := DC_ACK_DATA_PORT;
-   ack_status_port := DC_ACK_STATUS_PORT;  
-   
-   (* Wait until the disk controller sends an ack that last action was completed *)
-   while (1) do begin
-      s := ack_status_port^;
-      if ( (s AND $0001) = 0) then break
-   end;
-
-   k_cpr(ANSI_YELLOW, "DEBUG got ack data from disk ctlr"); k_prln(1);
-   (* Read the data to empty the ack port *)
-   tmp := ack_data_port^
-end;
-(*=================================================================*)
-
-
-(*=================================================================*)
 (* We are given an absolute 32 bit value on disk to read from
  * and a seg:offset pair in mem to write to .
  *
@@ -165,7 +153,7 @@ begin
    
    p^ := ASCII_LF;
    
-   disk_ctlr_wait_for_ack();
+   dc_wait_for_rx_n(512);
    
    i := 0;
    SetES(dst_seg);
@@ -221,7 +209,10 @@ begin
     * Note we only care about the lower 16 bit word of the sector num *)
    num_to_hex_str(sector_num[1], adr(tmp_str));
 
-   (* Send the read command *)
+   
+   dc_wait_for_tx_empty();
+   
+   (* Send the write command *)
    p := DC_DATA_PORT;
    p^ := $77; (* Send the 'w' *)
     
@@ -244,8 +235,7 @@ begin
       src_ptr := src_ptr + 1
    end;
    
-
-   disk_ctlr_wait_for_ack()
+   dc_wait_for_tx_empty()
    
     
 end;
@@ -278,7 +268,7 @@ begin
    p^ := ASCII_LF;
    
    (* Now that we have ve sent cmd; wait for response from dc *)
-   disk_ctlr_wait_for_ack();
+   dc_wait_for_rx_n(9);
    
    (* Retrieve the one byte binary status; 0 == good *)
    stat := p^;
@@ -319,12 +309,13 @@ begin
    p^ := ASCII_LF;
    
    (* Now that we have sent cmd; wait for response from dc *)
-   disk_ctlr_wait_for_ack();
+   dc_wait_for_rx_n(1);
+
    
    (* Retrieve the one byte binary status; 0 == good *)
    stat := p^;
    if (stat <> 0) then begin
-      k_pr("Could not close file..."); k_prln(1)
+      k_pr(" WARNING In DC Could not close file..."); k_prln(1)
    end; 
    
    k_pr("File has been closed in disk_ctlr_close_file."); k_prln(1);
@@ -351,7 +342,7 @@ begin
    
    (* Now that we have sent cmd; wait for response from dc 
     * indicating read has completed and data is in fifo  *)
-   disk_ctlr_wait_for_ack();
+   dc_wait_for_rx_n(256);
    
    (* Please note; no status is returned.  Just FILE_BUFFER_SIZE bytes of data *)
    i := 0;

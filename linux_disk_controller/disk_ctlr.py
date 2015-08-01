@@ -94,9 +94,8 @@ def do_cmd(cmd_from_host):
         data = disk_file.read(SECTOR_SIZE)
         print "DEBUG Sending data to host; size of data is <%08X>" % (len(data))
         host_channel.send_to_host(data)
-        print "DEBUG sending to interrupt channel"
-        host_interrupt_channel.send_to_host("1")
-        print "DEBUG finished sending to interrupt channel"
+
+        print "DEBUG finished sending to host"
        
     if (cmd_from_host.startswith("w")):
         # Write a sector to the disk file
@@ -112,8 +111,7 @@ def do_cmd(cmd_from_host):
         data_from_host = host_channel.get_raw_data_from_host(SECTOR_SIZE)
         disk_file.write(data_from_host)
         disk_file.flush()
-        print "DEBUG sending to interrupt channel to notify host write is done."
-        host_interrupt_channel.send_to_host("1")
+        print "DEBUG write is done."
        
     if (cmd_from_host.startswith("O")):
         # Open a file on host running this program
@@ -126,8 +124,7 @@ def do_cmd(cmd_from_host):
             host_channel.send_to_host(chr(1))
             size_str = 	"%08X" % (0)
             host_channel.send_to_host(size_str)
-            print "DEBUG sending ACK to interrupt channel"
-            host_interrupt_channel.send_to_host("1")
+            print "DEBUG finished sending 9 bytes to host (for already open file)"
             return
 
         # FileName is the name of the local file
@@ -146,35 +143,31 @@ def do_cmd(cmd_from_host):
             print "  DEBUG file is empty or non existent..."
             host_channel.send_to_host(chr(1))
             host_channel.send_to_host(size_str)
-            print "DEBUG sending to interrupt channel"
-            host_interrupt_channel.send_to_host("1")
+            print "DEBUG finished sending to host about empty file"
             return
 
         # If we got this far, we know file exists and we can read it
         my_file = open(filename, "r")
         file_is_open = True
-        print "  DEBUG file <%s> has been opened" % (filename)
+        print "  DEBUG file <%s> has been opened; size is <%s>" % (filename, size_str)
         host_channel.send_to_host(chr(0))
         host_channel.send_to_host(size_str)
-        print "DEBUG sending ACK to interrupt channel"
-        host_interrupt_channel.send_to_host("1")
+        print "DEBUG finished sending to host about properly opened file"
         return
 
     if (cmd_from_host.startswith("R")):
         data = my_file.read(256)
-        print "DEBUG Sending data to host" 
+        print "DEBUG Sending  (opened file) data to host" 
         host_channel.send_to_host(data)
         if (len(data) != 256):
             pad = (256 - len(data)) * [chr(0)]
             host_channel.send_to_host("".join(pad))
-        print "DEBUG Sending ack to host"
-        host_interrupt_channel.send_to_host("1")
+        print "DEBUG finished sending 256 to host"
 
     if (cmd_from_host.startswith("C")):
         my_file.close()
         file_is_open = False
         host_channel.send_to_host(chr(0))
-        host_interrupt_channel.send_to_host("1")
         
   
 def create_test_file(file_name):
@@ -197,7 +190,6 @@ def main():
     
  
     host_channel = Host_Channel("host channel", "localhost", HOST_PORT)
-    host_interrupt_channel = Host_Channel("host interrupt channel", "localhost", HOST_INTERRUPT_PORT)
 
     disk_file_name = raw_input("Enter (existing) disk file name >")    
     disk_file = open(disk_file_name, 'r+')

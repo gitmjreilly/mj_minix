@@ -2178,13 +2178,13 @@ begin
       adr(sys_task_r_stack),
       SYSTASK);
 
-
-   load_task(
+(*
+    load_task(
       adr(pty_task),
       adr(pty_task_p_stack),
       adr(pty_task_r_stack),
       PTY);
-
+ *)
    load_task(
       adr(clock_task),
       adr(clk_task_p_stack),
@@ -2288,7 +2288,7 @@ begin
             adr(Status));
           
          if (Status <> 0) then begin
-            k_pr("Could not load header..");
+            k_pr("Could not load header.."); k_prln(1);
             continue
          end;
          

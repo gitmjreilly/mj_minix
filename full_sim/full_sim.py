@@ -84,13 +84,11 @@ def construct_computer_system():
     
     counter_0 = Mem_Counter()
     
-    # This "high" speed serial port is meant to be connected to an
-    # external terminal server process which acts as a multiplexor.
     serial_1 = FifoSerialPort(
-        listen_port = 5500, 
+        listen_port = 5600, 
         input_delay = 1200, 
         output_delay = 1200,
-        name = "Pong Chu port")
+        name = "Disk Controller")
     
     # # This "high" speed serial port is meant to be connected to an
     # # external disk controller process 
