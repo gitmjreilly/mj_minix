@@ -40,12 +40,12 @@ var
    x : integer,
    p : ^integer;
 begin
-   p := $F021;
+   p := $F036;
    while (1) do begin
       (* If the input buffer is NOT empty, get the char *)
-      if ((p^ AND $0001) = 0) then break
+      if (p^  = 0) then break
    end;
-   p := $F020;
+   p := $F030;
    x := p^;
    retval(x)
 end;      
@@ -59,12 +59,12 @@ procedure _tctlr_write_one(ch : integer);
 var
    p : ^integer;
 begin
-   p := $F021;
+   p := $F035;
    while (1) do begin
       (* If the output fifo is NOT full, break and send char *)
-      if ((p^ AND $0008) <> $0008) then break
+      if (p^  = 0) then break
    end;
-   p := $F020;
+   p := $F030;
    p^ := ch
 end;
 (*=================================================================*)
@@ -139,7 +139,7 @@ var
    p : ^integer;
    
 begin
-   p := $F020;
+   p := $F030;
    p^ := $72;  (* Send the 'r' *)
    p^ := $30;  (* Send the '0' *)
    p^ := $30 + terminal_num; (* Send ASCII for terminal num *)
@@ -175,7 +175,7 @@ var
    
 begin
    (* Send the "status" command *)
-   p1 := $F020;
+   p1 := $F030;
    p1^ := $73;  (* Send the 's' *)
    p1^ := ASCII_LF;
   
@@ -206,7 +206,7 @@ var
    p : ^integer,
    tmp_str : array[5] of integer;
 begin
-   p := $F020;
+   p := $F030;
    p^ := $63;  (* Send the 'c' *)
    p^ := $30;  (* Send the '0' *)
    p^ := $30 + terminal_num; (* Send ASCII for terminal num *) 

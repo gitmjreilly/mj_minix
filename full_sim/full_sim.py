@@ -90,6 +90,12 @@ def construct_computer_system():
         output_delay = 1200,
         name = "Disk Controller")
     
+    serial_2 = FifoSerialPort(
+        listen_port = 5500, 
+        input_delay = 1200, 
+        output_delay = 1200,
+        name = "Terminal Controller")
+    
     # # This "high" speed serial port is meant to be connected to an
     # # external disk controller process 
     # serial_2 = FifoSerialPort(
@@ -100,23 +106,14 @@ def construct_computer_system():
         # output_buffer_size = 600, 
         # name = "disk ctlr data port",
         # debug_flag = False)
-    
-    # # This "high" speed serial port is meant to be connected to an
-    # # external disk controller process 
-    # serial_3 = FifoSerialPort(
-        # listen_port = 5601, 
-        # input_delay = 120, 
-        # output_delay = 120,
-        # input_buffer_size = 16,
-        # output_buffer_size = 16,
-        # name = "disk ctlr ack port")
+   
     
 
     # Please note address spaces can overlap. They are searched in FIFO order
     address_space.add_device(0xF000, 0xF00F, console_serial_port)
     address_space.add_device(0xF010, 0xF01F, interrupt_controller)
     address_space.add_device(0xF090, 0xF09F, serial_1)
-    # address_space.add_device(0xF030, 0xF03F, serial_2)
+    address_space.add_device(0xF030, 0xF03F, serial_2)
     # address_space.add_device(0xF040, 0xF04F, serial_3)
     address_space.add_device(0xF060, 0xF06F, counter_0)
 
@@ -161,7 +158,7 @@ def construct_computer_system():
     #     add_event(self, event_method, scheduled_time, name_of_event = "")
     serial_1.register_scheduler_function(scheduler.add_event)
  
-    # serial_2.register_scheduler_function(scheduler.add_event)
+    serial_2.register_scheduler_function(scheduler.add_event)
 
     # serial_3.register_scheduler_function(scheduler.add_event)
     

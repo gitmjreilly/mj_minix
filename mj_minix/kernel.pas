@@ -2178,13 +2178,13 @@ begin
       adr(sys_task_r_stack),
       SYSTASK);
 
-(*
+
     load_task(
       adr(pty_task),
       adr(pty_task_p_stack),
       adr(pty_task_r_stack),
       PTY);
- *)
+ 
    load_task(
       adr(clock_task),
       adr(clk_task_p_stack),
@@ -2205,13 +2205,12 @@ begin
    (*
     * Load a temporary shell to exercise pty task
     *)
-(*
+
    load_task(
       adr(shell2_proc),
       adr(shell2_proc_p_stack),
       adr(shell2_proc_r_stack),
       3);
-*)
  
    DebugOut(KERNEL_COLOR, "5 second delay.", 1);
    (*
