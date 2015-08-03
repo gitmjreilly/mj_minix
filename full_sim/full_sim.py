@@ -96,17 +96,7 @@ def construct_computer_system():
         output_delay = 1200,
         name = "Terminal Controller")
     
-    # # This "high" speed serial port is meant to be connected to an
-    # # external disk controller process 
-    # serial_2 = FifoSerialPort(
-        # listen_port = 5600, 
-        # input_delay = 120, 
-        # output_delay = 120,
-        # input_buffer_size = 600,
-        # output_buffer_size = 600, 
-        # name = "disk ctlr data port",
-        # debug_flag = False)
-   
+  
     
 
     # Please note address spaces can overlap. They are searched in FIFO order
@@ -114,7 +104,6 @@ def construct_computer_system():
     address_space.add_device(0xF010, 0xF01F, interrupt_controller)
     address_space.add_device(0xF090, 0xF09F, serial_1)
     address_space.add_device(0xF030, 0xF03F, serial_2)
-    # address_space.add_device(0xF040, 0xF04F, serial_3)
     address_space.add_device(0xF060, 0xF06F, counter_0)
 
     address_space.add_device(0x1F000, 0x1F00F, console_serial_port)

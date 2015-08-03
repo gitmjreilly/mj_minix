@@ -22,8 +22,8 @@ entity system is port (
 	SevenSegSegments : out std_logic_vector(7 downto 0);
 	address_switches : in std_logic_vector(7 downto 0);
 	
-	uart_tx : out std_logic;
-	uart_rx : in std_logic;
+	console_uart_tx : out std_logic;
+	console_uart_rx : in std_logic;
 	N_UB : out std_logic;
 	N_LB : out std_logic;
 	external_ram_cs : out std_logic;
@@ -37,12 +37,11 @@ entity system is port (
 	-- End of signals for Nexys 3
 	INT_SW : in std_logic;
 
-	-- Test Pong uart TX
-	pong_tx : out std_logic;
-	pong_rx : in std_logic;
+	disk_uart_tx : out std_logic;
+	disk_uart_rx : in std_logic;
 	
-   -- 16 single bit outputs	
-	output_port_0 : out std_logic
+	ptc_uart_tx : out std_logic;
+	ptc_uart_rx : in std_logic
 	
 );
 end system;
@@ -50,20 +49,33 @@ end system;
 
 
 architecture structural of system is
-	constant RAM_CS                       : integer := 0;
-	constant ROM_CS                       : integer := 1;
-	constant UART_0_CS                    : integer := 2;
-	constant COUNTER_0_CS                 : integer := 3;
-	constant PCHU_UART_CS                 : integer := 4; -- used by pchu fifo uart!
-	constant INTERRUPT_CONTROLLER_CS      : integer := 5;
-	constant SPI_2_CS                     : integer := 6; -- available
-	constant OUTPUT_PORT_0_CS             : integer := 7;
-	constant FIFO_CS                      : integer := 8; -- available
-	constant INPUT_PORT_0_CS              : integer := 9;
-	constant SPI_0_CS                     : integer := 10; -- used by mem mapped fsm test
-	constant SPI_1_CS                     : integer := 11; -- available
-
-		
+	-- constant RAM_CS            : std_logic_vector(15 downto 0)  := "1111111111111110";
+	-- constant ROM_CS            : std_logic_vector(15 downto 0)  := "1111111111111101";
+	-- constant CONSOLE_UART_CS   : std_logic_vector(15 downto 0)  := "1111111111111011";
+	-- constant COUNTER_0_CS      : std_logic_vector(15 downto 0)  := "1111111111110111";
+	-- constant DISK_UART_CS      : std_logic_vector(15 downto 0)  := "1111111111101111"; 
+	-- constant INT_CONTROLLER_CS : std_logic_vector(15 downto 0)  := "1111111111011111";
+	-- constant BLANK_20_CS       : std_logic_vector(15 downto 0)  := "1111111110111111"; 
+	-- constant PTC_UART_CS       : std_logic_vector(15 downto 0)  := "1111111101111111";
+	-- constant BLANK_40_CS       : std_logic_vector(15 downto 0)  := "1111111011111111"; 
+	-- constant BLANK_50_CS       : std_logic_vector(15 downto 0)  := "1111110111111111";
+	-- constant BLANK_70_CS       : std_logic_vector(15 downto 0)  := "1111101111111111"; 
+	-- constant BLANK_80_CS       : std_logic_vector(15 downto 0)  := "1111011111111111"; 
+	-- constant NO_CS             : std_logic_vector(15 downto 0)  := "1111111111111111";
+	
+	constant RAM_CS            : integer  := 0;
+	constant ROM_CS            : integer  := 1;
+	constant CONSOLE_UART_CS   : integer  := 2;
+	constant COUNTER_0_CS      : integer  := 3;
+	constant DISK_UART_CS      : integer  := 4;
+	constant INT_CONTROLLER_CS : integer  := 5;
+	constant BLANK_20_CS       : integer  := 6;
+	constant PTC_UART_CS       : integer  := 7;
+	constant BLANK_40_CS       : integer  := 8;
+	constant BLANK_50_CS       : integer  := 9;
+	constant BLANK_70_CS       : integer  := 10;
+	constant BLANK_80_CS       : integer  := 11;
+	constant NO_CS             : integer  := 12;
 	
 
 	---------------------------------------------------------------------
@@ -96,8 +108,8 @@ architecture structural of system is
 	
 begin
 	reset_n <= NOT reset;
-	uart_tx <= txd_bus;
-	rxd_bus <= uart_rx;
+	console_uart_tx <= txd_bus;
+	rxd_bus <= console_uart_rx;
 
 	n_wr <= n_wr_bus;
 	n_rd <= n_rd_bus;
@@ -291,7 +303,7 @@ jam_clock : entity work.jam_half_clock
 			data_bus_14 => data_bus(14),
 			data_bus_15 => data_bus(15),
 			int_out => cpu_int,
-			n_cs => cs_bus(INTERRUPT_CONTROLLER_CS),
+			n_cs => cs_bus(INT_CONTROLLER_CS),
 			n_rd => n_rd_bus,
 			n_wr => n_wr_bus,
 			int_in => multiple_int_sources
@@ -299,43 +311,43 @@ jam_clock : entity work.jam_half_clock
 	---------------------------------------------------------------------
 
 
-	---------------------------------------------------------------------
-	-- Test output port - no actual use.
-	u_output_port_0 : process (my_clock, reset, data_bus)
-	begin
-		if (reset = '1') then
-			output_port_0 <= '0';
-		elsif (rising_edge(my_clock)) then
-			if (cpu_finish = '1' and n_wr_bus = '0' and cs_bus(OUTPUT_PORT_0_CS) = '0')  then
-				output_port_0 <= data_bus(0);
-			end if;
-		end if;
-	end process;
-	---------------------------------------------------------------------
+	-- ---------------------------------------------------------------------
+	-- -- Test output port - no actual use.
+	-- u_output_port_0 : process (my_clock, reset, data_bus)
+	-- begin
+		-- if (reset = '1') then
+			-- output_port_0 <= '0';
+		-- elsif (rising_edge(my_clock)) then
+			-- if (cpu_finish = '1' and n_wr_bus = '0' and cs_bus(OUTPUT_PORT_0_CS) = '0')  then
+				-- output_port_0 <= data_bus(0);
+			-- end if;
+		-- end if;
+	-- end process;
+	-- ---------------------------------------------------------------------
 	
 	
-	---------------------------------------------------------------------
-	-- The logic below works for a simple, unbuffered input, no clock required.
-	-- Test input port - no actual use
-	input_port_0: data_bus <=
-		"0000000000000" & address_switches(7 downto 5)  when (n_rd_bus = '0' AND cs_bus(INPUT_PORT_0_CS) = '0') AND local_addr_bus(3 downto 0) = x"0000" else
-		"ZZZZZZZZZZZZZZZZ";
-	---------------------------------------------------------------------
+	-- ---------------------------------------------------------------------
+	-- -- The logic below works for a simple, unbuffered input, no clock required.
+	-- -- Test input port - no actual use
+	-- input_port_0: data_bus <=
+		-- "0000000000000" & address_switches(7 downto 5)  when (n_rd_bus = '0' AND cs_bus(INPUT_PORT_0_CS) = '0') AND local_addr_bus(3 downto 0) = x"0000" else
+		-- "ZZZZZZZZZZZZZZZZ";
+	-- ---------------------------------------------------------------------
 
-	---------------------------------------------------------------------
-	mem_mapped_peripheral : entity work.mem_mapped_fsm
-		port map (
-			clk => my_clock,
-			reset => reset,
-			cpu_start => cpu_start,
-			cpu_finish => cpu_finish,
-			n_cs => cs_bus(SPI_0_CS),
-			n_rd => n_rd_bus,
-			n_wr => n_wr_bus,
-			data_bus => data_bus,
-			addr_bus => local_addr_bus(3 downto 0)
-		);
-	---------------------------------------------------------------------
+	-- ---------------------------------------------------------------------
+	-- mem_mapped_peripheral : entity work.mem_mapped_fsm
+		-- port map (
+			-- clk => my_clock,
+			-- reset => reset,
+			-- cpu_start => cpu_start,
+			-- cpu_finish => cpu_finish,
+			-- n_cs => cs_bus(SPI_0_CS),
+			-- n_rd => n_rd_bus,
+			-- n_wr => n_wr_bus,
+			-- data_bus => data_bus,
+			-- addr_bus => local_addr_bus(3 downto 0)
+		-- );
+	-- ---------------------------------------------------------------------
 
 
 
@@ -346,7 +358,7 @@ jam_clock : entity work.jam_half_clock
 			tx => TXD_BUS,
 			reset => reset,
 			cpu_finish => cpu_finish,
-			n_cs => cs_bus(UART_0_CS),
+			n_cs => cs_bus(CONSOLE_UART_CS),
 			n_rd => n_rd_bus,
 			n_wr => n_wr_bus,
 			data_bus => data_bus,
@@ -354,14 +366,28 @@ jam_clock : entity work.jam_half_clock
 		);
 
 
-	u_pchu_uart: entity work.uart_w_fifo
+	disk_uart: entity work.uart_w_fifo
 		port map ( 
 			clk  => my_clock,
-			rx => pong_rx,
-			tx => pong_tx,
+			rx => disk_uart_rx,
+			tx => disk_uart_tx,
 			reset => reset,
 			cpu_finish => cpu_finish,
-			n_cs => cs_bus(PCHU_UART_CS),
+			n_cs => cs_bus(DISK_UART_CS),
+			n_rd => n_rd_bus,
+			n_wr => n_wr_bus,
+			data_bus => data_bus,
+			addr_bus => local_addr_bus(3 downto 0)
+		);
+	
+	ptc_uart: entity work.uart_w_fifo
+		port map ( 
+			clk  => my_clock,
+			rx => ptc_uart_rx,
+			tx => ptc_uart_tx,
+			reset => reset,
+			cpu_finish => cpu_finish,
+			n_cs => cs_bus(PTC_UART_CS),
 			n_rd => n_rd_bus,
 			n_wr => n_wr_bus,
 			data_bus => data_bus,
