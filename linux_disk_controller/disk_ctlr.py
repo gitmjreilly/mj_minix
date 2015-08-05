@@ -3,8 +3,7 @@
 
 import os
 import sys
-import socket
-import select
+import serial
 from time import sleep
 
 # Constants
@@ -66,6 +65,38 @@ class Host_Channel(object):
   
 
   
+   
+class Serial_Host_Channel(object):
+
+    def __init__(self, description, serial_device, baud_rate):
+        print "Initializing a serial host channel [%s] " % description
+        print "  Description [%s]" % (description)
+        print "  Please NOTE commands from host are expected to end in LF only (ctl J)"
+        
+        self.serial_port = serial.Serial(port => serial_device, baud_rate => baud_rate)
+        self.description = description
+        
+        
+    def get_cmd(self):
+        s = ""
+        while (True) :            
+            data = self.serial_port.read()
+            if (data == "\n"):
+                return(s)
+
+            s += data
+  
+  
+    def get_raw_data_from_host(self, num_bytes_to_receive):
+        data = self.serial_port.read(num_bytes_to_receive)
+        return(data)
+  
+  
+    def send_to_host(self, s):
+        num_sent += self.serial_port.write(s)
+        print "Info - sent data [%d bytes] from disk controller to host" % len(s)
+  
+
   
   
 def do_cmd(cmd_from_host):
@@ -187,13 +218,25 @@ def main():
     global host_interrupt_channel
     global disk_file
     global file_is_open
-    
  
-    host_channel = Host_Channel("host channel", "localhost", HOST_PORT)
-
+    if (len(sys.argv) != 4) :
+        print "USAGE - prog sim host port"
+        print "USAGE - prog real serial_device speed"
+        sys.exit(1)
+        
+    (program_name, mode, arg1, arg2) = sys.argv    
+    if (mode == "sim"):
+        host_channel = Host_Channel("host channel", arg1, arg2)
+    elsif (mode == "real"):
+        host_channel = Serial_Host_Channel("host channel", arg1, arg2)
+        
+ 
     disk_file_name = raw_input("Enter (existing) disk file name >")    
     disk_file = open(disk_file_name, 'r+')
     file_is_open = False
+ 
+ 
+ 
     print "Waiting for commands from host ..."
     
     while (True):

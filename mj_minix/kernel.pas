@@ -2042,12 +2042,15 @@ begin
    DebugOut(KERNEL_COLOR, "Patching interrupt vector...", 1);
    (* Mark vectors as DATA_RW for simulator so they may be patched.
     * The LONG_TYPE_STORE instruction is a nop on the actual h/w. *)
+    
+   (*
    asm
       1 0xFD00 LONG_TYPE_STORE
       1 0xFD01 LONG_TYPE_STORE
       1 0xFD02 LONG_TYPE_STORE
       1 0xFD03 LONG_TYPE_STORE
    end;
+   *)
    Ptr := $FD00;
    Ptr^ := $0004; # BRANCH
    Ptr := $FD01;
@@ -2056,18 +2059,19 @@ begin
    Ptr := $FD02;
    Ptr^ := $0004; # BRANCH
    Ptr := $FD03;
-   Ptr^ := adr(s_call);
+   Ptr^ := adr(s_call)
 
    (* Mark vectors as CODE_RO for simulator so their contents
     * may be executed. The LONG_TYPE_STORE instruction is a 
     * nop on the actual h/w. *)
+    (*
    asm
       0 0xFD00 LONG_TYPE_STORE
       0 0xFD01 LONG_TYPE_STORE
       0 0xFD02 LONG_TYPE_STORE
       0 0xFD03 LONG_TYPE_STORE
    end
-   
+   *)
 end;
 #####################################################################
 
@@ -2107,6 +2111,7 @@ begin
       We assume CS is 0 upon entry.
    *)
   
+   debug_flag := 1;
 
 
    interrupt_status_ptr := $F010;
@@ -2133,7 +2138,6 @@ begin
  
    NIL_PROC := 0;
 
-   debug_flag := 1;
 
 
    (* Slot entries used by process code - bit mask for p_flags. *)
