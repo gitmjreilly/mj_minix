@@ -70,8 +70,8 @@ def construct_computer_system():
     
     console_serial_port = FifoSerialPort(
         listen_port = 5000, 
-        input_delay = 120, 
-        output_delay = 120,
+        input_delay = 1200, 
+        output_delay = 1200,
         name = "Console")
     
     
@@ -457,6 +457,7 @@ def help_message():
     print "v - debug disk ctlr serial port"
     print "V = NO debug disk ctlr serial port"
     print "P - Initialize memory protection"
+    print "p - Set memory protection state (True or False)"
     print "e - set counter inc divisor (8 = 43ms w/12Mhz clock"
     print "q - quit"
 
@@ -577,6 +578,15 @@ while (True):
     if (selection == "P"):    
         initMemoryProtection()
         continue
+        
+    if (selection == "p"):
+        f = raw_input("set memory protection flag (y/n)? ");
+        if (f.upper() == "Y"):
+            print "Setting to true"
+            address_space.set_memory_protection_flag(True)
+        else:
+            print "Setting to false"
+            address_space.set_memory_protection_flag(False)
         
     # if (selection == "v"):    
         # serial_2.set_debug_flag(True)

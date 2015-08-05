@@ -144,11 +144,16 @@ end;
 
 
 (*=================================================================*)
+(* halt doesn't really "halt."  It spins in place so it doesn't
+ * cause the simulator to stop running.
+ *)
 procedure halt();
+var
+   x : integer;
 begin
-   asm
-      halt
-   end
+   while (1) do
+      x := x
+  
 end;
 (*=================================================================*)
 

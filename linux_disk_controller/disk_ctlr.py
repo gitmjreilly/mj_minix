@@ -4,6 +4,7 @@
 import os
 import sys
 import serial
+import socket
 from time import sleep
 
 # Constants
@@ -73,7 +74,7 @@ class Serial_Host_Channel(object):
         print "  Description [%s]" % (description)
         print "  Please NOTE commands from host are expected to end in LF only (ctl J)"
         
-        self.serial_port = serial.Serial(port => serial_device, baud_rate => baud_rate)
+        self.serial_port = serial.Serial(port = serial_device, baud_rate = baud_rate)
         self.description = description
         
         
@@ -225,10 +226,14 @@ def main():
         sys.exit(1)
         
     (program_name, mode, arg1, arg2) = sys.argv    
+    arg2 = int(arg2)
     if (mode == "sim"):
         host_channel = Host_Channel("host channel", arg1, arg2)
-    elsif (mode == "real"):
+    elif (mode == "real"):
         host_channel = Serial_Host_Channel("host channel", arg1, arg2)
+    else:
+	print "ERROR mode must be real or sim"
+	sys.exit(1)
         
  
     disk_file_name = raw_input("Enter (existing) disk file name >")    

@@ -17,6 +17,7 @@ class AddressSpace(object):
         self.device_list = []
         self.type_buffer = [AddressSpace.NO_ACCESS] * AddressSpace.MEMORY_SIZE
         self.is_fatal_memory_error = False
+        self.is_memory_protection_on = True
 
     def __str__(self):
         return("No string representation")
@@ -44,11 +45,12 @@ class AddressSpace(object):
         
   
     def read(self, absolute_address):
-        if (self.type_buffer[absolute_address] != AddressSpace.DATA_RW):
-            print "FATAL Error!  Tried to read from addr %08X but type is NOT DATA_RW." % \
-                absolute_address
-            self.is_fatal_memory_error = True
-            return(0)
+        if (self.is_memory_protection_on) :
+            if (self.type_buffer[absolute_address] != AddressSpace.DATA_RW):
+                print "FATAL Error!  Tried to read from addr %08X but type is NOT DATA_RW." % \
+                    absolute_address
+                self.is_fatal_memory_error = True
+                return(0)
 
         device_is_found = 0
         for memory_mapped_device in self.device_list:
@@ -63,11 +65,12 @@ class AddressSpace(object):
 
         
     def code_read(self, absolute_address):
-        if (self.type_buffer[absolute_address] != AddressSpace.CODE_RO):
-            print "FATAL Error!  Tried to read CODE from addr %08X but type is NOT CODE_RO." % \
-                absolute_address
-            self.is_fatal_memory_error = True
-            return(0)
+        if (self.is_memory_protection_on) :
+            if (self.type_buffer[absolute_address] != AddressSpace.CODE_RO):
+                print "FATAL Error!  Tried to read CODE from addr %08X but type is NOT CODE_RO." % \
+                    absolute_address
+                self.is_fatal_memory_error = True
+                return(0)
 
         device_is_found = 0
         for memory_mapped_device in self.device_list:
@@ -82,11 +85,12 @@ class AddressSpace(object):
 
         
     def write(self, absolute_address, value):    
-        if (self.type_buffer[absolute_address] != AddressSpace.DATA_RW):
-            print "FATAL Error!  Tried to write to addr %08X but type is not data." % \
-                absolute_address
-            self.is_fatal_memory_error = True
-            return(0)
+        if (self.is_memory_protection_on) :
+            if (self.type_buffer[absolute_address] != AddressSpace.DATA_RW):
+                print "FATAL Error!  Tried to write to addr %08X but type is not data." % \
+                    absolute_address
+                self.is_fatal_memory_error = True
+                return(0)
 
         device_is_found = 0
         for memory_mapped_device in self.device_list:
@@ -103,7 +107,8 @@ class AddressSpace(object):
     def write_type(self, absolute_address, value):    
         self.type_buffer[absolute_address] = value
         
- 
+    def set_memory_protection_flag(self, state):
+        self.is_memory_protection_on = state
         
 class TestMemMappedDevice(object):
 
