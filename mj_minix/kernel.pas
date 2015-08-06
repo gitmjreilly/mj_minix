@@ -247,7 +247,7 @@ var
    Addr0 : integer,
    Addr1 : integer,
    Addr2 : integer,
-   FileName: array [13] of integer,
+   FileName: array [40] of integer,
    DataSize: integer,
    LoadAddress: integer,
    StartAddress: integer,
@@ -380,6 +380,20 @@ begin
       POPF
    end
 end;
+
+
+
+(*===================================================================*)
+procedure LongTypeStore(LongPtr : integer, Val : integer);
+begin
+   ASM
+      R_FETCH 1 - FETCH
+      R_FETCH 2 - FETCH
+      LONG_TYPE_STORE
+   END
+end;
+(*===================================================================*)
+
 
 (*===================================================================*)
 (*
@@ -883,17 +897,11 @@ end;
 
 #####################################################################
 (*
-  ASCII  file format 
-  Has to be ASCII to work with USBWiz
 
-  Return 3 on bad open
-  Return 1 if invalid magic number
-  Return 4 is...
- 
-  The Load File format, in words (MSB First), is:
+  The Binary Simulator Load File format, in words (MSB First), is:
      0000
      0002
-     SSSS  (prog size in words, excluding header)
+     SSSS  (Size in words, excluding header)
      LLLL  (load address - NB 16 bits only)
      AAAA  (Start address - NB 16 bits only)
      program... (SSSS hex words)
@@ -911,7 +919,7 @@ end;
   
  
 *)
-(*
+
 procedure load_file(
    FileNamePtr : t_word_ptr, 
    program_size_ptr : ^integer, 
@@ -945,39 +953,40 @@ begin
    ConsolePrintStr("Load Name is :", 0);
    ConsolePrintStr(FileNamePtr, 1);
 
-   BIOS_OpenFile(FileNamePtr, 0, StatusPtr);
+
+   disk_ctlr_open_file(FileNamePtr, StatusPtr);
    if StatusPtr^ <> 0 then begin
       StatusPtr^ := 3;
       return
    end;
    ConsolePrintStr("File has been opened.", 1);
 
-   Read4(adr(magic));
+   magic := dc_get_file_word();
    if magic <> 0 then begin
       ConsolePrintStr("Did not see a magic zero in the loaded file!", 1);
       StatusPtr^ := 1;
-      BIOS_CloseFile(adr(Tmp));
+      disk_ctlr_close_file(adr(Tmp));
       return
    end;
    ConsolePrintStr("magic zero has been read.", 1);
 
-   Read4(adr(magic));
+   magic := dc_get_file_word();
    if magic <> 2 then begin
       ConsolePrintStr("Did not see magic 2 in the loaded file!", 1);
       StatusPtr^ := 1;
-      BIOS_CloseFile(adr(Tmp));
+      disk_ctlr_close_file(adr(Tmp));
       return
    end;
    ConsolePrintStr("Magic 2 has been read.", 1);
 
-   Read4(program_size_ptr);
+   program_size_ptr^ := dc_get_file_word();
    size := program_size_ptr^;
    ConsolePrintStr("Data Size has been read.", 1);
 
-   Read4(load_address_ptr);
+   load_address_ptr^ := dc_get_file_word();
    ConsolePrintStr("Load address has been read.", 1);
 
-   Read4(start_address_ptr);
+   start_address_ptr^ := dc_get_file_word();
    ConsolePrintStr("Start address has been read.", 1);
 
 
@@ -992,7 +1001,7 @@ begin
 
    proc_ptr^.flags := 1;
    
-   BufPtr := LoadAddress;
+   BufPtr := load_address_ptr^;
    while size  <> 0 do begin
       size := size - 1;
 
@@ -1000,13 +1009,20 @@ begin
          ConsolePrintStr("*", 0)
       end;
 
-      Read4(adr(Tmp));
+      (* This byte is the simulator "type" byte - not used on live h/w 
+       * Set the type as r/w == 1 and then set it to match input file *)
+      tmp := dc_get_file_byte();
+      LongTypeStore(BufPtr, 1);
+      
+      tmp := dc_get_file_word();
       LongStore(BufPtr, Tmp);
+      LongTypeStore(BufPtr, tmp);
+
       BufPtr := BufPtr + 1
    end;
    ConsolePrintStr("", 1);
 
-   BIOS_CloseFile(adr(Tmp));
+   disk_ctlr_close_file(adr(Tmp));
    if Tmp <> 0 then begin
       StatusPtr^ := 4
    end;
@@ -1019,8 +1035,8 @@ begin
    StatusPtr^ := 0
 
 end;
-*)
 #####################################################################
+
 
 #####################################################################
 (*
@@ -2043,14 +2059,14 @@ begin
    (* Mark vectors as DATA_RW for simulator so they may be patched.
     * The LONG_TYPE_STORE instruction is a nop on the actual h/w. *)
     
-   (*
+   
    asm
       1 0xFD00 LONG_TYPE_STORE
       1 0xFD01 LONG_TYPE_STORE
       1 0xFD02 LONG_TYPE_STORE
       1 0xFD03 LONG_TYPE_STORE
    end;
-   *)
+   
    Ptr := $FD00;
    Ptr^ := $0004; # BRANCH
    Ptr := $FD01;
@@ -2059,19 +2075,19 @@ begin
    Ptr := $FD02;
    Ptr^ := $0004; # BRANCH
    Ptr := $FD03;
-   Ptr^ := adr(s_call)
+   Ptr^ := adr(s_call);
 
    (* Mark vectors as CODE_RO for simulator so their contents
     * may be executed. The LONG_TYPE_STORE instruction is a 
     * nop on the actual h/w. *)
-    (*
+   
    asm
       0 0xFD00 LONG_TYPE_STORE
       0 0xFD01 LONG_TYPE_STORE
       0 0xFD02 LONG_TYPE_STORE
       0 0xFD03 LONG_TYPE_STORE
    end
-   *)
+   
 end;
 #####################################################################
 
@@ -2301,11 +2317,11 @@ begin
          continue
       end;
       
-      (*
+      
       BIOS_StrCmp(ArgV, "load_file", adr(Ans));
       if Ans = 1 then begin
          ConsoleOut(KERNEL_COLOR, "Enter name of file to load>", 0);
-         ConsoleGetStr(adr(FileName));
+         k_gets(adr(FileName));
 
          ConsoleOut(KERNEL_COLOR, "Enter proc_num >", 0);
          ConsoleGetStr(adr(Line));
@@ -2342,7 +2358,7 @@ begin
 
          continue
       end;
-      *)
+      
       
       (*
       BIOS_StrCmp(ArgV, "load2", adr(Ans));

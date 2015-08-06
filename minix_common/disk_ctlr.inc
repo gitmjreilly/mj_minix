@@ -282,7 +282,7 @@ begin
       i := i + 1
    end;
    s[i] := 0;
-   k_pr(" Size str is : "); k_pr(adr(s)); k_prln(1);
+   k_pr("In disk_ctlr_open_file Size str is : "); k_pr(adr(s)); k_prln(1);
    
    (* Initialize num_chars read every time we open a new file *)
    dc_num_chars_read := 256;
