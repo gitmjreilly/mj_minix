@@ -386,6 +386,7 @@ end;
 (*===================================================================*)
 procedure LongTypeStore(LongPtr : integer, Val : integer);
 begin
+   return;
    ASM
       L_VAR -1 FETCH
       L_VAR -2 FETCH
@@ -2060,13 +2061,14 @@ begin
    (* Mark vectors as DATA_RW for simulator so they may be patched.
     * The LONG_TYPE_STORE instruction is a nop on the actual h/w. *)
     
-   
+   (*
    asm
       1 0xFD00 LONG_TYPE_STORE
       1 0xFD01 LONG_TYPE_STORE
       1 0xFD02 LONG_TYPE_STORE
       1 0xFD03 LONG_TYPE_STORE
    end;
+   *)
    
    Ptr := $FD00;
    Ptr^ := $0004; # BRANCH
@@ -2076,19 +2078,19 @@ begin
    Ptr := $FD02;
    Ptr^ := $0004; # BRANCH
    Ptr := $FD03;
-   Ptr^ := adr(s_call);
+   Ptr^ := adr(s_call)
 
    (* Mark vectors as CODE_RO for simulator so their contents
     * may be executed. The LONG_TYPE_STORE instruction is a 
     * nop on the actual h/w. *)
-   
+   (*
    asm
       0 0xFD00 LONG_TYPE_STORE
       0 0xFD01 LONG_TYPE_STORE
       0 0xFD02 LONG_TYPE_STORE
       0 0xFD03 LONG_TYPE_STORE
    end
-   
+   *)   
 end;
 #####################################################################
 
@@ -2200,12 +2202,14 @@ begin
       SYSTASK);
 
 
+    (*  
     load_task(
       adr(pty_task),
       adr(pty_task_p_stack),
       adr(pty_task_r_stack),
       PTY);
- 
+   *)
+   
    load_task(
       adr(clock_task),
       adr(clk_task_p_stack),

@@ -69,12 +69,12 @@ class Host_Channel(object):
    
 class Serial_Host_Channel(object):
 
-    def __init__(self, description, serial_device, baud_rate):
-        print "Initializing a serial device [%s] rate [%d] " % (serial_device, baud_rate)
+    def __init__(self, description, serial_device, baudrate):
+        print "Initializing a serial device [%s] rate [%d] " % (serial_device, baudrate)
         print "  Description [%s]" % (description)
         print "  Please NOTE commands from host are expected to end in LF only (ctl J)"
         
-        self.serial_port = serial.Serial(port = serial_device, baud_rate = baud_rate)
+        self.serial_port = serial.Serial(port = serial_device, baudrate = baudrate)
         self.description = description
         
         
@@ -94,7 +94,7 @@ class Serial_Host_Channel(object):
   
   
     def send_to_host(self, s):
-        num_sent += self.serial_port.write(s)
+        num_sent = self.serial_port.write(s)
         print "Info - sent data [%d bytes] from disk controller to host" % len(s)
   
 
