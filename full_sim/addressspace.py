@@ -17,7 +17,7 @@ class AddressSpace(object):
         self.device_list = []
         self.type_buffer = [AddressSpace.NO_ACCESS] * AddressSpace.MEMORY_SIZE
         self.is_fatal_memory_error = False
-        self.is_memory_protection_on = True
+        self.is_memory_protection_on = False
 
     def __str__(self):
         return("No string representation")
@@ -37,7 +37,7 @@ class AddressSpace(object):
             max_address = memory_mapped_device['max_address']
             if ( (absolute_address >= base_address) and (absolute_address <= max_address) ) :
                 relative_address = absolute_address - base_address
-                return(memory_mapped_device['device'].read(relative_address))
+                return(memory_mapped_device['device'].read(relative_address), self.type_buffer[absolute_address])
         
         print("Fatal Error: no device mapped to address %x" % absolute_address)
         # exit(1)    

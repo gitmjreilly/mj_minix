@@ -151,12 +151,29 @@ procedure halt();
 var
    x : integer;
 begin
+   asm
+      HALT
+   end;
    while (1) do
       x := x
   
 end;
 (*=================================================================*)
 
+ 
+ 
+(*===================================================================*)
+procedure LongTypeStore(LongPtr : integer, Val : integer);
+begin
+   ASM
+      L_VAR -1 FETCH
+      L_VAR -2 FETCH
+      LONG_TYPE_STORE
+   END
+end;
+(*===================================================================*)
+
+ 
  
 (*=================================================================*)
 begin
@@ -165,12 +182,11 @@ begin
       k_rstack RP_STORE
    END;
 
-
-   pr("Starting second stage loader now!  We expect a sim file."); 
-
    data_ptr := $F000;
    rx_empty_ptr := $F006;
    
+   pr("Starting second stage loader now!  We expect a sim file."); 
+
    magic := get_word();
    if (magic <> 0) then begin
       pr("Did not see magic 0");
@@ -198,7 +214,17 @@ begin
       
       type_byte := get_byte();
       data_word := get_word();
+      
+      
+      
+      
+      (* Support mem types esp for use in simulator *)
+      LongTypeStore(load_addr, 1);
+      
       load_addr^ := data_word;
+      
+      LongTypeStore(load_addr, type_byte);
+
       load_addr := load_addr + 1
    
    end;

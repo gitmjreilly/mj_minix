@@ -34,6 +34,7 @@ my $tmp;
     printf("r - return to terminal\n");
     printf("f - send file to sim\n");
     printf("z - exit program\n");
+    printf("local menu >");
     chomp($ch = <STDIN>);
     printf("$ch\n");
     if ($ch eq 'z') { exit(0) } 

@@ -66,6 +66,18 @@ class FifoSerialPort(object):
         self._num_bytes_in_tx_fifo = 0
         self._num_bytes_in_rx_fifo = 0
         
+    def reset(self):
+        self._input_producer = 0
+        self._input_consumer = 0
+        self._output_producer = 0
+        self._output_consumer = 0
+        
+        self._num_bytes_in_tx_fifo = 0
+        self._num_bytes_in_rx_fifo = 0
+        
+    
+    
+        
 
     def set_input_delay(self, input_delay):
         self._input_delay = input_delay

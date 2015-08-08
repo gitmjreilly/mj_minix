@@ -387,8 +387,8 @@ end;
 procedure LongTypeStore(LongPtr : integer, Val : integer);
 begin
    ASM
-      R_FETCH 1 - FETCH
-      R_FETCH 2 - FETCH
+      L_VAR -1 FETCH
+      L_VAR -2 FETCH
       LONG_TYPE_STORE
    END
 end;
@@ -937,6 +937,7 @@ var
    WordCount: integer,
    seg_val : integer,
    magic : integer,
+   mem_type : integer,
    BufPtr: t_word_ptr;
 
 begin
@@ -1011,12 +1012,12 @@ begin
 
       (* This byte is the simulator "type" byte - not used on live h/w 
        * Set the type as r/w == 1 and then set it to match input file *)
-      tmp := dc_get_file_byte();
+      mem_type := dc_get_file_byte();
       LongTypeStore(BufPtr, 1);
       
       tmp := dc_get_file_word();
       LongStore(BufPtr, Tmp);
-      LongTypeStore(BufPtr, tmp);
+      LongTypeStore(BufPtr, mem_type);
 
       BufPtr := BufPtr + 1
    end;
@@ -2127,7 +2128,7 @@ begin
       We assume CS is 0 upon entry.
    *)
   
-   debug_flag := 1;
+   debug_flag := 0;
 
 
    interrupt_status_ptr := $F010;
@@ -2360,45 +2361,7 @@ begin
       end;
       
       
-      (*
-      BIOS_StrCmp(ArgV, "load2", adr(Ans));
-      if Ans = 1 then begin
-
-         ConsoleOut(KERNEL_COLOR, "Enter process table logical num>", 0);
-         ConsoleGetStr(adr(Line));
-         BIOS_HexStrToNum(adr(Line), adr(slot_num));
-
-         load_file_2(
-            adr(DataSize), 
-            adr(LoadAddress),
-            adr(StartAddress), 
-            slot_num,
-            adr(Status));
-
-         ConsoleOut(KERNEL_COLOR, "Data Size : ", 0);
-         BIOS_NumToHexStr(DataSize, ArgV);
-         ConsoleOut(KERNEL_COLOR, ArgV, 1);
-
-         ConsoleOut(KERNEL_COLOR, "Load Address : ", 0);
-         BIOS_NumToHexStr(LoadAddress, ArgV);
-         ConsoleOut(KERNEL_COLOR, ArgV, 1);
-
-         ConsoleOut(KERNEL_COLOR, "Start Address : ", 0);
-         BIOS_NumToHexStr(StartAddress, ArgV);
-         ConsoleOut(KERNEL_COLOR, ArgV, 1);
-
-         ConsoleOut(KERNEL_COLOR, "Status : ", 0);
-         BIOS_NumToHexStr(Status, ArgV);
-         ConsoleOut(KERNEL_COLOR, ArgV, 1);
-
-         ConsoleOut(KERNEL_COLOR, "CS : ", 0);
-         proc_ptr :=  proc_addr(slot_num);
-         BIOS_NumToHexStr(proc_ptr^.cs, ArgV);
-         ConsoleOut(KERNEL_COLOR, ArgV, 1);
-
-         continue
-      end;
-      *)
+  
 
       BIOS_StrCmp(ArgV, "run", adr(Ans));
       if Ans = 1 then begin

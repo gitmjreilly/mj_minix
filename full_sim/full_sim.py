@@ -211,8 +211,8 @@ def memory_dump() :
 
     i = 1
     while (i <= size) :
-        value= address_space.super_read(start_addr)
-        print "   %04X: %04X" % (start_addr, value)
+        (value, type)= address_space.super_read(start_addr)
+        print "   %04X: %04X %04d" % (start_addr, value, type)
         start_addr = start_addr + 1
         i = i + 1
 
@@ -257,12 +257,6 @@ def run_simulator(single_step_mode):
 
         scheduler.do_scheduled_events(time) 
         
-        if (is_keyboard_interrupt) :
-            print "\n\nGot kbd int.  Breaking at clock tick : %d" % time
-            print "  Time (in secs) is : %02f" % human_time
-            is_keyboard_interrupt = 0
-            return
-
         
         if ( (hundreth_second_tick == 1200000) ) :
             hundreth_second_tick = 0
@@ -274,7 +268,13 @@ def run_simulator(single_step_mode):
             continue
             
 
-        # Have the interrupt controller check all of its sources
+        if (is_keyboard_interrupt) :
+            print "\n\nGot kbd int.  Breaking at clock tick : %d" % time
+            print "  Time (in secs) is : %02f" % human_time
+            is_keyboard_interrupt = 0
+            return
+
+            # Have the interrupt controller check all of its sources
         interrupt_controller.poll_interrupt_sources() 
         global_interrupt = interrupt_controller.get_output()
 
@@ -440,6 +440,7 @@ def help_message():
     print "h - This help message"
     print "r - run the simulator"
     print "s - STEP the simulator"
+    print "R - reset pc to 0"
     print "a - show scheduler"
     print "d - show state"
     print "m - dump memory"
@@ -520,6 +521,19 @@ while (True):
         print "STEP simulator"
         run_simulator(1)
         print the_cpu
+        continue
+        
+    if (selection == "R"):
+        the_cpu.PC.write(0)
+        the_cpu.RSP.write(0xFE00)
+        the_cpu.PSP.write(0xFF00)
+        the_cpu.CS.write(0)
+        the_cpu.DS.write(0)
+        the_cpu.ES.write(0)
+        the_cpu.INT_CTL_LOW.write(0)
+        console_serial_port.reset()
+        serial_1.reset()
+        serial_2.reset()
         continue
         
     if (selection == "d"):
