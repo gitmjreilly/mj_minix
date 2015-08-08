@@ -165,6 +165,8 @@ end;
 (*===================================================================*)
 procedure LongTypeStore(LongPtr : integer, Val : integer);
 begin
+   return;
+   
    ASM
       L_VAR -1 FETCH
       L_VAR -2 FETCH

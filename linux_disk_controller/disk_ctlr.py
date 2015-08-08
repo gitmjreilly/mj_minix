@@ -70,7 +70,7 @@ class Host_Channel(object):
 class Serial_Host_Channel(object):
 
     def __init__(self, description, serial_device, baud_rate):
-        print "Initializing a serial host channel [%s] " % description
+        print "Initializing a serial device [%s] rate [%d] " % (serial_device, baud_rate)
         print "  Description [%s]" % (description)
         print "  Please NOTE commands from host are expected to end in LF only (ctl J)"
         
@@ -230,7 +230,7 @@ def main():
     if (mode == "sim"):
         host_channel = Host_Channel("host channel", arg1, arg2)
     elif (mode == "real"):
-        host_channel = Serial_Host_Channel("host channel", arg1, arg2)
+        host_channel = Serial_Host_Channel("Serial Host Channel", arg1, arg2)
     else:
 	print "ERROR mode must be real or sim"
 	sys.exit(1)
