@@ -279,7 +279,7 @@ def main():
     (program_name, mode, arg1, arg2) = sys.argv    
     arg2 = int(arg2)
     if (mode == "sim"):
-        cmd_channel = CMS_Channel("CMD channel", arg1, arg2)
+        cmd_channel = CMD_Channel("CMD channel", arg1, arg2)
     elif (mode == "real"):
         cmd_channel = Serial_CMD_Channel("Serial CMD Channel", arg1, arg2)
     else:
