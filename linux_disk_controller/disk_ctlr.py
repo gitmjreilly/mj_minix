@@ -220,12 +220,12 @@ def main():
     global disk_file
     global file_is_open
  
-    if (len(sys.argv) != 4) :
-        print "USAGE - prog sim host port"
-        print "USAGE - prog real serial_device speed"
+    if (len(sys.argv) != 5) :
+        print "USAGE - prog sim host port disk_file"
+        print "USAGE - prog real serial_device speed disk_file"
         sys.exit(1)
         
-    (program_name, mode, arg1, arg2) = sys.argv    
+    (program_name, mode, arg1, arg2, disk_file_name) = sys.argv    
     arg2 = int(arg2)
     if (mode == "sim"):
         host_channel = Host_Channel("host channel", arg1, arg2)
@@ -235,9 +235,14 @@ def main():
         print "ERROR mode must be real or sim"
         sys.exit(1)
         
- 
-    disk_file_name = raw_input("Enter (existing) disk file name >")    
-    disk_file = open(disk_file_name, 'r+')
+    try:
+       disk_file = open(disk_file_name, 'r+')
+    except:
+        print "ERROR Could not open disk_file <%s>" % (disk_file_name)
+        sys.exit(1)
+
+
+
     file_is_open = False
  
  

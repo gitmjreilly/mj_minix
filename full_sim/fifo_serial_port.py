@@ -9,11 +9,11 @@ import signal
 # Constants for default serial delays
 # Can be overridden.
 #
-# If Clock = 12 Mhz, 1200, corresponds to 10,000 CPS (~115Kbs)
-#   (12 * 10^6) / 10^4 = 12 * 10^2 = 1200
+# If Clock = 10Mhz, 868, corresponds to 11,520 CPS (~115Kbs)
+#   (10 * 10^6) / 11520 = 868
 #
-INPUT_DELAY  = 1200
-OUTPUT_DELAY = 1200
+INPUT_DELAY  = 868
+OUTPUT_DELAY = 868
 
 class FifoSerialPort(object):
 

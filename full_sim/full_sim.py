@@ -20,7 +20,7 @@ from time import sleep
 ######################################################################
 # Global Vars
 human_time = 0.00
-hundreth_second_tick = 0
+tenth_second_tick = 0
 ######################################################################
 
 
@@ -239,7 +239,7 @@ def run_simulator(single_step_mode):
     global is_keyboard_interrupt
     global break_point_list
     global interrupt_controller
-    global hundreth_second_tick
+    global tenth_second_tick
     global human_time
 
     # We are trying to simulate the fact that instructions
@@ -252,14 +252,14 @@ def run_simulator(single_step_mode):
     while (True) :
        
         time = time + 1
-        hundreth_second_tick = hundreth_second_tick + 1
+        tenth_second_tick = tenth_second_tick + 1
         scheduler.set_time(time)
 
         scheduler.do_scheduled_events(time) 
         
         
-        if ( (hundreth_second_tick == 1200000) ) :
-            hundreth_second_tick = 0
+        if ( (tenth_second_tick == 1000000) ) :
+            tenth_second_tick = 0
             human_time = human_time + .1
             print "\nTime Stamp (in secs) %02f" % human_time
             
