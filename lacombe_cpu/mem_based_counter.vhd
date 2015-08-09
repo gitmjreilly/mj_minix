@@ -42,6 +42,8 @@ signal pulse_clock : std_logic;
 
 begin
 
+	-- fast_counter is driven by the underlying clock on the fpga board
+	-- On Nexys 3 this is 100Mhz
 	fast_count: process (clock, reset)
 	begin
 		if (reset = '1') then
@@ -59,7 +61,7 @@ begin
 	-- 10Mhz / 64k / 2^8 = 16 seconds?
 --	derived_clock <= fast_counter(2);
 
-	derived_clock <= fast_counter(1);
+	derived_clock <= fast_counter(4);
 
 	count: process (derived_clock, reset)
 	begin
@@ -72,12 +74,12 @@ begin
 	
 	
 	
-	process(reset, clock)
+	process(reset, derived_clock)
 	begin
 		if (reset = '1') then
 			x_synced <= '0';
 			x_delayed <= '0';
-		elsif (falling_edge(clock)) then
+		elsif (falling_edge(derived_clock)) then
 --			x_synced <= x;
 			x_synced <= counter_is_zero;
 			x_delayed <= x_synced;

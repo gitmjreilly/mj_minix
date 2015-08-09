@@ -1,0 +1,197 @@
+
+;================================	
+
+V_2: DS 1
+
+V_1: DW 3 ENDDW
+
+V_3: DS 1
+
+I: DS 1
+J: DS 1
+
+COUNTER: DS 1
+CH: DS 1
+;================================	
+
+
+;================================	
+INT_PROC:
+	0x2121 V_3 STORE
+
+	; Interrupt regs are at
+	;  status F010
+	;  mask   F011
+	;  clear  F012
+	; 
+	; Clock mask is 0x0002
+	0x0000 0xF011 STORE
+	0xFFFF 0xF012 STORE
+	0x0000 0xF012 STORE
+	RETI
+;================================	
+
+
+
+;================================	
+	; Int vector is patched but interrupts are not yet enabled 
+BIG_LOOP:
+
+	2000 I STORE
+	2000 J STORE
+	
+L_I_LOOP:	
+	I FETCH
+	0 == JMPF L_0001
+	BRA LOOP_DONE
+
+L_0001:
+	I FETCH 1 - I STORE
+	
+L_J_LOOP:	
+	J FETCH
+	0 == JMPF L_0002
+	BRA L_I_LOOP
+	
+L_0002:	
+
+	J FETCH 1 - J STORE
+	BRA L_J_LOOP
+	
+LOOP_DONE:
+	RET
+;================================	
+	
+	
+;================================	
+MAIN:
+
+
+	
+	
+	; Test the output port by blinking it.
+	0xF030 1 STORE2
+	NOP
+	NOP
+	
+	0xF030 0 STORE2
+	NOP
+	NOP
+	BRA MAIN
+	
+
+;================================	
+; Land here if initial == check failed	
+L_HALT_1:	
+	0x1001
+	HALT
+	
+; Land here if JMPF didn't work	
+L_HALT_2:
+	0x1002
+	HALT
+	
+L_HALT_3:
+	0x1003
+	HALT
+	
+L_HALT_4:
+	0x1004
+	HALT
+	
+L_HALT_5:
+	0x1005
+	HALT
+	
+L_HALT_6:
+	0x1006
+	HALT
+	
+L_HALT_7:
+	0x1007
+	HALT
+	
+L_HALT_8:
+	0x1008
+	HALT
+	
+L_HALT_9:
+	0x1009
+	HALT
+	
+L_HALT_A:
+	0x100A
+	HALT
+	
+L_HALT_B:
+	0x100B
+	HALT
+	
+L_HALT_C:
+	0x100C
+	HALT
+	
+L_HALT_000D:
+	0x100D
+	HALT
+	
+L_HALT_000E:
+	0x100E
+	HALT
+	
+L_HALT_000F:
+	0x100F
+	HALT
+	
+L_HALT_0010:
+	0x1010
+	HALT
+	
+L_HALT_0011:
+	0x1011
+	HALT
+	
+L_HALT_0012:
+	0x1012
+	HALT
+	
+L_HALT_0013:
+	0x1013
+	HALT
+	
+L_HALT_0014:
+	0x1014
+	HALT
+	
+L_HALT_0015:
+	0x1015
+	HALT
+	
+L_HALT_0016:
+	0x1016
+	HALT
+	
+L_HALT_0017:
+	0x1017
+	HALT
+	
+L_HALT_0018:
+	0x1018
+	HALT
+	
+L_HALT_0019:
+	0x1019
+	HALT
+	
+L_HALT_001A:
+	0x101A
+	HALT
+	
+L_HALT_001B:
+	0x101B
+	HALT
+	
+;================================	
+
+	
+	

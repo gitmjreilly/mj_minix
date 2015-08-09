@@ -4,6 +4,7 @@
 import sys
 import socket
 import select
+import serial
 from time import sleep
 
 # Constants?
@@ -152,7 +153,58 @@ class CMD_Channel(object):
         if (num_sent != len(s)) :
             print "WARNING did not send all of string to host [%s]" % s
   
-  
+ 
+
+
+
+ 
+            
+class Serial_CMD_Channel(object):
+
+
+
+    def __init__(self, description, serial_device, baudrate):
+        print "Initializing a serial device [%s] rate [%d] " % (serial_device, baudrate)
+        print "  Description [%s]" % (description)
+        print "  Please NOTE commands from host are expected to end in LF only (ctl J)"
+        
+        self.serial_port = serial.Serial(port = serial_device, baudrate = baudrate)
+        self.description = description
+        self.active_line = ""
+
+        
+    def get_cmd(self):
+        #
+        # Gather up chars to form a command line
+        # If we've gathered up enough to form a line, we 
+        # return it.
+        # We buffer chars in active_line until we see EOL
+        # 
+             
+        while (True) :
+            if (self.serial_port.inWaiting() == 0):
+                return("")
+        
+            self.active_line += self.serial_port.read()
+                            
+            if (self.active_line.endswith("\n")):
+                s = self.active_line.rstrip()
+                self.active_line = ""
+                return(s)
+
+            
+    def get_raw_data_from_host(self, num_bytes_to_receive):
+        data = self.serial_port.read(num_bytes_to_receive)
+        return(data)
+        
+        
+    def send_to_host(self, s):
+        num_sent = self.serial_port.write(s)
+        if (num_sent != len(s)) :
+            print "WARNING did not send all of string to host [%s]" % s
+ 
+ 
+ 
 def do_cmd(cmd_from_host):
     global transmission_status
     
@@ -218,8 +270,23 @@ def main():
     global cmd_channel
     global transmission_status
     
-    cmd_channel = CMD_Channel("cpu channel", "localhost", 5500)
-
+        
+    if (len(sys.argv) != 4) :
+        print "USAGE - prog sim host port"
+        print "USAGE - prog real serial_device speed"
+        sys.exit(1)
+        
+    (program_name, mode, arg1, arg2) = sys.argv    
+    arg2 = int(arg2)
+    if (mode == "sim"):
+        cmd_channel = CMS_Channel("CMD channel", arg1, arg2)
+    elif (mode == "real"):
+        cmd_channel = Serial_CMD_Channel("Serial CMD Channel", arg1, arg2)
+    else:
+        print "ERROR mode must be real or sim"
+        sys.exit(1)
+        
+    
     # Transmission status per terminal
     #   0 = no transmission in progress
     #   1 = transmission complete

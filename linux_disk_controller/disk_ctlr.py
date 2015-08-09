@@ -232,8 +232,8 @@ def main():
     elif (mode == "real"):
         host_channel = Serial_Host_Channel("Serial Host Channel", arg1, arg2)
     else:
-	print "ERROR mode must be real or sim"
-	sys.exit(1)
+        print "ERROR mode must be real or sim"
+        sys.exit(1)
         
  
     disk_file_name = raw_input("Enter (existing) disk file name >")    

@@ -2202,14 +2202,14 @@ begin
       SYSTASK);
 
 
-    (*  
+ 
     load_task(
       adr(pty_task),
       adr(pty_task_p_stack),
       adr(pty_task_r_stack),
       PTY);
-   *)
-   
+
+      
    load_task(
       adr(clock_task),
       adr(clk_task_p_stack),
