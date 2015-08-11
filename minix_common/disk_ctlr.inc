@@ -255,7 +255,15 @@ var
    s: array[9] of integer;
 
 begin
-   (* Send the OPEN file command
+   k_pr("Entered dc_open_file..."); k_prln(1);
+ 
+   p := DC_NUM_BYTES_IN_RX_ADDR;
+   if (p^ <> 0) then begin
+      k_pr("WARNING  num bytes in rx buff <> 0..."); k_prln(1)
+   end;
+ 
+
+  (* Send the OPEN file command
     * Ofilename followed by new line *)
    p := DC_DATA_PORT;
    p^ := $4F; (* Send the 'O' *)
@@ -302,6 +310,12 @@ var
    s: array[9] of integer;
 
 begin
+   k_pr("Entered dc_close_file."); k_prln(1);
+   p := DC_NUM_BYTES_IN_RX_ADDR;
+   if (p^ <> 0) then begin
+      k_pr("WARNING  num bytes in rx buff <> 0..."); k_prln(1)
+   end;
+
    (* Send the CLOSE file command
     * C followed by new line *)
    p := DC_DATA_PORT;
@@ -334,6 +348,12 @@ var
    i : integer;
 
 begin
+   p := DC_NUM_BYTES_IN_RX_ADDR;
+   if (p^ <> 0) then begin
+      k_pr("WARNING  num bytes in rx buff <> 0..."); k_prnum(p^); k_prln(1)
+   end;
+   
+   
    (* Send the READ file command
     * R followed by new line *)
    p := DC_DATA_PORT;
@@ -350,7 +370,6 @@ begin
       dc_file_buffer[i] := p^;
       i := i + 1
    end
-
 end;
 (*===================================================================*)
 

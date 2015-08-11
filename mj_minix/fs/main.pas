@@ -366,10 +366,20 @@ var
    tmp_str : array[20] of integer,
    (* error is the system call function return value. *)
    error : integer,
-   counter : ^integer,
-   p_stack : array[800] of integer,
-   r_stack : array[50] of integer;
+   counter : ^integer;
+   
+guard;   
+var  
+   p_stack : array[800] of integer;
+guard;
 
+guard;   
+var
+   r_stack : array[50] of integer;
+guard;
+   
+   
+   
 (* MAIN Program *)
 begin
    asm

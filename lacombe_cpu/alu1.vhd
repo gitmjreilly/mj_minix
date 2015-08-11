@@ -29,8 +29,8 @@ architecture Behavioral of alu1 is
 	signal prod : std_logic_vector(33 downto 0);
 	signal p2 : std_logic_vector(16 downto 0);
 
-	signal neg_a : std_logic;
-	signal neg_b : std_logic;
+	signal pos_a : std_logic;
+	signal pos_b : std_logic;
 	signal u_a_less_than_u_b : std_logic;
 	signal signed_less : std_logic;
 	signal signed_less_out : std_logic_vector(16 downto 0);
@@ -79,11 +79,18 @@ begin
 		Z <= '1' when (YTmp = "00000000000000000") else '0';
 		C <= '1' when (YTmp(16) = '1') else '0';
 
-		neg_a <= '1' when (ATmp(15) = '1') else '0';
-		neg_b <= '1' when (BTmp(15) = '1') else '0';
+		pos_a <= '1' when (ATmp(15) = '0') else '0';
+		pos_b <= '1' when (BTmp(15) = '0') else '0';
 		u_a_less_than_u_b <= '1' when (ATmp < BTmp) else '0';
-		signed_less <= ( not(neg_a) AND not(neg_b) AND u_a_less_than_u_b) OR
-						  ( neg_a AND not(neg_b));
-		signed_less_out <= "00000000000000001" when signed_less = '1' else "00000000000000000";
+		-- signed_less <= ( not(pos_a) AND not(pos_b) AND u_a_less_than_u_b) OR
+						  -- ( pos_a AND not(pos_b));
+		signed_less <= ( 
+			(pos_a AND pos_b AND u_a_less_than_u_b) OR
+			(not(pos_a) AND pos_b) OR
+			(not(pos_a) AND not(pos_b) AND u_a_less_than_u_b)			
+		);			  
+						  
+						  
+		signed_less_out <= '1' & X"FFFF" when signed_less = '1' else (others => '0');
 
 end Behavioral;

@@ -283,7 +283,8 @@ jam_clock : entity work.jam_half_clock
 	---------------------------------------------------------------------
 	int_controller_1 :  entity work.mem_based_int_controller 
 		port map (
-			clock => my_clock, -- TODO fix clock for interrupt controller
+			-- clock => my_clock, -- TODO fix clock for interrupt controller
+			clock => cpu_start, -- TODO fix clock for interrupt controller
 			reset => reset,
 			address => local_addr_bus(1 downto 0),
 			data_bus_0 => data_bus(0),

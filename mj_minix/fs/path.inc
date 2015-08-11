@@ -201,31 +201,60 @@ var
    rnp : ^integer;
    
 begin
+   k_cpr(MAP_COLOR, "  Entered get_name"); k_prln(1);
+   k_cpr(MAP_COLOR, "      string is  "); k_cpr(MAP_COLOR, string); k_prln(1);
+   k_cpr(MAP_COLOR, "      old_name is  "); k_cpr(MAP_COLOR, old_name); k_prln(1);
    np := string;
    rnp := old_name;
+   k_cpr(MAP_COLOR, "      rnp as str is  "); k_cpr(MAP_COLOR, rnp); k_prln(1);
    (* Skip over the Leading slashes in old_name 
     * rnp will point at the first char after the slashes.
     *)
+   k_cpr(MAP_COLOR, "   skipping over slashes in old_name ");  k_prln(1);
    while (1) do begin
       c := rnp^;
       if (c <> ASCII_SLASH) then break;
       rnp := rnp + 1         
    end;
+   k_cpr(MAP_COLOR, "   finished skipping over slashes in old_name ");  k_prln(1);
+   k_cpr(MAP_COLOR, "       c is  : "); k_cpr_hex_num(MAP_COLOR, c); k_prln(1);
    
    (* AST1,10770
     * Now, having skipped the slashes, copy from old_name to string 
     * c points at the first char after the slashes
     * Please note, MAX_PATH is the size of global user_path
     *)
+   k_cpr(MAP_COLOR, "       top of loop"); k_prln(1);
    while (1) do begin
-      if __uge(rnp, adr(user_path[MAX_PATH])) then break;
-      if (c = ASCII_SLASH) then break;
-      if (c = 0) then break;
+      k_cpr(MAP_COLOR, "       c is  : "); k_cpr_hex_num(MAP_COLOR, c); k_prln(1);
+      if __uge(rnp, adr(user_path[MAX_PATH])) then begin
+         k_cpr(MAP_COLOR, "  rnp __UGE adr(user_path[MAX_PATH)"); k_prln(1);
+         k_cpr(MAP_COLOR, "  rnp : "); k_cpr_hex_num(MAP_COLOR, rnp); k_prln(1);
+         k_cpr(MAP_COLOR, "  adr(user_path[max] : "); k_cpr_hex_num(MAP_COLOR, adr(user_path[MAX_PATH])); k_prln(1);
+         k_cpr(MAP_COLOR, "  breaking out of while looop"); k_prln(1);
+         break
+      end; 
+      
+      if (c = ASCII_SLASH) then begin
+         k_cpr(MAP_COLOR, "c is a slash breaking"); k_prln(1);
+         break
+      end;
+      if (c = 0) then begin 
+         k_cpr(MAP_COLOR, "c is 0 breaking"); k_prln(1);
+         break
+      end;
        
       (* if weve gotten this far, we know we can still move right across old_name.*)
+      k_cpr(MAP_COLOR, "  np __UL adr(string[NAME_SIZE]"); k_prln(1);
+      k_cpr(MAP_COLOR, "     np : "); k_cpr_hex_num(MAP_COLOR, np); k_prln(1);
+      k_cpr(MAP_COLOR, "     adr(string^[NAME_SIZE] : "); k_cpr_hex_num(MAP_COLOR, adr(string^[NAME_SIZE]) ); k_prln(1);
       if __ul(np, adr(string^[NAME_SIZE]) ) then begin
+         k_cpr(MAP_COLOR, "   ADDING char to string - IMPORTANT");
          np^ := c;
          np := np + 1
+      end
+      else begin
+         k_cpr(MAP_COLOR, "    NOT Adding char to string - IMPORTANT")      
       end;
       rnp := rnp + 1;
       c := rnp^
@@ -255,6 +284,7 @@ begin
       retval(0)
    end;
    
+   k_cpr(MAP_COLOR, "Leaving get_name"); k_prln(1);
    retval(rnp)
 end;
 (*==================================================================*)
@@ -309,6 +339,7 @@ begin
       new_name := get_name(path, string);
       k_cpr(MAP_COLOR, " back from get_name :"); k_prln(1);
       k_cpr(MAP_COLOR, "    path     is : "); k_cpr(MAP_COLOR, path); k_prln(1);
+      k_cpr(MAP_COLOR, "    string     is : "); k_cpr(MAP_COLOR, string); k_prln(1);
 
       k_cpr(MAP_COLOR, "    new_name is : "); k_cpr(MAP_COLOR, new_name); k_prln(1);
       if new_name = 0 then begin
@@ -319,7 +350,7 @@ begin
       end;
       
       if new_name^ = 0 then begin
-         k_cpr(MAP_COLOR, "  new_name^ is NIL this is a good outcome. returning..."); k_prln(1);
+         k_cpr(MAP_COLOR, "  new_name^ is NIL this is a good outcome. leaving last_dir returning to_eat_path.."); k_prln(1);
          retval(rip)
       end;
       (* We need to advance into the dir named string *)

@@ -132,6 +132,7 @@ var
    m_ptr : integer,
    src_dest : integer,
    old_ds : integer,
+   set_type : integer,
    tmp_str : array[10] of integer;
 
 
@@ -386,12 +387,14 @@ end;
 (*===================================================================*)
 procedure LongTypeStore(LongPtr : integer, Val : integer);
 begin
-   return;
-   ASM
-      L_VAR -1 FETCH
-      L_VAR -2 FETCH
-      LONG_TYPE_STORE
-   END
+
+   if (set_type = 1) then begin
+      ASM
+         L_VAR -1 FETCH
+         L_VAR -2 FETCH
+         LONG_TYPE_STORE
+      END
+   end
 end;
 (*===================================================================*)
 
@@ -1139,7 +1142,7 @@ procedure restart();
 begin
 
    if cur_proc = IDLE then begin
-      k_cpr(HW_COLOR, "in restart cur_proc is IDLE"); k_prln(1);
+      (* k_cpr(HW_COLOR, "in restart cur_proc is IDLE"); k_prln(1); *)
       asm BRA idle_loop end
    end;
 
@@ -1311,7 +1314,9 @@ begin
 
       cp_mess(caller, caller_ptr^.ds, m_ptr, dest_ptr^.ds, dest_ptr^.p_messbuf);
       dest_ptr^.p_flags := dest_ptr^.p_flags - RECEIVING;
-      k_cpr(MINI_SEND_COLOR, "Clearing receiving flag ; flags are :"); k_pr_hex_num(dest_ptr^.p_flags); k_prln(1);
+      if debug_flag > 1 then begin
+         k_cpr(MINI_SEND_COLOR, "Clearing receiving flag ; flags are :"); k_pr_hex_num(dest_ptr^.p_flags); k_prln(1)
+      end;
       if dest_ptr^.p_flags = 0 then ready(dest_ptr)
    end
 
@@ -2061,6 +2066,12 @@ begin
    (* Mark vectors as DATA_RW for simulator so they may be patched.
     * The LONG_TYPE_STORE instruction is a nop on the actual h/w. *)
     
+
+   LongTypeStore($FD00, 1);
+   LongTypeStore($FD01, 1);
+   LongTypeStore($FD02, 1);
+   LongTypeStore($FD03, 1);
+
    (*
    asm
       1 0xFD00 LONG_TYPE_STORE
@@ -2078,11 +2089,19 @@ begin
    Ptr := $FD02;
    Ptr^ := $0004; # BRANCH
    Ptr := $FD03;
-   Ptr^ := adr(s_call)
+   Ptr^ := adr(s_call);
 
    (* Mark vectors as CODE_RO for simulator so their contents
     * may be executed. The LONG_TYPE_STORE instruction is a 
     * nop on the actual h/w. *)
+   
+
+   LongTypeStore($FD00, 0);
+   LongTypeStore($FD01, 0);
+   LongTypeStore($FD02, 0);
+   LongTypeStore($FD03, 0)
+
+
    (*
    asm
       0 0xFD00 LONG_TYPE_STORE
@@ -2090,7 +2109,8 @@ begin
       0 0xFD02 LONG_TYPE_STORE
       0 0xFD03 LONG_TYPE_STORE
    end
-   *)   
+   *)
+   
 end;
 #####################################################################
 
@@ -2131,6 +2151,7 @@ begin
    *)
   
    debug_flag := 0;
+   set_type := 0;
 
 
    interrupt_status_ptr := $F010;
@@ -2382,6 +2403,13 @@ begin
       if Ans = 1 then begin
          k_cpr(KERNEL_COLOR, "Enter debug setting (0 = none, 1 = some, > 1 A LOT ) >");
          k_get_num(adr(debug_flag)) ;
+         continue
+      end;
+
+      BIOS_StrCmp(ArgV, "set_type", adr(Ans));
+      if Ans = 1 then begin
+         k_cpr(KERNEL_COLOR, "Enter mem type  setting (0 = none, 1 = check >");
+         k_get_num(adr(set_type)) ;
          continue
       end;
 

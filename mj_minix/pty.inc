@@ -847,7 +847,9 @@ begin
 
 
    while (1) do begin
-      k_cpr(PTY_COLOR, "   PTY: waiting to recv..."); k_prln(1);
+      if debug_flag  > 1 then begin
+         k_cpr(PTY_COLOR, "   PTY: waiting to recv..."); k_prln(1)
+      end;
       
       (* Wait for a request *)
       (* format is func, src_dest, m_ptr SYSCALL *)
@@ -886,8 +888,10 @@ begin
           * specific terminal. *)
          read_message^.DEVICE := caller - 2;
 
-         k_cpr(PTY_COLOR, "   PTY: recvd PTY_READ msg");  k_prln(1);
-
+         if (debug_flag > 1) then begin
+         k_cpr(PTY_COLOR, "   PTY: recvd PTY_READ msg");  k_prln(1)
+         end;
+         
          (* AST used LINE, we use DEVICE to minimize message confusion *)
          (* tp := adr(tty_struct[p^.PTY_LINE]); *)
          tp := adr(pty_struct[read_message^.DEVICE]);
@@ -903,8 +907,10 @@ begin
       else if (p^.m_type = PTY_WRITE) then begin
          write_message := p;
          (* Weve gotten an upstream WRITE request *)
-         k_cpr(PTY_COLOR, "   PTY: recvd PTY_WRITE msg");  k_prln(1);
-
+         if (debug_flag > 1) then begin
+            k_cpr(PTY_COLOR, "   PTY: recvd PTY_WRITE msg");  k_prln(1)
+         end;
+         
          (* TODO disconnect caller and DEVICE
           *
           * Use caller >=2 to define device 
@@ -928,7 +934,9 @@ begin
       else if p^.m_type = PTY_INT then begin
          (* Something happened with the tctlr *)
          int_message := p;
-         k_cpr(PTY_COLOR, "   PTY: Recvd PTY_INT msg...");  k_prln(1);
+         if (debug_flag > 1) then begin
+            k_cpr(PTY_COLOR, "   PTY: Recvd PTY_INT msg...");  k_prln(1)
+         end;
          do_pty_int()
       end
       else begin
