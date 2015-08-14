@@ -76,7 +76,10 @@ class Serial_Host_Channel(object):
         
         self.serial_port = serial.Serial(port = serial_device, baudrate = baudrate)
         self.description = description
-        
+        num_in_buffer = self.serial_port.inWaiting()
+        print "Emptying serial input buffer of %d bytes." % (num_in_buffer)
+        self.serial_port.read(num_in_buffer)
+       
         
     def get_cmd(self):
         s = ""
