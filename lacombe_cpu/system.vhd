@@ -280,38 +280,54 @@ jam_clock : entity work.jam_half_clock
 
 
 	
-	---------------------------------------------------------------------
-	int_controller_1 :  entity work.mem_based_int_controller 
-		port map (
-			-- clock => my_clock, -- TODO fix clock for interrupt controller
-			clock => cpu_start, -- TODO fix clock for interrupt controller
+	-- ---------------------------------------------------------------------
+	-- int_controller_1 :  entity work.mem_based_int_controller 
+		-- port map (
+			-- -- clock => my_clock, -- TODO fix clock for interrupt controller
+			-- clock => cpu_start, -- TODO fix clock for interrupt controller
+			-- reset => reset,
+			-- address => local_addr_bus(1 downto 0),
+			-- data_bus_0 => data_bus(0),
+			-- data_bus_1 => data_bus(1),
+			-- data_bus_2 => data_bus(2),
+			-- data_bus_3 => data_bus(3),
+			-- data_bus_4 => data_bus(4),
+			-- data_bus_5 => data_bus(5),
+			-- data_bus_6 => data_bus(6),
+			-- data_bus_7 => data_bus(7),
+			-- data_bus_8 => data_bus(8),
+			-- data_bus_9 => data_bus(9),
+			-- data_bus_10 => data_bus(10),
+			-- data_bus_11 => data_bus(11),
+			-- data_bus_12 => data_bus(12),
+			-- data_bus_13 => data_bus(13),
+			-- data_bus_14 => data_bus(14),
+			-- data_bus_15 => data_bus(15),
+			-- int_out => cpu_int,
+			-- n_cs => cs_bus(INT_CONTROLLER_CS),
+			-- n_rd => n_rd_bus,
+			-- n_wr => n_wr_bus,
+			-- int_in => multiple_int_sources
+		-- );
+	-- ---------------------------------------------------------------------
+
+
+	int_controller : entity work.mem_based_int_controller 
+		port map ( 
+			clock => my_clock, 
 			reset => reset,
-			address => local_addr_bus(1 downto 0),
-			data_bus_0 => data_bus(0),
-			data_bus_1 => data_bus(1),
-			data_bus_2 => data_bus(2),
-			data_bus_3 => data_bus(3),
-			data_bus_4 => data_bus(4),
-			data_bus_5 => data_bus(5),
-			data_bus_6 => data_bus(6),
-			data_bus_7 => data_bus(7),
-			data_bus_8 => data_bus(8),
-			data_bus_9 => data_bus(9),
-			data_bus_10 => data_bus(10),
-			data_bus_11 => data_bus(11),
-			data_bus_12 => data_bus(12),
-			data_bus_13 => data_bus(13),
-			data_bus_14 => data_bus(14),
-			data_bus_15 => data_bus(15),
-			int_out => cpu_int,
+			cpu_finish => cpu_finish,
+			addr_bus => local_addr_bus(3 downto 0),
+			data_bus => data_bus,
+			int_occurred => cpu_int,
 			n_cs => cs_bus(INT_CONTROLLER_CS),
-			n_rd => n_rd_bus,
 			n_wr => n_wr_bus,
-			int_in => multiple_int_sources
+			n_rd => n_rd_bus,
+			raw_interrupt_word => multiple_int_sources
 		);
-	---------------------------------------------------------------------
-
-
+	
+	
+	
 	-- ---------------------------------------------------------------------
 	-- -- Test output port - no actual use.
 	-- u_output_port_0 : process (my_clock, reset, data_bus)
