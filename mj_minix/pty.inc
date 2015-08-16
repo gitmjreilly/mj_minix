@@ -15,6 +15,7 @@
 #include "tctlr.inc"
 
 #define PTY_IN_BYTES 200
+#define PTY_OUT_BYTES 200
 #define NR_PTYS 8
 
 type
@@ -75,6 +76,8 @@ begin
       tp^.pty_inhead := adr(tp^.pty_inqueue);
       tp^.pty_intail := adr(tp^.pty_inqueue);
       tp^.pty_incount := 0;
+      (* Use pty_cum as num chars written to output q *)
+      tp^.pty_cum := 0;
       (* TODO set proper connection status 
        * Not sure this is necessary *)
       tp^.pty_connection_status := 0;
@@ -654,10 +657,15 @@ var
    terminal_num : integer;
 
 begin
-   DebugOut(PTY_COLOR, "Entering flush ()", 1);
-
-
-   DebugOut(PTY_COLOR, "Leaving flush () tx should have happened", 1)
+   
+   terminal_num := tp^.pty_terminal_num;
+   
+   (* Todo remove these locks *)
+   lock();
+   tctlr_write_to_str_to_term(terminal_num, adr(tp^.pty_outqueue), tp^.pty_cum);
+   unlock();
+   
+   tp^.pty_cum := 0
 end;
 (*=================================================================*)
 
@@ -677,8 +685,18 @@ begin
    DebugOut(PTY_COLOR, "  Entering out_char ()", 1);
    terminal_num := tp^.pty_terminal_num;
 
+   (*
+    * Dont send chars directly to term ctlr
+    * Buffer them in tp struct
+   *)
+   (*
    tctlr_write_raw(terminal_num, c);
-   
+   *)
+   if (tp^.pty_cum = PTY_OUT_BYTES) then begin
+      flush(tp)
+   end;
+   tp^.pty_outqueue[tp^.pty_cum] := c;
+   tp^.pty_cum := tp^.pty_cum  + 1;
 
    DebugOut(PTY_COLOR, "  Leaving out_char ()", 1)
 end;

@@ -97,6 +97,52 @@ end;
 (*=================================================================*)
 
 
+
+(*=================================================================*)
+(* String output - requires protocol string
+ * format of command string to is 
+ *       String is of form tPPYY followed by ASCII_LF
+         PP is the port num in ascii HEX
+         YY is the amount of data to transmit in ascii HEX
+         Raw data comes after command line (possibly binary)
+  *
+  *)
+procedure tctlr_write_to_str_to_term(terminal_num : integer,  s : ^integer, len : integer);
+var
+   t : integer,
+   ch : integer,
+   num_str : array[6] of integer;
+   
+begin
+   (* Send "t" *)
+   _tctlr_write_one($0074); (* t *)
+
+   (* Send 2 digit hex terminal num *)
+   _tctlr_write_one(ASCII_ZERO); 
+   t := terminal_num + ASCII_ZERO;
+   _tctlr_write_one(t); (* term num as ASCII *)
+   
+
+   (* Send 2 digit hex string lengt *)
+   (* Convert the length to a string
+    * func returns 4 hex digit string, but we only want the last 2  *)
+   num_to_hex_str(len, adr(num_str));
+   _tctlr_write_one(num_str[2]); 
+   _tctlr_write_one(num_str[3]); 
+   
+   _tctlr_write_one(ASCII_LF); 
+   
+   (* Send the string from the queue *)
+   while (len > 0) do begin
+      ch := s^;
+      len := len - 1;
+      s := s + 1;
+      _tctlr_write_one(ch)      
+   end
+end;
+(*=================================================================*)
+
+
 (*=================================================================*)
 (* Read an ASCII_LF terminated line from the tctlr *)
 procedure tctlr_get_line(s : ^integer);
