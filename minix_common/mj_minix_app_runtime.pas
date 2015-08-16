@@ -73,14 +73,6 @@ begin
 
       c := tmp_array[0];
 
-      (* Immediate echo *)
-      p^.m_type := PTY_WRITE;
-      p^.DEVICE := 0;
-      p^.COUNT := 1;
-      p^.ADDRESS := adr(tmp_array);
-      send_p(PTY, p);
-      receive_p(PTY, p);
-
 
       (* Do Unix style input translation *)
       (* if c = 13 then c := ASCII_LF; *)
@@ -89,13 +81,7 @@ begin
       (* CR was echod above - no we echo LF as well *)
       if c = 13 then begin
          c := 10;
-         tmp_array[0] := 10;
-         p^.m_type := PTY_WRITE;
-         p^.DEVICE := 0;
-         p^.COUNT := 1;
-         p^.ADDRESS := adr(c);
-         send_p(PTY, p);
-         receive_p(PTY, p);
+
          s^ := 0;
          return
       end;

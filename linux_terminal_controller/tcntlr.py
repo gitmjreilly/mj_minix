@@ -26,7 +26,7 @@ class Sim_Serial_Port(object):
         self.received_data = list()
 
     def periodic_service(self):
-        poller_timeout_ms = 10
+        poller_timeout_ms = 5
 
         poller = select.poll()
         if (self.is_open):
@@ -44,7 +44,7 @@ class Sim_Serial_Port(object):
         # We are only polling for one event so
         # if we've gotten this far, we've either received data OR
         # gotten a connection request to be accepted.
-        # We don't event need to look at the result list.
+        # We don't even need to look at the result list.
         if (self.is_open):
             print "DEBUG Got event on open socket. It is either data or close req"
             data = self.client_socket.recv(4096)
@@ -60,6 +60,15 @@ class Sim_Serial_Port(object):
                 self.received_data.extend(list(data))
                 s = "".join(self.received_data)
                 print "DEBUG new data list is [%s]" % s
+                # Echo the data we just got - no cooked processing
+                print "DEBUG     Echoing <%s>" % (data)
+                tmp = ""
+                for ch in data:
+                    tmp += ch
+                    if (ord(ch) == 13) :
+                        tmp += chr(10)
+                    
+                self.client_socket.send(tmp)
         else: # Port is not open so an event means we have recvd a connection request.
             print "DEBUG Port was NOT open so we assume we got connection request"
             (self.client_socket, address) = self.listen_socket.accept()
@@ -211,16 +220,16 @@ class Serial_CMD_Channel(object):
 def do_cmd(cmd_from_host):
     global transmission_status
     
-    print "DEBUG - Got command [%s] - Acting on it..." % cmd_from_host
+    # print "DEBUG - Got command [%s] - Acting on it..." % cmd_from_host
     if (cmd_from_host == "s"):
-        print "DEBUG received a buffer status command [%s]" % cmd_from_host
+        # print "DEBUG received a buffer status command [%s]" % cmd_from_host
         for serial_port_num in range(NUM_TERMINALS):
             size = serial_ports[serial_port_num].get_buffer_size()
             s = "%02X%1d" % (size, transmission_status[serial_port_num])
-            print "   " + s
+            # print "   " + s
             # The protocol calls for line separation
             cmd_channel.send_to_host(s + "\n")
-        print "----"
+        # print "----"
     elif (cmd_from_host.startswith("r")):
         # Receive FROM a terminal
         #
