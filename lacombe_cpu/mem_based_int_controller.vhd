@@ -102,7 +102,6 @@ begin
 		elsif (rising_edge(clock)) then
 			if (clear_tick = '1') then 
 				status_reg <= status_reg AND (not(clear_reg));
-				status_reg <= (others => '0');
 			else
 				status_reg <= (status_reg OR sync_interrupt_word) AND mask_reg;
 			end if;

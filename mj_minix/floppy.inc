@@ -106,17 +106,30 @@ begin
 	k_prln(1);
    k_cpr(FLOPPY_COLOR, "  ADDRESS in user proc is : "); k_cpr_hex_num(FLOPPY_COLOR, p^.ADDRESS); k_prln(1);
    k_cpr(FLOPPY_COLOR, "  user proc segment is : "); k_cpr_hex_num(FLOPPY_COLOR, process_segment); k_prln(1);
-   (* 
-    * use usbwiz sector code
-    * write directly to user process
-    *)
-   disk_ctlr_read_512(
+
+   k_cpr(FLOPPY_COLOR, "  Waiting for empty rx fifo... "); k_prln(1);
+   dc_wait_for_rx_n(0);
+   k_cpr(FLOPPY_COLOR, "    Finished Waiting for empty rx fifo... "); k_prln(1);
+   
+   dc_start_read_512(
       adr(p^.POSITION), (* 2 word abs address on storage *)
       process_segment,
       BufPtr,
       adr(status)
-   )
+   );
+   k_cpr(FLOPPY_COLOR, "    Waiting for disk read to finish... "); k_prln(1);
    
+   (* Now that we've started a dc read, we want to trigger and interrupt
+    * when the disk controller uart has the 512 bytes. 
+    * interrupt_mask_ptr is a global from the kernel. *)
+   interrupt_mask_ptr^ := interrupt_mask_ptr^ OR DISK_UART_RX_HALF_MASK;
+
+   (* Patiently wait for the sector to arrive.  The HARDWARE will tell us when.. *)
+   receive_p(HARDWARE, p);
+   k_cpr(FLOPPY_COLOR, "    FINISHED Waiting for disk read to finish... "); k_prln(1);
+   
+   dc_copy_rx_sector_to_user(process_segment, BufPtr)
+
 
 end;
 (*=================================================================*)

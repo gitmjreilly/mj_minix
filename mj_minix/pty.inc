@@ -660,10 +660,9 @@ begin
    
    terminal_num := tp^.pty_terminal_num;
    
-   (* Todo remove these locks *)
-   lock();
+
    tctlr_write_to_str_to_term(terminal_num, adr(tp^.pty_outqueue), tp^.pty_cum);
-   unlock();
+
    
    tp^.pty_cum := 0
 end;

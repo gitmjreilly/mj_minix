@@ -127,6 +127,11 @@ def construct_computer_system():
         counter_0.get_counter_is_zero, 
         1)
 
+    # Connect the disk uart "rx half full" line to interrupt source 4 as in VHDL
+    interrupt_controller.register_interrupt_source_function(
+        serial_1.get_rx_half_full, 
+        4)
+        
     # interrupt_controller.register_interrupt_source_function(
         # serial_3.get_input_data_available, 
         # 2)

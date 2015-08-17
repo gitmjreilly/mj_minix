@@ -97,6 +97,7 @@ architecture structural of system is
 	signal INT_SW_OUT : std_logic;
 	signal RX_FULL : std_logic;
 	signal tx_busy_n : std_logic;
+	signal disk_uart_rx_fifo_is_half_full : std_logic;
 	signal cpu_int : std_logic;
 	signal counter_is_zero : std_logic;
 	signal	cpu_start  : std_logic;
@@ -274,8 +275,9 @@ jam_clock : entity work.jam_half_clock
 	multiple_int_sources(1) <= counter_is_zero;
 	multiple_int_sources(2) <= NOT tx_busy_n;
 	multiple_int_sources(3) <= int_sw_out;
+	multiple_int_sources(4) <= disk_uart_rx_fifo_is_half_full;
 	  
-	multiple_int_sources(15 downto 4) <= "000000000000";
+	multiple_int_sources(15 downto 5) <= (others => disk_uart_rx_fifo_is_half_full);
    
 
 
@@ -394,7 +396,8 @@ jam_clock : entity work.jam_half_clock
 			n_rd => n_rd_bus,
 			n_wr => n_wr_bus,
 			data_bus => data_bus,
-			addr_bus => local_addr_bus(3 downto 0)
+			addr_bus => local_addr_bus(3 downto 0),
+			rx_fifo_is_half_full => disk_uart_rx_fifo_is_half_full
 		);
 	
 	ptc_uart: entity work.uart_w_fifo

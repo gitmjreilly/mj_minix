@@ -188,6 +188,10 @@ class FifoSerialPort(object):
         
         
         return(value)
+
+
+
+
         
     def _scheduled_serial_write(self):
         # Start by sending the oldest char in the output fifo
@@ -218,7 +222,21 @@ class FifoSerialPort(object):
             return(1)
         else:
             return(0)
-        
+
+
+    # This function is meant to be used by an interrupt controller
+    # interrupt_num is passed for debugging of interrupt controller.  
+    # Not used here.        
+    def get_rx_half_full(self, interrupt_num = 0):
+        if (self._num_bytes_in_rx_fifo >= self._input_fifo_size / 2):
+            return(1)
+        else:
+            return(0)
+
+
+
+
+            
     def _get_serial_input(self):
         # Here we poll for "serial" input
         # We must only poll every self._input_delay; 

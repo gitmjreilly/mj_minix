@@ -23,8 +23,8 @@ const
    RX_INT_MASK           = $0001,
    CLOCK_INT_MASK        = $0002,
    TX_INT_MASK           = $0004,
-   SW_INT_MASK           = $0008;
-
+   SW_INT_MASK           = $0008,
+   DISK_UART_RX_HALF_MASK = $0010;
 
 
 #define MINI_REC_COLOR  ANSI_RED
@@ -1779,6 +1779,7 @@ begin
    DebugOut(HW_COLOR, "Entered interrupt() Task is : ", 0);
    if task = $FFFD then DebugOut(HW_COLOR, "CLOCK", 1)
    else if task = $FFF8 then DebugOut(HW_COLOR, "PTY", 1)
+   else if task = $FC19 then DebugOut(HW_COLOR, "IDLE", 1)
    else if task = $FC19 then DebugOut(HW_COLOR, "IDLE", 1);
    
    BIOS_NumToHexStr(cur_proc,  adr(tmp_str)); 
@@ -2034,6 +2035,23 @@ begin
       hw_pty_mess.m_type := PTY_INT;
       interrupt(PTY, adr(hw_pty_mess))
 
+      
+   end;
+
+
+   if (interrupt_status_ptr^ AND DISK_UART_RX_HALF_MASK) = DISK_UART_RX_HALF_MASK then begin
+      (* We got a clock interrupt, turn it into a message for the clock_task *)
+      interrupt_mask_ptr^ :=  interrupt_mask_ptr^ AND ($FFEF);
+
+      interrupt_clear_ptr^ := DISK_UART_RX_HALF_MASK;
+      interrupt_clear_ptr^ := 0;
+      
+      (* NOTE TODO
+       * the message is not initialized.
+       * The flopp task only accepts interrupt messages 
+       * not look at the m_type.
+       *)
+      interrupt(FLOPPY, adr(int_mess))
       
    end;
 

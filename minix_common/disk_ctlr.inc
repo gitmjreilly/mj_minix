@@ -173,6 +173,89 @@ end;
 
 
 
+
+
+(*=================================================================*)
+(* We are given an absolute 32 bit value on disk to read from
+ * and a seg:offset pair in mem to write to .
+ *
+ * Send the read  command to the disk_ctlr.
+ * The disk_ctlr is connected to the high speed serial port
+ * String is of form rXXXX - string must end in ASCII_LF
+ *   XXXX is the sector num in hex
+ 
+ * This is the command only.  The data is meant to be retrieved separately.
+ * We assume the uart has a large fifo and so the data can be retrieved
+ * later without fear of data over run by the 
+ * external serially connecte disk controller *)
+procedure dc_start_read_512(
+   disk_abs_addr : ^array[2] of integer,
+   dst_seg : integer,
+   dst_ptr : ^integer, 
+   status_ptr : ^integer
+);
+
+var
+   i : integer,
+   ch : integer,
+    tmp_str : array[5] of integer,
+    p : ^ integer,
+    (* 32 bit sector num for use with disk ctlr *)
+    sector_num : array[2] of integer;
+
+begin
+   k_pr("Entered dc_start_read_512..."); k_prln(1);
+   
+   (* Convert the disk abs address to a sector address *)
+   _abs_32_to_512(disk_abs_addr, adr(sector_num));
+   
+   (* Convert the sector num to a string for use with the disk ctlr
+    * Note we only care about the lower 16 bit word of the sector num *)
+   num_to_hex_str(sector_num[1], adr(tmp_str));
+
+   (* Send the read command *)
+   p := DC_DATA_PORT;
+   p^ := $72; (* Send the 'r' *)
+    
+   p^ := tmp_str[0];
+   p^ := tmp_str[1];
+   p^ := tmp_str[2];
+   p^ := tmp_str[3];
+   
+   
+   p^ := ASCII_LF;
+   
+   k_pr("Leaving dc_start_read_512,"); k_prln(1)
+    
+end;
+(*=================================================================*)
+
+
+(*=================================================================*)
+procedure dc_copy_rx_sector_to_user(
+   dst_seg : integer,
+   dst_ptr : ^integer
+);
+
+var
+   i : integer,
+   p : ^ integer;
+
+begin
+   p := DC_DATA_PORT;
+
+   i := 0;
+   SetES(dst_seg);
+   while i < 512 do begin
+      LongStore(dst_ptr, p^);
+      dst_ptr := dst_ptr + 1;
+      i := i + 1
+   end 
+   
+end;
+(*=================================================================*)
+
+
 (*=================================================================*)
 (* Write exactly 512 bytes  (a "sector")
  * We are given a seg:offset src pair in mem to read from
