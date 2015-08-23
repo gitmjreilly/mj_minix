@@ -502,7 +502,9 @@ begin
    BIOS_NumToHexStr(terminal_num, adr(tmp_str));
    DebugOut(PTY_COLOR, adr(tmp_str), 1);
 
+   (*
    tctlr_clear_transmission_flag(terminal_num);
+   *)
    
    (* TODO
     * Restore finish() here???

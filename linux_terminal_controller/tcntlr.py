@@ -94,7 +94,7 @@ class Sim_Serial_Port(object):
     def transmit_to_terminal(self, data):
         if (self.is_open):
             num_bytes_sent = self.client_socket.send(data)
-            print "DEBUG Sent %d bytes to terminal" % num_bytes_sent
+            # print "DEBUG Sent %d bytes to terminal" % num_bytes_sent
         else:
             print "Warning terminal is not open; transmission discarded"
             
@@ -257,7 +257,7 @@ def do_cmd(cmd_from_host):
         # Get the data from the host and transmit it to the correct terminal
         data = cmd_channel.get_raw_data_from_host(num_bytes_to_send)
         serial_ports[serial_port_num].transmit_to_terminal(data)
-        print "DEBUG Setting transmission status for port %d" % (serial_port_num)
+        # print "DEBUG Setting transmission status for port %d" % (serial_port_num)
         transmission_status[serial_port_num] = 1
         
     elif (cmd_from_host.startswith("c")):
@@ -267,6 +267,9 @@ def do_cmd(cmd_from_host):
         serial_port_num =   int( "".join(l[1:3]), 16)
         print "Clearing transmission status for port %d" % (serial_port_num)
         transmission_status[serial_port_num] = 0
+    else:
+        print "Bad command! <%s> length <%d>" % (cmd_from_host, len(cmd_from_host))
+        sys.exit(1)
         
             
 

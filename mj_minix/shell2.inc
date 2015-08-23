@@ -41,21 +41,7 @@ begin
          return
       end;
       s^ := c2;
-      s := s + 1;
-
-
-      (* Now that we've received a char and ack'd it,
-       * we should store it, echo it, return...
-       *)
-      
-      p^.m_type := PTY_WRITE;
-      p^.DEVICE := 0;
-      p^.COUNT := 1;
-      p^.ADDRESS := adr(c);
-      send_p(PTY, p);
-   
-      receive_p(PTY, p)
-
+      s := s + 1
    end
 
 

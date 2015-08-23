@@ -215,7 +215,7 @@ var
    num_bytes_received_from_terminal : integer,
    host_transmission_status : integer,
    terminal_num : integer,
-   tmp_str : array[5] of integer,
+   tmp_str : array[10] of integer,
    p1 : ^integer,
    s : array[5] of integer;
    
