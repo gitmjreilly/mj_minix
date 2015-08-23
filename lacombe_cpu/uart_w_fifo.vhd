@@ -441,7 +441,7 @@ begin
 
 
 						when X"1" =>
-							val_next <= X"000" & "00" & rx_fifo_has_char & tx_fifo_is_empty;
+							val_next <= X"000" & "00" & rx_fifo_has_char & not(tx_fifo_is_full);
 						
 
 						when X"2" =>
