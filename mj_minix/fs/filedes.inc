@@ -13,15 +13,6 @@
 
 
 
-#include "const.inc"
-#include "type.inc"
-#include "buf.inc"
-#include "file.inc"
-#include "fproc.inc"
-#include "glo.inc"
-#include "inode.inc"
-#include "super.inc"
-#include "param.inc"
 #include "file.inc"
 
 

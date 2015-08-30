@@ -9,17 +9,6 @@
 
 
 
-#include "const.inc"
-#include "type.inc"
-#include "buf.inc"
-#include "file.inc"
-#include "fproc.inc"
-#include "glo.inc"
-#include "inode.inc"
-#include "super.inc"
-#include "param.inc"
-
-
 (*==================================================================*)
 (*
  * search_dir() based on AST1,10860
@@ -52,6 +41,7 @@ var
    dir_ptr : ^t_b__dir,
    old_slots : integer,
    new_slots : integer,
+   e_hit : integer,
    mnt_dev : integer;
 
 begin
@@ -73,6 +63,8 @@ begin
    (* TODO use all 32 bits of i_size *)
    k_cpr(MAP_COLOR, "  the dir (file) size is : "); k_cprnum(MAP_COLOR, ldir_ptr^.i_size[1]); k_prln(1);
    old_slots := ldir_ptr^.i_size[1] / DIR_ENTRY_SIZE;
+   new_slots := 0;
+   e_hit := 0;
    k_cpr(MAP_COLOR, "  the number of dir slots is : "); k_cprnum(MAP_COLOR, old_slots); k_prln(1);
    
    pos[0] := 0;
@@ -84,7 +76,12 @@ begin
       k_cpr(MAP_COLOR, "    blk for pos is : "); k_cprnum(MAP_COLOR, b); k_prln(1);
       
       bp := get_block(ldir_ptr^.i_dev, b, NORMAL);
-      (* bp points at data; treat as array of directory entries... *)
+      (* bp points at data; treat as array of directory entries... 
+       * We iterate over the directory entries directly in the buffer cache
+       * Since the buffer cache directly represents the on disk form
+       * the dir entry 16 bit inode num is stored in 2 separate locations
+       * These 2 have to be combined into one when used in mem to get inode num
+       *)
       dir_ptr := bp;
       i := 0;    
       while (__ul(adr(dir_ptr^[i]), adr(dir_ptr^[NR_DIR_ENTRIES]))) do begin
@@ -93,6 +90,15 @@ begin
          k_cpr(MAP_COLOR, " dp : "); k_cpr_hex_num(MAP_COLOR, dp); k_prln(1);
          k_cpr(MAP_COLOR, "   name "); k_cpr(MAP_COLOR, adr(dp^.d_name)); k_prln(1);
 
+         (* Check to see if we have exhausted the directory search *)
+         new_slots := new_slots + 1;
+         if (new_slots > old_slots) then begin
+            if (flag = ENTER) then begin
+               e_hit := 1
+            end;
+            break
+         end;
+         
          (* dp points directly into the buffer cache
           * the 16 bit inode number normally spans 2 8 bit bytes
           * which occupy 2 8 bit bytes in mem which AST treats as 1 16 bit word.
@@ -109,6 +115,11 @@ begin
             put_block(bp, DIRECTORY_BLOCK);
             retval(OK)
          end;
+         
+         if (flag = ENTER) AND (real_inum = 0) then begin
+            e_hit := 1;
+            break
+         end;
       
          i := i + 1
       end;      
@@ -124,9 +135,47 @@ begin
       retval(ENOENT)
    end;
 
+   (* If we got this far, the flag is ENTER *)
+   if (e_hit = 0) then begin
+      (* The dir was full and there was no room in the last block *)
+      new_slots := new_slots + 1;
+      if (new_slots = 0) then retval(EFBIG);
+      
+      bp := new_block(ldir_ptr, adr(ldir_ptr^.i_size));
+      if (bp = NIL_BUF) then begin
+         retval(err_code)      
+      end;
+      (* TODO Fix dir refs in buffers *)
+      dp := adr(bp^.b__data[0])
+   end;
+
+   (* copy(adr(dp^.d_name), string, NAME_SIZE); *)
+   i := 0;
+   while (i < NAME_SIZE) do begin
+      dp^.d_name[i] := string^[i];
+      i := i + 1
+   end;
+   
+   (* Put the inode number back into the directory structure
+    * Remember the dir struct is in the buffer cache which is byte oriented *)
+   GetUpper8(numb^, adr(dp^.d_inum_hi));
+   GetLower8(numb^, adr(dp^.d_inum_lo));
+   bp^.b_dirt := DIRTY;
+   
+   put_block(bp, DIRECTORY_BLOCK);
+   (* TODO Add modtime *)
+   (* TODO do full 32 bit calc for inode size
+    * Please note the ldir_ptr is a ptr to inode table; it does not point
+    * directly into buffer cache *)
+   ldir_ptr^.i_dirt := DIRTY;
+   if (new_slots > old_slots) then begin
+      ldir_ptr^.i_size[0] := 0;
+      ldir_ptr^.i_size[1] := new_slots * DIR_ENTRY_SIZE
+   end;
+   
    k_cpr(MAP_COLOR, "Leaving search_dir");  k_prln(1);
    
-   old_slots := old_slots
+   retval(OK)
 
 end;
 (*==================================================================*)

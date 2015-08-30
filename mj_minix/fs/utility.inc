@@ -1,10 +1,6 @@
 #ifndef UTILITY_INC
 #define UTILITY_INC
 
-#include <k_userio.inc>
-#include "param.inc"
-#include "read.inc"
-
 (*
  * Based on fs/utility.c
  *)

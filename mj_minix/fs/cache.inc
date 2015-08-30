@@ -3,6 +3,7 @@
  *)
 
 #include <sendrec.inc> 
+
  
 var
    app_mess : message;
@@ -89,7 +90,68 @@ begin
       
 end;
 (*=================================================================*)
+
+
+(*=================================================================*)
+(* free_zone based on AST1, 8275
+ * dev status : free_zone WIP
+ *)
+procedure free_zone (dev : integer, numb : integer);
+ 
+var
+   sp : ^t_super_block,
+   b : integer;
+   
+ 
+begin
+   if (numb = NO_ZONE) then begin
+      return
+   end;
+   
+   sp := get_super(dev);
+   free_bit(adr(sp^.s_zmap), numb - (sp^.s_firstdatazone - 1))
+
+end;  
+(*=================================================================*)
   
+  
+(*=================================================================*)
+(* alloc_zone based on AST1, 8235
+ * dev status : WIP
+ * return the actual zone number
+ *   There is a subtle point here.
+ *   The ZONE bit map does not start from zone 0!!!
+ *   It starts from zone sp^.s_firstdatazone !!!
+ *     So, for example if firstdatazone = 4, that corresponds to bit 1 in the zone bit map
+ * 
+ * This func returns the actual zone number so it has to UNDO the implicit offset in the zone map.
+ * Also note the first valid bit in the map is bit 1; bit 0 means not found. 
+ *)
+function alloc_zone (dev : integer, z : integer) : integer;
+ 
+var
+   sp : ^t_super_block,
+   actual_zone_num : integer,
+   b : integer;
+   
+ 
+begin
+   k_cpr(BLOCK_COLOR, "Entered alloc_zone"); k_prln(1);
+   sp := get_super(dev);
+   b := alloc_bit(adr(sp^.s_zmap), sp^.s_nzones - sp^.s_firstdatazone + 1, sp^.s_zmap_blocks, 0);
+   
+   if (b = NO_BIT) then begin
+      err_code := ENOSPC;
+      k_cpr(BLOCK_COLOR, "  Failed trying to alloc_zone"); k_prln(1);
+      retval(NO_ZONE)   
+   end;
+
+   actual_zone_num := sp^.s_firstdatazone - 1 + b; 
+   k_cpr(BLOCK_COLOR, "Leaving alloc_zone; found  zone : "); k_cpr_hex_num(BLOCK_COLOR, actual_zone_num); k_prln(1);
+   
+   retval(actual_zone_num)
+end;
+(*=================================================================*)
    
  
 (*=================================================================*)

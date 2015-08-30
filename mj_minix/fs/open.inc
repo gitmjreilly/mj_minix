@@ -10,17 +10,6 @@
 #include "../h/error.inc"
 
 
-
-#include "const.inc"
-#include "type.inc"
-#include "buf.inc"
-#include "file.inc"
-#include "fproc.inc"
-#include "glo.inc"
-#include "inode.inc"
-#include "super.inc"
-#include "param.inc"
-
 var
    (* AST1,9474 mode map was an array of chars
     * it was initialized  as follows:
@@ -108,7 +97,6 @@ end;
  *
  * DEV_STATUS:do_close - WIP
  *)
-
 function do_close() : integer;
 
 var
@@ -148,6 +136,100 @@ begin
    retval(OK)
 end;
 (*==================================================================*)
+
+
+
+(*==================================================================*)
+(*
+ * new_node based on AST1,9557
+ *
+ * DEV_STATUS: new_node - WIP
+ *)
+function new_node(path : ^integer, bits : integer, z0 : integer) : ^t_inode;
+
+var
+   rlast_dir_ptr : ^t_inode,
+   rip : ^t_inode,
+   r : integer,
+   string : array[NAME_SIZE] of integer;
+
+   
+begin
+   k_cpr(FS_COLOR, "Entered new_node"); k_prln(1);
+   rlast_dir_ptr := last_dir(path, adr(string));
+   if (rlast_dir_ptr = NIL_INODE) then begin
+      k_cpr(FS_COLOR, "  Tried and failed to use last_dir on path : ");
+      k_cpr(FS_COLOR, path); k_prln(1);
+      k_cpr(FS_COLOR, "Leaving new_node"); k_prln(1);
+      retval(NIL_INODE)
+   end;
+   k_cpr(FS_COLOR, "  Successfully called last_dir on path : ");
+   k_cpr(FS_COLOR, path); k_prln(1);
+
+   
+   k_cpr(FS_COLOR, "  Trying to advance() to : "); k_cpr(FS_COLOR, adr(string)); k_prln(1);
+   rip := advance(rlast_dir_ptr, adr(string));
+   
+   
+   if ( (rip = NIL_INODE) AND (err_code = (ENOENT)) ) then begin
+
+
+
+      k_cpr(FS_COLOR, "  advance failed string not in dir will try create new dir "); k_prln(1);
+      
+      (* We tried to advance but the string was not in the last dir 
+       * so we will create a new directory entry. *)
+      k_cpr(FS_COLOR, "  attempting to alloc an inode in last dir above "); k_prln(1);
+      rip := alloc_inode(rlast_dir_ptr^.i_dev, bits);
+      if (rip = NIL_INODE) then begin
+         k_cpr(FS_COLOR, "  ERROR could not alloc an inode (in new_node) "); k_prln(1);
+         put_inode(rlast_dir_ptr);
+         k_cpr(FS_COLOR, "Leaving new_node after ERROR above"); k_prln(1);
+         retval(NIL_INODE)
+      end;
+      k_cpr(FS_COLOR, "  SUCCESS allocating an inode (in new_node) "); k_prln(1);
+
+      
+      rip^.i_nlinks := rip^.i_nlinks + 1;
+      (* TODO figure out what z0 is!!! *)
+      rip^.i_zone[0] := z0;
+      k_cpr(FS_COLOR, "  INFO forcing inode to disk (in new_node) "); k_prln(1);
+      rw_inode(rip, WRITING);
+
+      k_cpr(FS_COLOR, "  INFO trying to create new dir entry (in new_node) "); k_prln(1);
+      r := search_dir(rlast_dir_ptr, adr(string), adr(rip^.i_num), ENTER);
+      if (r <> OK) then begin
+         k_cpr(FS_COLOR, "  ERROR unable to add string to directory"); k_prln(1);
+         put_inode(rlast_dir_ptr);
+         rip^.i_nlinks := rip^.i_nlinks - 1;
+         rip^.i_dirt := DIRTY;
+         put_inode(rip);
+         err_code := r;
+         k_cpr(FS_COLOR, "Leaving new_node"); k_prln(1);
+         retval(NIL_INODE)      
+      end
+   end
+   else begin
+      (* Last component "string" exists *)
+      k_cpr(FS_COLOR, "  INFO string probably already exists"); k_prln(1);
+      if (rip <> NIL_INODE) then 
+         r := EEXIST
+      else
+         r := err_code
+      
+   end;
+   
+   put_inode(rlast_dir_ptr);
+   err_code := r;
+   
+   
+   k_cpr(FS_COLOR, "Leaving new_node SUCCESSFULLY "); k_prln(1);
+   retval(rip)
+   
+end;
+
+(*==================================================================*)
+
 
 (*==================================================================*)
 (*

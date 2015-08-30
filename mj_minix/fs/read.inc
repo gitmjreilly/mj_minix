@@ -2,9 +2,6 @@
 #define READ_INC
 
 #include <k_userio.inc>
-#include "param.inc"
-#include "super_c.inc"
-#include "filedes.inc"
 
 (*
  * Based on fs/read.c
@@ -136,6 +133,15 @@ begin
       z := rip^.i_zone[NR_DZONE_NUM];
       k_cpr(FS_COLOR, "    z (blk with indirects) is : "); k_pr_hex_num(z); k_prln(1)
    end;
+   (* TODO add support for double indirects *)
+   
+   if z = NO_ZONE then begin
+      k_cpr(FS_COLOR, "Leaving read_map - returning NO_ZONE"); k_prln(1);
+      retval(NO_BLOCK)
+   end;
+   
+
+
    b := z;
    bp := get_block(rip^.i_dev, b, NORMAL);
    k_cpr(FS_COLOR, "    fetched block : "); k_pr_hex_num(b); k_prln(1);
@@ -223,7 +229,7 @@ end;
 
 (*******************************************************************)
 (* This is tricky.  There is a lot of mixed 16/32 signed, unsigned 
- * arithmetic.  In this implementation, I'm going with as much 
+ * arithmetic.  In this implementation, I am going with as much 
  * 32 bit signed arithmetic as possible.
  * Please note the following fields come from the input message:
  *    nbytes : integer

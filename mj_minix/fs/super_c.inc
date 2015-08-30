@@ -5,9 +5,6 @@
 #ifndef SUPER_C_INC
 #define SUPER_C_INC
 
-#include "super.inc"
-#include "utility.inc"
-
 
 
 (*=================================================================*)
@@ -28,6 +25,7 @@ end;
  * Super block for dev is assumed to be present.
  * DEV_STATUS:get_super - looks done 12 Sep 2013
  *)
+(*
 function get_super(dev : integer) : ^t_super_block;
 var
    i : integer,
@@ -46,6 +44,53 @@ k_cpr_hex_num(ANSI_WHITE, dev)
 
 
 end;
+*)
+
+
+(*==
+
+
+(*=================================================================*)
+(*
+ * free_bit based on AST1, 8747
+ * We made no attempt to match the AST code.
+ *)
+ (*
+procedure free_bit(
+   map_ptr : ^array[100] of ^t_buf,  
+   bit_returned : integer);
+   
+var
+   block_num : integer,
+   byte_offset_in_block : integer,
+   bit_offset_in_byte : integer,
+   bit_offset_in_block : integer,
+   bp : ^t_buf;
+   
+   
+begin
+   block_num := bit_returned / 8192;
+   bp := map_ptr^[block_num];
+   
+   bit_offset_in_block := bit_returned MOD 8192;
+   byte_offset_in_block := bit_offset_in_block / 8;
+   bit_offset_in_byte := bit_offset_in_block MOD 8;
+   
+   if    (bit_offset_in_byte = 0) then bp^.b__data[byte_offset_in_block] := $FE AND bp^.b__data[byte_offset_in_block]
+   elsif (bit_offset_in_byte = 1) then bp^.b__data[byte_offset_in_block] := $FD AND bp^.b__data[byte_offset_in_block]
+   elsif (bit_offset_in_byte = 2) then bp^.b__data[byte_offset_in_block] := $FB AND bp^.b__data[byte_offset_in_block]
+   elsif (bit_offset_in_byte = 3) then bp^.b__data[byte_offset_in_block] := $F7 AND bp^.b__data[byte_offset_in_block]
+   elsif (bit_offset_in_byte = 4) then bp^.b__data[byte_offset_in_block] := $EF AND bp^.b__data[byte_offset_in_block]
+   elsif (bit_offset_in_byte = 5) then bp^.b__data[byte_offset_in_block] := $DF AND bp^.b__data[byte_offset_in_block]
+   elsif (bit_offset_in_byte = 6) then bp^.b__data[byte_offset_in_block] := $BF AND bp^.b__data[byte_offset_in_block]
+   elsif (bit_offset_in_byte = 7) then bp^.b__data[byte_offset_in_block] := $7F AND bp^.b__data[byte_offset_in_block];
+   
+   bp^.b_dirt := DIRTY
+   
+end;
+*)   
+(*=================================================================*)
+
 
 
 (*=================================================================*)
@@ -63,10 +108,14 @@ begin
    sp := get_super(dev);
    if (bufs_in_use + sp^.s_imap_blocks + sp^.s_zmap_blocks + 3) >= NR_BUFS then
       retval(ERROR);
+
+   (* TODO add support for panic! *)
+   (*
    if ( ( sp^.s_imap_blocks > I_MAP_SLOTS) OR
         ( sp^.s_zmap_blocks > ZMAP_SLOTS)    ) then 
       panic("too many map blocks", NO_NUM);
-      
+   *)
+   
    k_cpr(FS_COLOR, "   about to read   imap_blocks :"); 
    k_cpr_hex_num(FS_COLOR, sp^.s_imap_blocks); k_prln(1);
    i := 0;
@@ -90,8 +139,10 @@ begin
    k_cpr(FS_COLOR, "DEBUG leaving load_bit_maps()"); k_prln(1);
    retval(OK)
 end;
+(*=================================================================*)
 
 
+(*=================================================================*)
 procedure dump_bit_maps();
 var
    bp : ^t_buf,

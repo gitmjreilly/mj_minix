@@ -11,6 +11,10 @@ type
       fp_rootdir : ^t_inode;
       fp_filp : array[NR_FDS] of ^t_filp;
       fs_tty : integer;
+      fp_realuid : integer;
+      fp_effuid : integer;
+      fp_realgid : integer;
+      fp_effgid : integer;
       fp_task : integer
    end;
 

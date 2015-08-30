@@ -94,6 +94,27 @@ end;
 
 
 (*=================================================================*)
+(* Based on AST1,8503 *)
+procedure wipe_inode(rip : ^t_inode);
+var
+   i : integer;
+   
+begin
+   k_cpr(INODE_COLOR, "Entered wipe_inode");  k_prln(1);
+   rip^.i_size := 0;
+   rip^.i_dirt := DIRTY;
+   i := 0;
+   while (i < NR_ZONE_NUMS) do begin
+      rip^.i_zone[i] := NO_ZONE;
+      i := i + 1
+   end;
+   
+   k_cpr(INODE_COLOR, "Leaving wipe_inode");  k_prln(1)
+end;
+(*=================================================================*)
+
+
+(*=================================================================*)
 (* Based on AST1,8543 *)
 procedure rw_inode(rip : ^t_inode, rw_flag : integer);
 var
@@ -233,3 +254,63 @@ procedure dup_inode(ip : ^t_inode);
 begin
    ip^.i_count := ip^.i_count + 1
 end;
+(*=================================================================*)
+
+
+(*=================================================================*)
+(* alloc_inode based on AST1, 8446
+ * DEV_STATUS:alloc_inode - WIP
+ *)
+function alloc_inode(dev : integer, bits : integer) : ^t_inode;
+var
+   rip : ^t_inode,
+   sp : ^t_super_block,
+   numb : integer,
+   b : integer;
+
+begin
+   k_cpr(INODE_COLOR, "Entered alloc_inode"); k_prln(1);
+   sp := get_super(dev);
+   k_cpr(INODE_COLOR, "  Looking for an inode bit..."); k_prln(1);
+   b := alloc_bit(adr(sp^.s_imap), sp^.s_ninodes + 1, sp^.s_imap_blocks, 0);
+   if (b = NO_BIT) then begin
+      k_cpr(INODE_COLOR, "    ERROR Unable to find free inode bit..."); k_prln(1);
+      k_cpr(INODE_COLOR, "    Leaving alloc_inode after failing to find free inode bit"); 
+      k_prln(1);
+      retval(NIL_INODE)   
+   end;
+
+   k_cpr(INODE_COLOR, "  Success allocating an inode bit: "); 
+   k_cpr_hex_num(INODE_COLOR, b);
+   k_prln(1);
+   
+   
+   
+   numb := b;
+   
+   
+   
+
+   k_cpr(INODE_COLOR, "  Trying to alloc in-mem inode slot..."); k_prln(1);
+   rip := get_inode(NO_DEV, numb);
+   if (rip = NIL_INODE) then begin
+      k_cpr(INODE_COLOR, "  ERROR unable to alloc in-mem inode slot."); 
+      free_bit(adr(sp^.s_imap), b)
+   end
+   else begin
+      k_cpr(INODE_COLOR, "  Success allocating in-mem inode slot."); 
+      rip^.i_mode := bits;
+      rip^.i_nlinks := 0;
+      rip^.i_uid := fp^.fp_effuid;
+      rip^.i_gid := fp^.fp_effgid;
+      rip^.i_dev := dev;
+      wipe_inode(rip)      
+   end;
+   
+   
+   k_cpr(INODE_COLOR, "Leaving alloc_inode"); k_prln(1);
+   retval(rip)
+end; 
+(*=================================================================*)
+
+ 

@@ -1,5 +1,6 @@
 #include <runtime.pas>
 #include <k_userio.inc>
+#include <block_rw.inc>
 
 
 (*
@@ -15,6 +16,8 @@
 
 #include <term_colors.inc>
 #include <math_32.inc>
+#include <sendrec.inc>
+
 #define FS_COLOR ANSI_CYAN
 #define INODE_COLOR ANSI_YELLOW
 #define MAP_COLOR ANSI_GREEN
@@ -23,20 +26,35 @@
 
 #include "const.inc"
 #include "type.inc"
+#include "param.inc"
 #include "buf.inc"
 #include "fproc.inc"
 #include "glo.inc"
 #include "super.inc"
-#include "cache.inc"
 #include "inode.inc"
-#include "inode_c.inc"
-#include "param.inc"
 
-#include "super_c.inc"
+(* New special include to remove circular dependency on get_super *)
+#include "get_super.inc"
+
+(* Does utility have to come after read.inc b/c of call t rw_user() ?? *)
+(*
+ * utility needs read
+ * read needs cache
+ * cache needs get_super *)
+#include "cache.inc"
+#include "filedes.inc"
 #include "read.inc"
 #include "utility.inc"
 
-#include "filedes.inc"
+
+
+#include "super_c.inc"
+#include "inode_c.inc"
+
+
+#include "write.inc"
+
+
 #include "path.inc"
 #include "protect.inc"
 #include "open.inc"

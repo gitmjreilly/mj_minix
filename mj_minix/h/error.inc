@@ -14,12 +14,14 @@
 #define EACCES -13
 #define ENOTBLK -15
 #define EEXIST -17
+#define ENODEV -19
 #define ENOTDIR -20
 #define EISDIR -21
 #define EINVAL -22
 #define ENFILE -23
 #define EMFILE -24
 #define EFBIG -27
+#define ENOSPC -28
 #define EROFS -30
 #define EMLINK -31
 
