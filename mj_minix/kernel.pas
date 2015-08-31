@@ -2080,7 +2080,7 @@ var
    Ptr : ^integer;
 
 begin
-   DebugOut(KERNEL_COLOR, "Patching interrupt vector...", 1);
+   k_cpr(KERNEL_COLOR, "Patching interrupt vector..."); k_prln(1);
    (* Mark vectors as DATA_RW for simulator so they may be patched.
     * The LONG_TYPE_STORE instruction is a nop on the actual h/w. *)
     
@@ -2286,6 +2286,7 @@ begin
 
    bill_ptr := proc_addr(HARDWARE);
 
+   k_pr("Enable mem checks now, if running in simulator"); k_prln(1);
 
 
    while 1=1 do  begin
