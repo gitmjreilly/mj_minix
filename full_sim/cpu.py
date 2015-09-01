@@ -101,7 +101,7 @@ class CPU(object):
 
         self._interrupt_pin = 0
         
-        self._address_history = 10 * [0x0000]
+        self._address_history = 100 * [0x0000]
         
         self._break_point_list = dict()
         self._prev_break_point_address = 0x00000

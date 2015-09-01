@@ -429,6 +429,10 @@ begin
          error := do_close();
          k_cpr(FS_COLOR, "error return from do_close is : "); k_prnum(error); k_prln(1)
       end
+      else if (fs_call = 7) then begin
+         error := do_creat();
+         k_cpr(FS_COLOR, "error return from do_close is : "); k_prnum(error); k_prln(1)
+      end
       else if (fs_call = 15) then 
          do_chmod()
       else begin

@@ -5,6 +5,7 @@ import os
 import sys
 import serial
 import socket
+import select
 from time import sleep
 
 # Constants

@@ -90,54 +90,6 @@ begin
 end;
 (*==================================================================*)
 
-(*==================================================================*)
-(*
- * do_close based on AST1,9680
- * Uses message type m3
- *
- * DEV_STATUS:do_close - WIP
- *)
-function do_close() : integer;
-
-var
-   rfilp : ^t_filp,
-   rip : ^t_inode,
-   rw :integer,
-   r : integer,
-   mode_word : integer,
-   fil_ptr : ^t_filp;
-
-begin
-   k_cpr(FS_COLOR, "Entered do_close"); k_prln(1);
-   (* The close() func makes use of fields in an m1 type message 
-    * See param.inc for fd field.
-    *)
-   k_cpr(FS_COLOR, "  FD is : "); k_cprnum(FS_COLOR, fd); k_prln(1);
-   rfilp := get_filp(fd);
-   if rfilp = NIL_FILP then begin
-      k_cpr(FS_COLOR, "  Could not file filp"); k_prln(1);      
-      k_cpr(FS_COLOR, "Leaving do_close"); k_prln(1);
-      retval(err_code)   
-   end;
-   
-   rip := rfilp^.filp_ino;
-   mode_word := rip^.i_mode AND I_TYPE;
-   
-   (* TODO Add code for pipes and special devs *)
-   rfilp^.filp_count := rfilp^.filp_count - 1;
-   if (rfilp^.filp_count = 0) then begin
-      k_cpr(FS_COLOR, "  filp_count has gone to 0; returning inode..."); k_prln(1);      
-      put_inode(rfilp^.filp_ino)
-   end;
-   
-   fp^.fp_filp[fd] := NIL_FILP;
-   
-   k_cpr(FS_COLOR, "Leaving do_close Successfully"); k_prln(1);
-   retval(OK)
-end;
-(*==================================================================*)
-
-
 
 (*==================================================================*)
 (*
@@ -228,6 +180,142 @@ begin
    
 end;
 
+(*==================================================================*)
+
+
+
+
+(*==================================================================*)
+(*
+ * do_open() based on AST1,9479
+ * Uses message type ?
+ *
+ * DEV_STATUS:do_open - WIP
+ *)
+
+function do_creat() : integer;
+
+
+var
+   rip : ^t_inode,
+   r : integer,
+   bits : integer,
+   fil_ptr : ^t_filp,
+   file_d : integer,
+   stat : integer,
+   entry_type : integer;
+   
+
+begin
+   k_cpr(FS_COLOR, "Entered do_creat"); k_prln(1);
+   stat := fetch_name(name, name_length, M3);
+   if (stat <> OK) then begin
+      k_cpr(FS_COLOR, "Was unable to fetch_name.  Returning..."); k_prln(1);
+      retval(err_code)
+   end;
+   
+   r := get_fd(W_BIT, adr(file_d), adr(fil_ptr));
+   if r <> OK then begin
+      k_cpr(FS_COLOR, "Leaving do_creat could not get fd"); k_prln(1);
+      retval(r)
+   end;
+   
+   (* TODO use actual mode settings *)
+   bits := I_REGULAR OR (mode AND ALL_MODES AND fp^.fp_umask);
+   bits := I_REGULAR;
+   
+   rip := new_node(adr(user_path), bits, NO_ZONE);
+   r := err_code;
+   
+   if ( (r <> OK) AND (r <> (EEXIST))) then begin
+      k_cpr(FS_COLOR, "Leaving do_creat could not alloc new node"); k_prln(1);
+      retval(r)
+   end;
+   
+   if (r = (EEXIST)) then begin
+      k_cpr(FS_COLOR, "  INFO file already exists..."); k_prln(1);
+      
+      entry_type := rip^.i_mode AND I_TYPE;
+      
+      if (entry_type = I_REGULAR) then begin
+         k_cpr(FS_COLOR, "  INFO it is a regular file..."); k_prln(1);
+         r := forbidden(rip, W_BIT, 0);
+         if (r = OK) then begin
+            k_cpr(FS_COLOR, "  INFO we are permitted to write to it..."); k_prln(1);
+            (* TODO add truncate call *)
+            (* DEBUG remove later *)
+            put_inode(rip);
+            retval(0)
+         end
+      end
+      else begin
+         k_cpr(FS_COLOR, "  INFO not a regular file..."); k_prln(1);
+         r := EISDIR
+      end
+   end;
+   
+   if (r <> OK) then begin
+      put_inode(rip);
+      k_cpr(FS_COLOR, "Leaving do_creat - UNSUCCESSFUL"); k_prln(1);
+      retval(r)
+   end;
+   
+   fp^.fp_filp[file_d] := fil_ptr;
+   fil_ptr^.filp_count := 1;
+   fil_ptr^.filp_ino := rip;
+   k_cpr(FS_COLOR, "Leaving do_creat - SUCCESSFULE"); k_prln(1);
+   retval(file_d)
+   
+   
+end;
+(*==================================================================*)
+
+
+(*==================================================================*)
+(*
+ * do_close based on AST1,9680
+ * Uses message type m3
+ *
+ * DEV_STATUS:do_close - WIP
+ *)
+function do_close() : integer;
+
+var
+   rfilp : ^t_filp,
+   rip : ^t_inode,
+   rw :integer,
+   r : integer,
+   mode_word : integer,
+   fil_ptr : ^t_filp;
+
+begin
+   k_cpr(FS_COLOR, "Entered do_close"); k_prln(1);
+   (* The close() func makes use of fields in an m1 type message 
+    * See param.inc for fd field.
+    *)
+   k_cpr(FS_COLOR, "  FD is : "); k_cprnum(FS_COLOR, fd); k_prln(1);
+   rfilp := get_filp(fd);
+   if rfilp = NIL_FILP then begin
+      k_cpr(FS_COLOR, "  Could not file filp"); k_prln(1);      
+      k_cpr(FS_COLOR, "Leaving do_close"); k_prln(1);
+      retval(err_code)   
+   end;
+   
+   rip := rfilp^.filp_ino;
+   mode_word := rip^.i_mode AND I_TYPE;
+   
+   (* TODO Add code for pipes and special devs *)
+   rfilp^.filp_count := rfilp^.filp_count - 1;
+   if (rfilp^.filp_count = 0) then begin
+      k_cpr(FS_COLOR, "  filp_count has gone to 0; returning inode..."); k_prln(1);      
+      put_inode(rfilp^.filp_ino)
+   end;
+   
+   fp^.fp_filp[fd] := NIL_FILP;
+   
+   k_cpr(FS_COLOR, "Leaving do_close Successfully"); k_prln(1);
+   retval(OK)
+end;
 (*==================================================================*)
 
 

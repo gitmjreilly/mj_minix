@@ -11,4 +11,4 @@ Creating a Minix v1 filesystem
 	Num inodes will be rounded up to fill a block
 
 Using fsck.minix
-	fsck -vf filename
+	fsck.minix -vf filename

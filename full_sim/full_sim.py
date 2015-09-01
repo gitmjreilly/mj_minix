@@ -71,7 +71,7 @@ def construct_computer_system():
     console_serial_port = FifoSerialPort(
         listen_port = 5000, 
         input_delay = 1200, 
-        output_delay = 1200,
+        output_delay = 10,
         name = "Console")
     
     

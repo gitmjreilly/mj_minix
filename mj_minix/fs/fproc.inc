@@ -7,6 +7,7 @@
 
 type
    t_fproc = record
+      fp_umask : integer;
       fp_workdir : ^t_inode;
       fp_rootdir : ^t_inode;
       fp_filp : array[NR_FDS] of ^t_filp;
