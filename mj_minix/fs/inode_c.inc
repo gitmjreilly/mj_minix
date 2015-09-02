@@ -1,6 +1,4 @@
 #include "inode.inc"
-#include "super.inc"
-#include "super_c.inc"
 
    (*
    t_inode = record
@@ -138,6 +136,10 @@ begin
    offset := (rip^.i_num - 1) MOD INODES_PER_BLOCK;
    
    k_cpr(INODE_COLOR, "in rw_inode inode numb is : "); k_cpr_hex_num(INODE_COLOR, rip^.i_num); k_prln(1);
+
+   k_cpr(INODE_COLOR, "            imap blocks  is : "); k_cpr_hex_num(INODE_COLOR, sp^.s_imap_blocks); k_prln(1);
+   k_cpr(INODE_COLOR, "            zmap blocks is : "); k_cpr_hex_num(INODE_COLOR, sp^.s_zmap_blocks); k_prln(1);
+
    k_cpr(INODE_COLOR, "            block num  is : "); k_cpr_hex_num(INODE_COLOR, b); k_prln(1);
    k_cpr(INODE_COLOR, "            offset     is : "); k_cpr_hex_num(INODE_COLOR, offset); k_prln(1);
    

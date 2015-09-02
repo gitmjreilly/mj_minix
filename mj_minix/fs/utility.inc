@@ -69,7 +69,8 @@ begin
    k_cpr(FS_COLOR, "File system panic!");
    if (num <> NO_NUM) then
       k_cpr_hex_num(FS_COLOR, num);
-   k_prln(1)
+   k_prln(1);
+   k_cpr(FS_COLOR, format)
 end;
 
 

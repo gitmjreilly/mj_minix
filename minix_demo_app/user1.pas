@@ -36,6 +36,7 @@ begin
    pr("fs_ping   (send chmod sys call to fs)"); prln(1);
    pr("open_file   fs open syscall"); prln(1);
    pr("creat_file   fs creat syscall"); prln(1);
+   pr("sync_fs   sync_fs syscall"); prln(1);
    pr("read_file   fs read syscall"); prln(1);
    pr("cat_file   fs read syscall"); prln(1);
    pr("close_file   fs close syscall"); prln(1);
@@ -371,7 +372,7 @@ begin
    name_length := nl;
    
    (* $0005 is the type for open *)
-   m3^.m_type := $0007;
+   m3^.m_type := $0008;
    if (name_length <= M3_STRING) then begin
       (* We can store the name in the message... *)
       str_copy(adr(t_str), adr(pathname))
@@ -383,6 +384,34 @@ begin
    send_p(FS_PROC_NR, m3);
    receive_p(FS_PROC_NR, adr(m4));
    pr("Returned file descriptor is : "); prnum(m4.m_type); prln(1)
+end;
+(********************************************************************)
+
+
+(********************************************************************)
+(* Use global message from app_runtime
+ *)
+procedure sync_fs() ;
+
+var
+   t_str : array[40] of integer,
+   src_proc_num : integer,
+   dst_proc_num : integer,
+   nl : integer,
+   m4 : mess_3,
+   num_to_be_guessed : integer;
+
+begin
+   (* Please note:
+    * name, pathname, name_length, mode are m3 message fields - see param.inc
+    *)
+
+   pr("Sending sync_fs message to FS"); prln(1);
+   (* $0005 is the type for open *)
+   m3^.m_type := 36;
+   
+   send_p(FS_PROC_NR, m3);
+   receive_p(FS_PROC_NR, adr(m4))
 end;
 (********************************************************************)
 
@@ -649,6 +678,12 @@ begin
       compare_strings(adr(t_str), "creat_file", adr(ans));
       if ans = 1 then begin
          creat_file();
+         continue
+      end;
+      
+      compare_strings(adr(t_str), "sync_fs", adr(ans));
+      if ans = 1 then begin
+         sync_fs();
          continue
       end;
       
