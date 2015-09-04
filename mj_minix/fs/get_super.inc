@@ -73,9 +73,7 @@ begin
          if (__ug(allocated_bit_num, map_bits) ) then begin
             k_cpr(MAP_COLOR, "Leaving alloc_bit; did not find free bit"); k_prln(1);
             retval(NO_BIT)
-         end;
-         byte_num := byte_num + 1;
-         allocated_bit_num := allocated_bit_num + 8
+         end
       end;
       
       (* If we got this far EITHER

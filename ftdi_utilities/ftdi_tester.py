@@ -18,7 +18,7 @@ def UARTBlast(SerialDevice):
 def main():
 
 
-    ActualDeviceList = ["/dev/ttyUSB0", "/dev/ttyUSB1"]
+    ActualDeviceList = ["/dev/ttyUSB0", "/dev/ttyUSB2"]
  
  
     while (True):
