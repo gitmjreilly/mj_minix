@@ -50,6 +50,20 @@ begin
    copy_16_from_block(src + 16, adr(sp^.s_magic))
 end;
 
+  
+procedure copy_super_to_block(sp : ^t_super_block, dst : ^integer);
+
+begin
+   copy_16_to_block(adr(sp^.s_ninodes),       dst);
+   copy_16_to_block(adr(sp^.s_nzones),        dst + 2);
+   copy_16_to_block(adr(sp^.s_imap_blocks),   dst + 4);
+   copy_16_to_block(adr(sp^.s_zmap_blocks),   dst + 6);
+   copy_16_to_block(adr(sp^.s_firstdatazone), dst + 8);
+   copy_16_to_block(adr(sp^.s_log_zone_size), dst + 10);
+   copy_32_to_block(adr(sp^.s_max_size),      dst + 12);
+   copy_16_to_block(adr(sp^.s_magic),         dst + 16)
+end;
+
 
 
 #endif

@@ -22,9 +22,9 @@ begin
    k_cpr(FS_COLOR, "Entered do_sync"); k_prln(1);
 
    sp := get_super(ROOT_DEV);
-   (* TODO get time  and set dirty*)
+   (* TODO get time *)
    (* sp^.s_time := clock_time(); *)
-   sp^.s_dirt := CLEAN;
+   sp^.s_dirt := DIRTY;
    
    i := 0;
    while (i < NR_INODES) do begin

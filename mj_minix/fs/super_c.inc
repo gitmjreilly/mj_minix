@@ -234,7 +234,7 @@ begin
    end
    else begin (* TODO fix this !! We are writing *)
       bp := get_block(sp^.s_dev, SUPER_BLK, NO_READ);
-      copy_super_from_block(adr(bp^.b__data), sp);
+      copy_super_to_block(sp, adr(bp^.b__data));
       bp^.b_dirt := DIRTY
    end;
 
