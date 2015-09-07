@@ -44,7 +44,10 @@
  * cache needs get_super *)
 #include "cache.inc"
 #include "filedes.inc"
+
+#include "rip_map_local.inc"
 #include "read.inc"
+#include "write.inc"
 #include "utility.inc"
 
 
@@ -54,7 +57,7 @@
 
 #include "misc.inc"
 
-#include "write.inc"
+(* #include "write.inc" *)
 
 
 #include "path.inc"
@@ -306,6 +309,10 @@ begin
       if (fs_call = 3) then begin
          error := do_read();
          k_cpr(FS_COLOR, "error return from do_read is : "); k_prnum(error); k_prln(1)
+      end
+      else if (fs_call = 4) then begin
+         error := do_write();
+         k_cpr(FS_COLOR, "error return from do_write is : "); k_prnum(error); k_prln(1)
       end
       else if (fs_call = 5) then begin
          error := do_open();

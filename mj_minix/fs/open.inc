@@ -190,7 +190,7 @@ end;
  * do_open() based on AST1,9479
  * Uses message type ?
  *
- * DEV_STATUS:do_open - WIP
+ * DEV_STATUS:do_creat- WIP
  *)
 
 function do_creat() : integer;

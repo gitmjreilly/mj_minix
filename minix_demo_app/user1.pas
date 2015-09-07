@@ -38,6 +38,7 @@ begin
    pr("creat_file   fs creat syscall"); prln(1);
    pr("sync_fs   sync_fs syscall"); prln(1);
    pr("read_file   fs read syscall"); prln(1);
+   pr("write_file   fs write syscall"); prln(1);
    pr("cat_file   fs read syscall"); prln(1);
    pr("close_file   fs close syscall"); prln(1);
    pr("print_buff (print the dest buffer)"); prln(1)
@@ -317,7 +318,7 @@ begin
     * name, pathname, name_length, mode are m3 message fields - see param.inc
     *)
 
-   pr("Sending dummy message to FS"); prln(1);
+   pr("Sending open message to FS"); prln(1);
    pr("Enter FQ path name >"); 
    gets(adr(t_str));
    pr("Your string is : "); pr(adr(t_str)); prln(1);
@@ -526,6 +527,76 @@ end;
 
 (********************************************************************)
 (* Use global message from app_runtime
+ * Please note the following fields come from the input message:
+ *    nbytes : integer
+ *    buffer : pointer to mem location
+ *    fd : integer
+ *
+ *)
+procedure write_file() ;
+
+var
+   t_str : array[40] of integer,
+   src_proc_num : integer,
+   dst_proc_num : integer,
+   nl : integer,
+   m4 : mess_3,
+   the_msg : mess_1,
+   m1: ^mess_1,
+   fill_val : integer,
+   i : integer,
+   num_bytes_read : integer;
+
+begin
+   (* Please note:
+    *    fd is a param.inc field.
+    *    buffer is a param.inc field
+    *    nbytes is a param.inc field
+    *)
+
+   m1 := adr(the_msg);
+   pr("Enter FD for file to write to >"); 
+   get_num(adr(fd));
+   pr("Your fd is : "); prnum(fd); prln(1);
+
+   pr("Enter decimal value to fill >"); 
+   get_num(adr(fill_val));
+
+   
+   i := 0;
+   while (i < 512) do begin
+      file_buffer[i] := fill_val;
+      i := i + 1
+   end;
+
+   (* $0004 is the type for write *)
+   m1^.m_type := $0004; 
+   nbytes := $200;
+   buffer := adr(file_buffer);
+   
+   pr("buffer addr is : ");
+   prnum(buffer); k_prln(1);
+
+   send_p(FS_PROC_NR, m1);
+   receive_p(FS_PROC_NR, adr(m4));
+
+   num_bytes_read := m4.m_type;
+   pr("Returned func val is : "); prnum(num_bytes_read); prln(1);
+   
+   if (num_bytes_read < 0) then begin
+      pr("  Got negative return from write..."); prln(1)
+   end
+   else begin
+      pr("  Got ZERO (good) return from write..."); prln(1)   
+   end
+      
+end;
+(********************************************************************)
+
+
+
+(********************************************************************)
+(* Use global message from app_runtime
  *)
 procedure close_file() ;
 
@@ -690,6 +761,12 @@ begin
       compare_strings(adr(t_str), "read_file", adr(ans));
       if ans = 1 then begin
          read_file();
+         continue
+      end;
+      
+      compare_strings(adr(t_str), "write_file", adr(ans));
+      if ans = 1 then begin
+         write_file();
          continue
       end;
       

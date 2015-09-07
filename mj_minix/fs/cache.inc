@@ -175,8 +175,10 @@ var
    lower6 : integer;
 
 begin
-   k_cpr(BLOCK_COLOR, "entered rw_block"); k_prln(1);
+   k_cpr(BLOCK_COLOR, "Entered rw_block"); k_prln(1);
    k_cpr(BLOCK_COLOR, "Address of bp^.b__data is : "); k_cpr_hex_num(BLOCK_COLOR, adr(bp^.b__data)); k_prln(1);
+
+   k_cpr(BLOCK_COLOR, "  block num is :  "); k_cpr_hex_num(BLOCK_COLOR, bp^.b_blocknr); k_prln(1);
 
    (*
    upper10 := bp^.b_blocknr AND $FFC0;
@@ -223,7 +225,7 @@ begin
 	  if abs_disk_position[1] = 0 then 
 	     abs_disk_position[0] := abs_disk_position[0] + 1;
 	     
-      p := adr(app_mess);
+     p := adr(app_mess);
 	  reply_mess := adr(app_mess);
 
 	  p^.m_type := DISK_WRITE;
