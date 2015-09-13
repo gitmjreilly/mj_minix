@@ -17,6 +17,80 @@ var
     *)
    mode_map : array[4] of integer;
 
+   
+   
+(*==================================================================*)
+(*
+ * do_lseek() based on AST1,9721
+ * Uses message type m2
+ *
+ * DEV_STATUS:do_lseek - WIP
+ * system call 19
+ *
+ * uses following fields from m2 (see AST1,7900 - param.h)
+ *   ls_fd
+ *   offset
+ *   whence
+ *   reply_l1 
+ *)
+function do_lseek() : integer;
+
+var
+   rfilp : ^t_filp,
+   long_zero : array[2] of integer,
+   pos : array[2] of integer;
+   
+begin
+   k_cpr(FS_COLOR, "Entered do_lseek"); k_prln(1);
+   
+   s32_set_zero(adr(long_zero));
+   
+  
+   rfilp := get_filp(ls_fd);
+   if (rfilp = NIL_FILP) then begin
+      k_cpr(FS_COLOR, "ERROR invalid fd in  leaving do_lseek unSUCCESSFULLY"); k_prln(1);
+      retval(err_code)  
+   end;
+   
+   if (rfilp^.filp_ino^.i_pipe = I_PIPE) then begin
+      k_cpr(FS_COLOR, "ERROR tried to lseek on pipe  leaving do_lseek unSUCCESSFULLY"); k_prln(1);
+      retval(ESPIPE)   
+   end;
+   
+   if (whence = 0) then begin
+      s32_copy(adr(offset), adr(pos))
+   end
+   else if (whence = 1) then begin
+      s32_add(adr(rfilp^.filp_pos), adr(offset), adr(pos))
+   end
+   else if (whence = 2) then begin
+      s32_add(adr(rfilp^.filp_ino^.i_size), adr(offset), adr(pos))
+   end
+   else begin
+      k_cpr(FS_COLOR, "ERROR invalid whence in lseek - leaving do_lseek unSUCCESSFULLY"); k_prln(1);
+      retval(EINVAL)   
+   end;
+
+   if (s32_l(adr(pos), adr(long_zero))) then begin
+      k_cpr(FS_COLOR, "ERROR invalid pos inlseek - leaving do_lseek unSUCCESSFULLY"); k_prln(1);
+      retval(EINVAL)   
+   end;
+   
+   (* TODO inhibit seek ahead *)
+   (*
+   rfilp^.filp_ino^.i_seek := ISEEK;
+   *)
+   
+   s32_copy(adr(pos), adr(rfilp^.filp_pos) ); 
+   
+   s32_copy(adr(pos), adr(reply_l1));
+   
+   
+   k_cpr(FS_COLOR, "Leaving do_lseek SUCCESSFULLY"); k_prln(1)
+
+end;   
+(*==================================================================*)
+   
 
 (*==================================================================*)
 (*

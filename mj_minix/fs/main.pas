@@ -158,11 +158,13 @@ begin
    
    m3_in := adr(in_msg);
    m1_in := adr(in_msg);
+   m2_in := adr(in_msg);
    
    (* The reply message is of type mess_1 
     * See AST1,7942
     *)
    m1_out := adr(out_msg);
+   m2_out := adr(out_msg);
    
    buf_pool();
    (* load_ram loads a ram disk with root fs
@@ -332,6 +334,8 @@ begin
       end
       else if (fs_call = 15) then 
          do_chmod()
+      else if (fs_call = 19) then 
+         error := do_lseek()
       else begin
          k_cpr(FS_COLOR, " Unknown system call! : "); k_prnum(fs_call); k_prln(1)
       end;

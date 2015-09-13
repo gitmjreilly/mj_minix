@@ -24,6 +24,7 @@
 #define ENOSPC -28
 #define EROFS -30
 #define EMLINK -31
+#define ESPIPE -32
 
 #define E_LONG_STRING -103
 

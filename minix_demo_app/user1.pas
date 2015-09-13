@@ -40,6 +40,7 @@ begin
    pr("read_file   fs read syscall"); prln(1);
    pr("write_file   fs write syscall"); prln(1);
    pr("cat_file   fs read syscall"); prln(1);
+   pr("lseek   fs lseek syscall"); prln(1);
    pr("close_file   fs close syscall"); prln(1);
    pr("print_buff (print the dest buffer)"); prln(1)
 
@@ -596,6 +597,65 @@ end;
 
 
 (********************************************************************)
+(* lseek syscall decimal 19
+ *
+ * Use global message from app_runtime
+ * 
+ * Please note the following fields come from the input message (from m2 type)
+ *    ls_fd : integer
+ *    offset : 2 word, 32 bit, offset
+ *    whence : integer
+ *    
+ *
+ *)
+procedure lseek() ;
+
+var
+   t_str : array[40] of integer,
+   src_proc_num : integer,
+   dst_proc_num : integer,
+   nl : integer,
+   m4 : mess_3,
+   the_msg : mess_1,
+   m2: ^mess_2,
+   fill_val : integer,
+   i : integer,
+   num_bytes_read : integer;
+
+begin
+   (* Please note:
+    *    fd is a param.inc field.
+    *    buffer is a param.inc field
+    *    nbytes is a param.inc field
+    *)
+
+   m2 := adr(the_msg);
+   pr("Enter FD for file to seek on >"); 
+   get_num(adr(ls_fd));
+   pr("Your fd is : "); prnum(ls_fd); prln(1);
+
+   (* Todo fully set whence *)
+   pr("Enter whence (0 = abs, 1 = cur pos + offset, 2 = filesize + offset  >"); 
+   get_num(adr(whence));
+
+   pr("Enter decimal offset  >"); 
+   get_num(adr(offset[1]));
+   offset[0] := 0;
+
+   
+   m2^.m_type := $0013; 
+
+   send_p(FS_PROC_NR, m2);
+   receive_p(FS_PROC_NR, adr(m4))
+
+   (* TODO add proper reply handling to whence *)
+   
+end;
+(********************************************************************)
+
+
+
+(********************************************************************)
 (* Use global message from app_runtime
  *)
 procedure close_file() ;
@@ -767,6 +827,12 @@ begin
       compare_strings(adr(t_str), "write_file", adr(ans));
       if ans = 1 then begin
          write_file();
+         continue
+      end;
+      
+      compare_strings(adr(t_str), "lseek", adr(ans));
+      if ans = 1 then begin
+         lseek();
          continue
       end;
       

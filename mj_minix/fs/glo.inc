@@ -18,9 +18,11 @@ var
 var
    (* Ptrs to cast message and use with param.inc *)
    m1_in : ^mess_1,
+   m2_in : ^mess_2,
    m3_in : ^mess_3,
 
    m1_out : ^mess_1,
+   m2_out : ^mess_2,
    
    in_msg : mess_3,
    out_msg : mess_1;

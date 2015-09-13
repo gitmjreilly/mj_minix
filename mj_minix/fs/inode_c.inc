@@ -116,7 +116,7 @@ end;
 (* Based on AST1,8543 *)
 procedure rw_inode(rip : ^t_inode, rw_flag : integer);
 var
-   offset : integer,
+   offs : integer,
    bp : ^t_buf,
    dip : ^t_inode,
    sp : ^t_super_block,
@@ -133,7 +133,7 @@ begin
          
    bp := get_block(rip^.i_dev, b, NORMAL);
    
-   offset := (rip^.i_num - 1) MOD INODES_PER_BLOCK;
+   offs := (rip^.i_num - 1) MOD INODES_PER_BLOCK;
    
    k_cpr(INODE_COLOR, "in rw_inode inode numb is : "); k_cpr_hex_num(INODE_COLOR, rip^.i_num); k_prln(1);
 
@@ -141,9 +141,9 @@ begin
    k_cpr(INODE_COLOR, "            zmap blocks is : "); k_cpr_hex_num(INODE_COLOR, sp^.s_zmap_blocks); k_prln(1);
 
    k_cpr(INODE_COLOR, "            block num  is : "); k_cpr_hex_num(INODE_COLOR, b); k_prln(1);
-   k_cpr(INODE_COLOR, "            offset     is : "); k_cpr_hex_num(INODE_COLOR, offset); k_prln(1);
+   k_cpr(INODE_COLOR, "            offs     is : "); k_cpr_hex_num(INODE_COLOR, offs); k_prln(1);
    
-   dip := adr(bp^.b__data) + offset * 32;  (* Multiply by inode size *)
+   dip := adr(bp^.b__data) + offs * 32;  (* Multiply by inode size *)
    
    if (rw_flag = READING) then begin
       k_cpr(INODE_COLOR, "Reading inode..."); k_prln(1);

@@ -10,6 +10,10 @@
 #define name_length m3^.m3i1
 #define pathname m3^.m3cal
 
+#define ls_fd m2^.m2i1
+#define whence m2^.m2i2
+#define offset m2^.m2l1
+
 #define fd m1^.m1i1
 #define buffer m1^.m1p1
 #define fd m1^.m1i1
