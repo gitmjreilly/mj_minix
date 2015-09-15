@@ -393,6 +393,51 @@ end;
 (********************************************************************)
 (* Use global message from app_runtime
  *)
+procedure chdir() ;
+
+var
+   t_str : array[40] of integer,
+   src_proc_num : integer,
+   dst_proc_num : integer,
+   nl : integer,
+   m4 : mess_3,
+   num_to_be_guessed : integer;
+
+begin
+   (* Please note:
+    * name, pathname, name_length, mode are m3 message fields - see param.inc
+    *)
+
+   pr("Sending chdir message to FS"); prln(1);
+   pr("Enter dir name >"); 
+   gets(adr(t_str));
+   pr("Your string is : "); pr(adr(t_str)); prln(1);
+   str_len(adr(t_str) , adr(nl));
+   pr("Length is : "); prnum(nl); prln(1);
+   
+   (* 2 M3 message fields : name, name_length *)
+   name := adr(t_str);   
+   name_length := nl;
+   
+   (* $000C is the sys call number of chdir *)
+   m3^.m_type := $000C;
+   if (name_length <= M3_STRING) then begin
+      (* We can store the name in the message pathname field *)
+      str_copy(adr(t_str), adr(pathname))
+   end;
+
+   
+   send_p(FS_PROC_NR, m3);
+   receive_p(FS_PROC_NR, adr(m4));
+   (* Note how return status is in type field *)
+   pr("Returned status val from do_chdir is  "); prnum(m4.m_type); prln(1)
+end;
+(********************************************************************)
+
+
+(********************************************************************)
+(* Use global message from app_runtime
+ *)
 procedure sync_fs() ;
 
 var
@@ -809,6 +854,12 @@ begin
       compare_strings(adr(t_str), "creat_file", adr(ans));
       if ans = 1 then begin
          creat_file();
+         continue
+      end;
+      
+      compare_strings(adr(t_str), "chdir", adr(ans));
+      if ans = 1 then begin
+         chdir();
          continue
       end;
       

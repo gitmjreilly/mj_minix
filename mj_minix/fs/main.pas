@@ -62,6 +62,7 @@
 
 #include "path.inc"
 #include "protect.inc"
+#include "stadir.inc"
 #include "open.inc"
 
 
@@ -327,6 +328,10 @@ begin
       else if (fs_call = 8) then begin
          error := do_creat();
          k_cpr(FS_COLOR, "error return from do_close is : "); k_prnum(error); k_prln(1)
+      end
+      else if (fs_call = 12) then begin
+         error := do_chdir();
+         k_cpr(FS_COLOR, "error return from do_chdir is : "); k_prnum(error); k_prln(1)
       end
       else if (fs_call = 36) then begin
          error := do_sync();
