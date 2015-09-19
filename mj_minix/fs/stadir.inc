@@ -3,6 +3,85 @@
 
 
 
+(*******************************************************************)
+(* stat_inode()  based on AST1, 11592
+ * DEV_STATUS : WIP
+ *)
+function stat_inode(rip : ^t_inode,   filp_ptr : ^t_filp, user_addr : ^integer) : integer;
+
+var
+   stp : ^t_stat,
+   statbuf : t_stat,
+   r : integer,
+   v : integer (* ?? *);
+
+begin
+   stp := adr(statbuf);
+   stp^.st_dev := rip^.i_dev;
+   stp^.st_ino := rip^.i_num;
+   stp^.st_mode := rip^.i_mode;
+   stp^.st_nlink := rip^.i_nlinks AND $00FF;
+   stp^.st_uid := rip^.i_uid;
+   stp^.st_gid := rip^.i_gid;
+   stp^.st_rdev := rip^.i_zone[0];
+   s32_copy(adr(rip^.i_size), adr(stp^.st_size));
+   
+   (* TODO do pipe and time stuff *)
+   
+   (*
+    * From read.inc
+   r := rw_user(seg, usr, buff, chunk, (adr(bp^.b__data) + off),   dir);
+   *) 
+   
+   v := user_addr;
+   
+   r := rw_user(
+      D,                 (* space - ignored *)
+      who,               (* process to write to, in this case proc who sent message *)
+      v,                 (* address in user space to write to*)
+      15,                (* how much are we writing sizeof(statbuf) *)
+      stp,               (* local address of data *)
+      TO_USER);          (* write to user *)
+   
+   retval(r)   
+
+end;
+(*******************************************************************)
+
+(*******************************************************************)
+(* do_stat()  based on AST1, 11553
+ * DEV_STATUS : WIP
+ * uses an M1 message
+ *)
+function do_stat() : integer;
+
+var
+   rip : ^t_inode,
+   r : integer;
+
+begin
+   k_cpr(FS_COLOR, "Entered do_stat"); k_prln(1);
+   if (fetch_name(name1, name1_length, M1) <> OK) then begin
+      k_cpr(FS_COLOR, "  prob w fetch_name Leaving do_stat UNsuccessfully"); k_prln(1);
+      retval(err_code)
+   end;
+   
+   rip := eat_path(adr(user_path));
+   if (rip = NIL_INODE) then begin
+      k_cpr(FS_COLOR, "  prob w eat_path Leaving do_stat UNsuccessfully"); k_prln(1);
+      retval(err_code)
+   end;
+   
+   (* Please note name2 is a #def alias in an M1 message; its the pointer to user space buffer *)
+   r := stat_inode(rip, NIL_FILP, name2);
+   put_inode(rip);
+
+   k_cpr(FS_COLOR, "Leaving do_stat successfully"); k_prln(1);
+   retval(r)
+
+end;
+(*******************************************************************)
+
 
 (*******************************************************************)
 (* change()  base on AST1, 10515

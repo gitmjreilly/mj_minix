@@ -13,6 +13,7 @@
 (* #include "../h/callnr.inc" *)
 #include "../h/com.inc"
 #include "../h/error.inc" 
+#include "../h/sta.inc"
 
 #include <term_colors.inc>
 #include <math_32.inc>
@@ -339,6 +340,8 @@ begin
       end
       else if (fs_call = 15) then 
          do_chmod()
+      else if (fs_call = 18) then 
+         error := do_stat()
       else if (fs_call = 19) then 
          error := do_lseek()
       else begin

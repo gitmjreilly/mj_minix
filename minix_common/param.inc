@@ -6,6 +6,9 @@
 #define PARAM_INC
 
 #define name m3^.m3p1
+#define name1 m1^.m1p1
+#define name1_length m1^.m1i1
+#define name2 m1^.m1p2
 #define mode m3^.m3i2
 #define name_length m3^.m3i1
 #define pathname m3^.m3cal

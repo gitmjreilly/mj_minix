@@ -35,6 +35,7 @@ begin
    pr("set_buff   (set the src buffer)"); prln(1);
    pr("fs_ping   (send chmod sys call to fs)"); prln(1);
    pr("open_file   fs open syscall"); prln(1);
+   pr("stat_file   fs open syscall"); prln(1);
    pr("creat_file   fs creat syscall"); prln(1);
    pr("sync_fs   sync_fs syscall"); prln(1);
    pr("read_file   fs read syscall"); prln(1);
@@ -340,6 +341,65 @@ begin
    
    send_p(FS_PROC_NR, m3);
    receive_p(FS_PROC_NR, adr(m4));
+   pr("Returned file descriptor is : "); prnum(m4.m_type); prln(1)
+end;
+(********************************************************************)
+
+
+
+(********************************************************************)
+procedure stat_file() ;
+
+var
+   t_str : array[40] of integer,
+   src_proc_num : integer,
+   dst_proc_num : integer,
+   nl : integer,
+   m4 : mess_3,
+   stat_buffer : record
+		st_dev : integer;
+		st_ino : integer;
+		st_mode : integer;
+		st_nlink : integer;
+		st_uid : integer;
+		st_gid : integer;
+		st_rdev : integer;
+		st_size : array[2] of integer;
+		st_atime : array[2] of integer;
+		st_mtime : array[2] of integer;
+		st_ctime : array[2] of integer
+	end;
+
+
+
+begin
+   (* Please note:
+    * stat uses an m1 message fields - see param.inc
+    *)
+
+   pr("Sending do_stat message to FS"); prln(1);
+   pr("Enter FQ path name >"); 
+   gets(adr(t_str));
+   pr("Your string is : "); pr(adr(t_str)); prln(1);
+   str_len(adr(t_str) , adr(nl));
+   pr("Length is : "); prnum(nl); prln(1);
+   name1 := adr(t_str);
+   
+   name1_length := nl;
+
+   name2 := adr(stat_buffer);
+   
+   m1^.m_type := $0012;
+
+   
+   send_p(FS_PROC_NR, m1);
+   receive_p(FS_PROC_NR, adr(m4));
+   
+   pr(" inum    : "); prnum(stat_buffer.st_ino); prln(1);
+   pr(" nlink   : "); prnum(stat_buffer.st_nlink); prln(1);
+   pr(" uid     : "); prnum(stat_buffer.st_uid); prln(1);
+   pr(" mode     : "); prnum(stat_buffer.st_mode); prln(1);
+   pr(" size     : "); prnum(stat_buffer.st_size[1]); prln(1);
    pr("Returned file descriptor is : "); prnum(m4.m_type); prln(1)
 end;
 (********************************************************************)
@@ -754,6 +814,7 @@ begin
     * with different pointers.
     *)
    m3 := adr(app_mess); 
+   m1 := adr(app_mess);
 
    clear_buff();
    
@@ -848,6 +909,12 @@ begin
       compare_strings(adr(t_str), "open_file", adr(ans));
       if ans = 1 then begin
          open_file();
+         continue
+      end;
+      
+      compare_strings(adr(t_str), "stat_file", adr(ans));
+      if ans = 1 then begin
+         stat_file();
          continue
       end;
       

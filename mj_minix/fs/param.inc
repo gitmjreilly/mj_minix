@@ -12,6 +12,9 @@
 
 #define ls_fd m2_in^.m2i1
 #define name m3_in^.m3p1
+#define name1 m1_in^.m1p1
+#define name1_length m1_in^.m1i1
+#define name2 m1_in^.m1p2
 #define mode m3_in^.m3i2
 #define name_length m3_in^.m3i1
 #define offset m2_in^.m2l1
