@@ -52,7 +52,7 @@
 #include "utility.inc"
 
 
-
+#include "link.inc"
 #include "inode_c.inc"
 #include "super_c.inc"
 

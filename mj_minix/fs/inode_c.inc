@@ -93,6 +93,7 @@ end;
 
 (*=================================================================*)
 (* Based on AST1,8503 *)
+(* 
 procedure wipe_inode(rip : ^t_inode);
 var
    i : integer;
@@ -108,6 +109,25 @@ begin
    end;
    
    k_cpr(INODE_COLOR, "Leaving wipe_inode");  k_prln(1)
+end;
+*)
+(*=================================================================*)
+
+
+(*=================================================================*)
+(* Based on AST1,8525 *)
+procedure free_inode(dev : integer, numb : integer);
+var
+   i : integer,
+   sp : ^t_super_block;
+   
+begin
+   k_cpr(INODE_COLOR, "Entered free_inode");  k_prln(1);
+   
+   sp := get_super(dev);
+   free_bit(adr(sp^.s_imap), numb);
+   
+   k_cpr(INODE_COLOR, "Leaving free_inode");  k_prln(1)
 end;
 (*=================================================================*)
 
@@ -226,8 +246,8 @@ end;
 procedure put_inode(rip : ^t_inode);
  
 var
-      i : integer,
-   xp : ^t_inode;
+   i : integer;
+ 
 
 begin
    k_cpr(INODE_COLOR, "Entered put_inode"); k_prln(1);
@@ -236,6 +256,13 @@ begin
    rip^.i_count := rip^.i_count - 1;
    if (rip^.i_count = 0) then begin
       (* TODO bunch of stuff to return file blocks... *)
+      if ( (rip^.i_nlinks AND 255) = 0 ) then begin
+         truncate(rip);
+         rip^.i_mode := I_NOT_ALLOC;
+         rip^.i_pipe := NO_PIPE;
+         free_inode(rip^.i_dev, rip^.i_num)     
+      end;
+      
       if (rip^.i_dirt = DIRTY) then begin
          k_cpr(INODE_COLOR, "  rip is dirty - will write it."); k_prln(1);
          rw_inode(rip, WRITING)      
@@ -243,8 +270,7 @@ begin
    end;
 
 
-   k_cpr(INODE_COLOR, "Leaving put_inode"); k_prln(1);
-   xp := xp
+   k_cpr(INODE_COLOR, "Leaving put_inode"); k_prln(1)
 end;
 (*=================================================================*)
 

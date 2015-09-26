@@ -98,9 +98,8 @@ begin
       k_cpr(RW_COLOR, "    INFO working w/ file with hole");  k_prln(1);
       if (rw_flag = READING) then begin
          k_cpr(RW_COLOR, "    INFO reading from non existent blk");  k_prln(1);
-         bp := get_block(NO_DEV, NO_BLOCK, NORMAL)
-         (* TODO zero block *)
-         (* zero_block( bp)      *)
+         bp := get_block(NO_DEV, NO_BLOCK, NORMAL);
+         zero_block( bp)
       end 
       else begin
          k_cpr(RW_COLOR, "    (rw_chunk) INFO reading/writing to non existtent blk");  k_prln(1);

@@ -48,5 +48,7 @@ const SUPER_BLK = 1;
 #define NR_DZONE_NUM (NR_ZONE_NUMS - 2)
 #define NR_INDIRECTS 512
 #define INODE_SIZE 32
+
+#define PIPE_SIZE (NR_DZONE_NUM * BLOCK_SIZE)
    
 #endif

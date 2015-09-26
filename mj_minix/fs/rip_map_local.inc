@@ -23,6 +23,27 @@ end;
 (*******************************************************************)
 
 
+(*=================================================================*)
+(* Based on AST1,8503 *)
+procedure wipe_inode(rip : ^t_inode);
+var
+   i : integer;
+   
+begin
+   k_cpr(INODE_COLOR, "Entered wipe_inode");  k_prln(1);
+   rip^.i_size := 0;
+   rip^.i_dirt := DIRTY;
+   i := 0;
+   while (i < NR_ZONE_NUMS) do begin
+      rip^.i_zone[i] := NO_ZONE;
+      i := i + 1
+   end;
+   
+   k_cpr(INODE_COLOR, "Leaving wipe_inode");  k_prln(1)
+end;
+(*=================================================================*)
+
+
 
 (*******************************************************************)
 (* read_map based on AST1,9984
