@@ -24,7 +24,8 @@ const
    CLOCK_INT_MASK        = $0002,
    TX_INT_MASK           = $0004,
    SW_INT_MASK           = $0008,
-   DISK_UART_RX_HALF_MASK = $0010;
+   DISK_UART_RX_HALF_MASK = $0010,
+   PTC_UART_RX_QUARTER_FULL_MASK = $0020;
 
 
 #define MINI_REC_COLOR  ANSI_RED
@@ -122,6 +123,8 @@ var
    rdy_tail : array [4] of t_process_entry_ptr; (* Was in proc.h  should be NQ entries*)
 
 var
+   i : integer,
+   ch : integer,
    tmp_p : ^integer,
    UART_1_STATUS_ADDRESS : ^integer,
    UART_1_BIT_RATE_ADDRESS : ^integer,
@@ -2031,11 +2034,12 @@ begin
        * The clock task only accepts interrupt messages now and does
        * not look at the m_type.
        *)
-      interrupt(CLOCK, adr(int_mess));
+      interrupt(CLOCK, adr(int_mess))
+      (* TODO - Remove interrupt() for PTY from clock int handling *)
+      (*
       hw_pty_mess.m_type := PTY_INT;
       interrupt(PTY, adr(hw_pty_mess))
-
-      
+      *)      
    end;
 
 
@@ -2053,6 +2057,26 @@ begin
        *)
       interrupt(FLOPPY, adr(int_mess))
       
+   end;
+
+   if (interrupt_status_ptr^ AND PTC_UART_RX_QUARTER_FULL_MASK) = PTC_UART_RX_QUARTER_FULL_MASK then begin
+      interrupt_mask_ptr^ :=  interrupt_mask_ptr^ AND ($FFDF);
+
+      interrupt_clear_ptr^ := PTC_UART_RX_QUARTER_FULL_MASK;
+      interrupt_clear_ptr^ := 0;
+     
+      (* TODO proper PTC packet handling *)
+      k_cpr(KERNEL_COLOR, "Got PTC 1/4 full interrupt"); k_prln(1);
+      (* Get and (for now) thrown away packet from PTC *)
+      i := 0;
+      while (i < 256) do  begin
+         ch := tctlr_get_raw();
+         i := i + 1
+      end;
+      k_cpr(KERNEL_COLOR, "Emptied PTC 1/4 full interrupt"); k_prln(1)
+      (*
+      interrupt(PTY, adr(int_mess))
+      *)
    end;
 
 
@@ -2158,8 +2182,6 @@ begin
 end;
 (*==================================================================*)
 
-var
-   i : integer;
 
 (*===================================================================*)
 begin

@@ -234,6 +234,16 @@ class FifoSerialPort(object):
             return(0)
 
 
+    # This function is meant to be used by an interrupt controller
+    # interrupt_num is passed for debugging of interrupt controller.  
+    # Not used here.        
+    def get_rx_quarter_full(self, interrupt_num = 0):
+        if (self._num_bytes_in_rx_fifo >= self._input_fifo_size / 4):
+            return(1)
+        else:
+            return(0)
+
+
 
 
             

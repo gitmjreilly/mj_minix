@@ -57,7 +57,10 @@ class Sim_Serial_Port(object):
             else:
                 print "DEBUG got data from [%s] adding to buffered data" % data
                 print "DEBUG appending all of it to self's received data"
+                # Append (all at once) the just received data to our previously "received_data"
                 self.received_data.extend(list(data))
+                
+                # Echo all the data back to the end-user terminal
                 s = "".join(self.received_data)
                 print "DEBUG new data list is [%s]" % s
                 # Echo the data we just got - no cooked processing
@@ -162,6 +165,18 @@ class CMD_Channel(object):
         if (num_sent != len(s)) :
             print "WARNING did not send all of string to host [%s]" % s
   
+    def send_packet_to_host(self, terminal_num, s):
+        padding = [chr(48)] * ((256 - 2 - len(s)))
+        print "DEBUG len of s is %d" % len(s)
+        print "DEBUG len of padding is %d" % len(padding)
+
+        packet = chr(terminal_num + 48 ) + chr(len(s) + 48)  + s + "".join(padding)
+        print "\n\nDEBUG packet is [%s]\n [%s]\n [%s]\n [%s]\n " % ( chr(terminal_num + 48 ),  chr(len(s) + 48) ,  s ,  "".join(padding) )
+
+        # num_sent = self.socket.send(packet)
+        # if (num_sent != 256) :
+        #    print "WARNING did not send all of packet to host [%s]" % s
+ 
  
 
 
@@ -214,6 +229,16 @@ class Serial_CMD_Channel(object):
         num_sent = self.serial_port.write(s)
         if (num_sent != len(s)) :
             print "WARNING did not send all of string to host [%s]" % s
+ 
+    def send_packet_to_host(self, terminal_num, s):
+        padding = ['X'] * ((256 - 2 ) * len(s))
+
+        packet = chr(terminal_num + 48 ) + chr(len(s) + 48)  + s + "".join(padding)
+        print "DEBUG packet is [%s]" % (packet)
+
+        # num_sent = self.serial_port.write(packet)
+        # if (num_sent != 256) :
+        #    print "WARNING did not send all of packet to host [%s]" % s
  
  
  
@@ -320,8 +345,22 @@ def main():
             do_cmd(cmd_from_cpu)
         
         for serial_port_num in range(NUM_TERMINALS):
+            # Receive and echo data from terminals...
             serial_ports[serial_port_num].periodic_service()
 
+
+        # todo fix \r references
+        for serial_port_num in range(NUM_TERMINALS):
+            # Send as many full lines back to host as possible
+            while (True):
+                if( serial_ports[serial_port_num].received_data.count("\r") == 0):
+                    break
+                    
+                n = serial_ports[serial_port_num].received_data.index("\r")
+                sub_str = "".join(serial_ports[serial_port_num].received_data[0:n+1])
+                print "DEBUG FULL sub str is [%s]\n" % sub_str
+                cmd_channel.send_packet_to_host(serial_port_num, sub_str)
+                serial_ports[serial_port_num].received_data[:] = serial_ports[serial_port_num].received_data[n+1:]
     
     
     
