@@ -2060,20 +2060,32 @@ begin
    end;
 
    if (interrupt_status_ptr^ AND PTC_UART_RX_QUARTER_FULL_MASK) = PTC_UART_RX_QUARTER_FULL_MASK then begin
-      interrupt_mask_ptr^ :=  interrupt_mask_ptr^ AND ($FFDF);
+      (* Notice we DONT need to disable quarter full int
+       * Ints are blocked here
+       * so all we need to do is clear the current one
+       * and drain the serial port fifo so the int won't be triggered again
+       * after the kernel interrupt processing is finished *)
+      (* interrupt_mask_ptr^ :=  interrupt_mask_ptr^ AND ($FFDF); *)
 
-      interrupt_clear_ptr^ := PTC_UART_RX_QUARTER_FULL_MASK;
-      interrupt_clear_ptr^ := 0;
      
       (* TODO proper PTC packet handling *)
       k_cpr(KERNEL_COLOR, "Got PTC 1/4 full interrupt"); k_prln(1);
+
+      tmp_p := $F03E;
+      k_cpr(KERNEL_COLOR, "  num chars in rx buffer is : ");
+      k_cpr_hex_num(KERNEL_COLOR, tmp_p^); k_prln(1);
+      
       (* Get and (for now) thrown away packet from PTC *)
       i := 0;
       while (i < 256) do  begin
          ch := tctlr_get_raw();
          i := i + 1
       end;
-      k_cpr(KERNEL_COLOR, "Emptied PTC 1/4 full interrupt"); k_prln(1)
+      k_cpr(KERNEL_COLOR, "Emptied PTC 1/4 full interrupt"); k_prln(1);
+
+      interrupt_clear_ptr^ := PTC_UART_RX_QUARTER_FULL_MASK;
+      interrupt_clear_ptr^ := 0
+
       (*
       interrupt(PTY, adr(int_mess))
       *)
@@ -2215,6 +2227,8 @@ begin
    interrupt_mask_ptr^ := 0;
 
    interrupt_mask_ptr^ := interrupt_mask_ptr^ OR CLOCK_INT_MASK;
+   interrupt_mask_ptr^ := interrupt_mask_ptr^ OR PTC_UART_RX_QUARTER_FULL_MASK;
+   
  
    NIL_PROC := 0;
 

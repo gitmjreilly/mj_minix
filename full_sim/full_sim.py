@@ -132,9 +132,9 @@ def construct_computer_system():
         serial_1.get_rx_half_full, 
         4)
         
-    # Connect the ptc uart "rx quarter full" line to interrupt source 4
+    # Connect the ptc uart "rx quarter full" line to interrupt source 5
     interrupt_controller.register_interrupt_source_function(
-        serial_1.get_rx_quarter_full, 
+        serial_2.get_rx_quarter_full, 
         5)
         
     # interrupt_controller.register_interrupt_source_function(

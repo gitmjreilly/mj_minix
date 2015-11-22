@@ -173,9 +173,10 @@ class CMD_Channel(object):
         packet = chr(terminal_num + 48 ) + chr(len(s) + 48)  + s + "".join(padding)
         print "\n\nDEBUG packet is [%s]\n [%s]\n [%s]\n [%s]\n " % ( chr(terminal_num + 48 ),  chr(len(s) + 48) ,  s ,  "".join(padding) )
 
-        # num_sent = self.socket.send(packet)
-        # if (num_sent != 256) :
-        #    print "WARNING did not send all of packet to host [%s]" % s
+        print "Sending packet - len is [%d]" % (len(packet))
+        num_sent = self.socket.send(packet)
+        if (num_sent != 256) :
+            print "WARNING did not send all of packet to host [%s]" % s
  
  
 
