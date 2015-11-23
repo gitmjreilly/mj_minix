@@ -952,11 +952,15 @@ begin
       end
       else if p^.m_type = PTY_INT then begin
          (* Something happened with the tctlr *)
+         lock();
          int_message := p;
-         if (debug_flag > 1) then begin
+         if (debug_flag >= 0) then begin
             k_cpr(PTY_COLOR, "   PTY: Recvd PTY_INT msg...");  k_prln(1)
          end;
-         do_pty_int()
+         (* TODO invoke do_pty_int *)
+         (* do_pty_int(); *)
+         num_tctlr_buffers_filled := 0;
+         restore()
       end
       else begin
          k_cpr(PTY_COLOR, "   PTY: UNKNOWN message type!"); k_prln(1);

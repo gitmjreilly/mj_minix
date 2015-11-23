@@ -1775,10 +1775,13 @@ procedure interrupt(task : integer, m_ptr : ^message);
 var
    x : integer,
    tmp_str : array[40] of integer,
+   old_debug_flag : integer,
    result : integer;
 
 
 begin
+   old_debug_flag := debug_flag;
+   debug_flag := 0;
    DebugOut(HW_COLOR, "Entered interrupt() Task is : ", 0);
    if task = $FFFD then DebugOut(HW_COLOR, "CLOCK", 1)
    else if task = $FFF8 then DebugOut(HW_COLOR, "PTY", 1)
@@ -1828,7 +1831,10 @@ begin
       DebugOut(HW_COLOR, "    new interrupt: cur_proc is : ", 0); 
       DebugOut(HW_COLOR, adr(tmp_str), 1);
       DebugOut(HW_COLOR, "    leaving interrupt.", 1)
-   end
+   end;
+   
+   debug_flag := old_debug_flag
+
 end;
 #####################################################################
 
@@ -2090,11 +2096,11 @@ begin
       k_cpr(KERNEL_COLOR, "Emptied PTC 1/4 full interrupt"); k_prln(1);
 
       interrupt_clear_ptr^ := PTC_UART_RX_QUARTER_FULL_MASK;
-      interrupt_clear_ptr^ := 0
+      interrupt_clear_ptr^ := 0;
 
-      (*
-      interrupt(PTY, adr(int_mess))
-      *)
+      hw_pty_mess.m_type := PTY_INT;
+      interrupt(PTY, adr(hw_pty_mess))
+      
    end;
 
 
