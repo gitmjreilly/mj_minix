@@ -2075,10 +2075,16 @@ begin
       k_cpr(KERNEL_COLOR, "  num chars in rx buffer is : ");
       k_cpr_hex_num(KERNEL_COLOR, tmp_p^); k_prln(1);
       
+      k_cpr(KERNEL_COLOR, "   num_tctlr_buffers_filled : "); k_cpr_hex_num(KERNEL_COLOR, num_tctlr_buffers_filled); k_prln(1);
+      tmp_p := adr(tctlr_buffer[num_tctlr_buffers_filled]);
+      num_tctlr_buffers_filled := num_tctlr_buffers_filled + 1;
+      
       (* Get and (for now) thrown away packet from PTC *)
       i := 0;
       while (i < 256) do  begin
          ch := tctlr_get_raw();
+         tmp_p^ := ch;
+         tmp_p := tmp_p + 1;
          i := i + 1
       end;
       k_cpr(KERNEL_COLOR, "Emptied PTC 1/4 full interrupt"); k_prln(1);

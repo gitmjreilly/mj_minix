@@ -5,6 +5,8 @@
 
 (* This constant must be matched in the PTY driver *)
 #define NUM_TERMINALS 8
+#define NUM_TCTLR_BUFFERS 4
+
 
 #define TCTLR_DATA_ADDR $F020
 #define TCTLR_STATUS_ADDR $F021
@@ -30,6 +32,13 @@ type
       host_transmission_status : integer
    end;
 (*=================================================================*)
+
+type
+   tctlr_buffer_type = array[256] of integer;
+   
+var
+   tctlr_buffer : array[NUM_TCTLR_BUFFERS] of tctlr_buffer_type,
+   num_tctlr_buffers_filled : integer;
 
 
 (*=================================================================*)
