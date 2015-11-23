@@ -231,15 +231,6 @@ class Serial_CMD_Channel(object):
         if (num_sent != len(s)) :
             print "WARNING did not send all of string to host [%s]" % s
  
-    def send_packet_to_host(self, terminal_num, s):
-        padding = ['X'] * ((256 - 2 ) * len(s))
-
-        packet = chr(terminal_num + 48 ) + chr(len(s) + 48)  + s + "".join(padding)
-        print "DEBUG packet is [%s]" % (packet)
-
-        # num_sent = self.serial_port.write(packet)
-        # if (num_sent != 256) :
-        #    print "WARNING did not send all of packet to host [%s]" % s
  
  
  
@@ -299,8 +290,25 @@ def do_cmd(cmd_from_host):
         
             
 
-  
-  
+def build_packet(terminal_num, packet_type, body = "") : 
+    # Packet is a string of form
+    #  type, terminal_num, size (3 bytes total)
+    #  body (body can be empty for an ACK packet)
+    #  padding (for a total of 256 bytes)
+    #
+    
+    # todo change offset to 0
+    ascii_offset = 48
+    padding = "0" * ((256 - 3 - len(body)))
+    print "DEBUG len of body is %d" % len(body)
+    print "DEBUG len of padding is %d" % len(padding)
+
+    packet = chr(packet_type + ascii_offset) + chr(terminal_num + ascii_offset) + chr(len(body) + ascii_offset)  + body + padding
+    print "\n\nDEBUG packet is [%s]\n [%s]\n [%s]\n [%s]\n [%s]\n " % ( chr(packet_type + ascii_offset), chr(terminal_num + ascii_offset ),  chr(len(body) + ascii_offset) ,  body ,  "".join(padding) )
+    print "\nlen of packet is [%d]\n" % (len(packet))
+    return(packet)
+
+
 #   
 # Main Program is Here
 # #
@@ -360,7 +368,10 @@ def main():
                 n = serial_ports[serial_port_num].received_data.index("\r")
                 sub_str = "".join(serial_ports[serial_port_num].received_data[0:n+1])
                 print "DEBUG FULL sub str is [%s]\n" % sub_str
-                cmd_channel.send_packet_to_host(serial_port_num, sub_str)
+                
+                packet = build_packet(serial_port_num, 7, sub_str)
+                
+                cmd_channel.send_to_host(packet)
                 serial_ports[serial_port_num].received_data[:] = serial_ports[serial_port_num].received_data[n+1:]
     
     
