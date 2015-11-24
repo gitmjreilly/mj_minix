@@ -298,7 +298,7 @@ def build_packet(terminal_num, packet_type, body = "") :
     #
     
     # todo change offset to 0
-    ascii_offset = 48
+    ascii_offset = 0
     padding = "0" * ((256 - 3 - len(body)))
     print "DEBUG len of body is %d" % len(body)
     print "DEBUG len of padding is %d" % len(padding)

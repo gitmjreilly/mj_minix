@@ -534,27 +534,12 @@ var
 
 (*=================================================================
  * do_pty_int()
- * This routine is called when pty_task receives an interrupt from
- * the tctlr.
- *
- * It is ROUGHLY equivalent to do_charint() line AST1,3528
- * in that it is called as a result of receiving a h/w interrupt msg.
- * It is DIFFERENT from do_charint because the tctlr can generate
- * interrupts for LOTS of reasons.  This routine has to deal with all
- * of them.
- * 
- * The interrupts can come from several sources and 
- * on any of NR_PTYS different terminals:
- *    RECV - one or more bytes has been received
- *    SEND COMPLETE - A transmission has been completed
- *
- * Adjusted for tctlr
  * 
  *=================================================================*)
 procedure do_pty_int();
 var
    terminal_num : integer,
-   tmp_str : array[20] of integer,
+   tmp_str : array[30] of integer,
    tmp_array : array[8] of integer,
    i : integer,
    num_bytes_received : integer,
@@ -562,84 +547,56 @@ var
    tp : ^pty_struct_type,
    tctlr_status : tctlr_status_type,
    host_transmission_status : integer,
+   packet_type : integer,
+   packet_size : integer,
+   tmp_p : ^integer,
+   buffer_num : integer,
    num_bytes_received_from_terminal : integer;
 
 begin
    DebugOut(PTY_COLOR, "Entered do_pty_int() examining all terminals", 1);
 
-   (* Get the full status from the tctlr
-    * It is an array with an entry per terminal
-    * Each entry has the number of bytes received by the host from the terminal
-    *    and a transmission status (is 1 if transmission is completed; 0 otherwise *)
-   tctlr_get_status(adr(tctlr_status));
+   k_cpr(PTY_COLOR, "  num_buffers filled : "); k_cpr_hex_num(PTY_COLOR, num_tctlr_buffers_filled); k_prln(1);
    
-   (* Iterate over all terminals and handle the following messages:
-    *   chars have been received 
-    *   transmission on to a terminal is complete *)
-   terminal_num := 0;
-   while terminal_num < NR_PTYS do begin
-      if debug_flag > 1 then begin
-         k_cpr(PTY_COLOR, "Checking terminal buffer for term : "); k_cpr_hex_num(PTY_COLOR, terminal_num); k_prln(1)
-      end;
+   buffer_num := 0;
+   while (buffer_num < num_tctlr_buffers_filled) do begin
+   
+      (* Get and (for now) thrown away packet from PTC *)
       
-      (* Were chars received from terminal terminal_num ? *)
-      num_bytes_received_from_terminal := tctlr_status[terminal_num].num_bytes_received_from_terminal;
-
-      if debug_flag > 1 then begin
-         k_cpr(PTY_COLOR, "We got this many bytes from terminal : ");
-         k_cpr_hex_num(PTY_COLOR, num_bytes_received_from_terminal); k_prln(1)
-      end;
-      
-      if (num_bytes_received_from_terminal = 0) then begin
-         terminal_num := terminal_num + 1;
-         continue
-      end;
-
-      (* If we got this far, handle the reception.
-       * We know how many bytes the tctlr is buffering so we pass it in
-       * but some may be left in the tctlr buffer if the pty buffer 
-       * cannot accommodate all of them. *)
-      do_tctlr_receive(terminal_num, num_bytes_received_from_terminal);
-
-      (* Sorry for incrementing terminal_num here... Needed old val for array index *)
-      terminal_num := terminal_num + 1
-   end;
-
-  
-   (* Check for transmission (from host to terminal) completion messages 
-    * Do this one terminal at a time. *)
-   terminal_num := 0;
-   while terminal_num < NR_PTYS do begin
-
-      (* Was a transmission completed by the tctlr for terminal terminal_num *)
-      host_transmission_status := tctlr_status[terminal_num].host_transmission_status;
-
-      if (host_transmission_status = 0) then begin
-         terminal_num := terminal_num + 1;
-         continue
-      end;
-      
-      (* This thing ALSO needs to clear the transmission status on the tctlr *)
-      do_tctlr_ack_send(terminal_num);
-      
-      (* TODO
-       * wiznet terminal disconnect caused pty data structure reset
-       * should the tctlr ofer the same functionality?  Not sure..
-      if ((orig_shadow_interrupt_status_reg AND W5100_DISCON_MASK) <> 0) then begin
-         DebugOut(PTY_COLOR, "   Saw terminal close; reinitializing it", 1);
-         tp := adr(pty_struct[terminal_num]);
-         tp^.pty_inhead := adr(tp^.pty_inqueue);
-         tp^.pty_intail := adr(tp^.pty_inqueue);
-         tp^.pty_incount := 0;
-         init_terminal(terminal_num);
-         DebugOut(PTY_COLOR, "     Stat reg shows DISconn", 1);
-         clear_reg := clear_reg OR W5100_DISCON_MASK
-         
-      end;
+      (*
+    Packet is a string of form
+      type, terminal_num, size (3 bytes total)
+      body (body can be empty for an ACK packet)
+      padding (for a total of 256 bytes)      
       *)
-      terminal_num := terminal_num + 1
+      
 
-   end; (* iterate over all NR_PTYS terminals *)      
+      tmp_p := adr(tctlr_buffer[buffer_num]);    
+      packet_type := tmp_p^;
+      
+      tmp_p := tmp_p + 1;
+      terminal_num := tmp_p^;
+
+      tmp_p := tmp_p + 1;
+      packet_size := tmp_p^;
+      
+      tmp_p := tmp_p + 1;
+      i := 0;
+      while (i < packet_size) do  begin
+         tmp_str[i] := tmp_p^;
+         tmp_p := tmp_p + 1;
+         i := i + 1
+      end;
+      tmp_str[i] := 0;
+      k_cpr(PTY_COLOR, "term num : "); k_cpr_hex_num(PTY_COLOR, terminal_num); k_prln(1);
+      k_cpr(PTY_COLOR, "Str is : "); k_cpr(PTY_COLOR, adr(tmp_str)); k_prln(1);
+      
+      buffer_num := buffer_num + 1
+   end;
+   
+   (* Global var set by actual interrupt; cleared here *)
+   num_tctlr_buffers_filled := 0;
+      
    
    DebugOut(PTY_COLOR, "Leaving do_pty_int()", 1)
 end;
@@ -958,8 +915,7 @@ begin
             k_cpr(PTY_COLOR, "   PTY: Recvd PTY_INT msg...");  k_prln(1)
          end;
          (* TODO invoke do_pty_int *)
-         (* do_pty_int(); *)
-         num_tctlr_buffers_filled := 0;
+         do_pty_int();
          restore()
       end
       else begin
