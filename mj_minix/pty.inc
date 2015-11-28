@@ -27,9 +27,12 @@ type
     *)
    pty_struct_type = record
       pty_inqueue : array[PTY_IN_BYTES] of integer;
+      (* Add to pty_inqueue at inhead; remove from intail *)
       pty_inhead : ^integer;
       pty_intail : ^integer;
+      (* num chars in pty_inqueue *)
       pty_incount : integer;
+      
       pty_lfct : integer;
       pty_outqueue : array[PTY_IN_BYTES] of integer; 
       pty_outhead : ^integer;
@@ -106,16 +109,18 @@ var
     pty_mess : t_pty_reply_message;
 
 begin
-   if debug_flag then
-      DebugOut(PTY_COLOR, "   Entered pty_reply()", 1);
+   (*
+   k_cpr(PTY_COLOR, "   Entered pty_reply()"); k_prln(1);
+   *)
    pty_mess.m_type := code;
    pty_mess.REP_PROC_NR := proc_nr;
    pty_mess.REP_STATUS := status;
    pty_mess.PTY_FLAGS := extra;
    pty_mess.PTY_SPEK := other;
-   send_p(replyee, adr(pty_mess));
-   if debug_flag then 
-      DebugOut(PTY_COLOR, "   Leaving pty_reply()", 1)
+   send_p(replyee, adr(pty_mess))
+   (*
+   k_cpr(PTY_COLOR, "   Leaving pty_reply()"); k_prln(1)
+   *)
 end;
 (*=================================================================*)
 
@@ -549,7 +554,15 @@ var
    host_transmission_status : integer,
    packet_type : integer,
    packet_size : integer,
+   rp : ^t_process_entry,
+   replyee : integer,
+   caller : integer,
    tmp_p : ^ptc_packet_type,
+   num_to_copy_to_in_q : integer,
+   src_p : ^ptc_packet_type,
+   dst_p : ^integer,
+   end_dst_p : ^integer,
+   start_dst_p : ^integer,
    buffer_num : integer,
    num_bytes_received_from_terminal : integer;
 
@@ -561,10 +574,10 @@ begin
    buffer_num := 0;
    while (buffer_num < num_tctlr_buffers_filled) do begin
    
-      (* Get and (for now) thrown away packet from PTC *)
+      (* Get and (for now) throw away packet from PTC *)
       
       (*
-    Packet is a string of form
+      Packet is a string of form
       type, terminal_num, size (3 bytes total)
       body (body can be empty for an ACK packet)
       padding (for a total of 256 bytes)      
@@ -572,11 +585,43 @@ begin
       
       (* tctlr_buffer was filled by low level interrupt routine *)
       tmp_p := adr(tctlr_buffer[buffer_num]);    
-      packet_type := tmp_p^;
+      
+      packet_type := tmp_p^.packet_type;
+      terminal_num := tmp_p^.terminal_num;
+      packet_size := tmp_p^.packet_size;
+      
       if (packet_type = TERMINAL_INPUT) then begin
          k_cpr(PTY_COLOR, "Dealing with terminal input from buffer num : "); k_cpr_hex_num(PTY_COLOR, buffer_num); k_prln(1);
       
-         packet_size := tmp_p^.packet_size;
+         tp := adr(pty_struct[terminal_num]);
+   
+         num_to_copy_to_in_q := packet_size;
+         tmp_p := adr(tctlr_buffer[buffer_num]);
+         src_p := adr(tmp_p^.rest);
+         dst_p := tp^.pty_inhead;
+         start_dst_p := adr(tp^.pty_inqueue);
+         end_dst_p := adr(tp^.pty_inqueue) + PTY_IN_BYTES - 1;
+         
+         while (1) do begin
+            if (num_to_copy_to_in_q = 0) then break;
+         
+            dst_p^ := src_p^;
+            
+            (* inc both src and destination ptrs
+             * we assume src doesnt wrap
+             * dst (in pty struct) can wrap *)
+            src_p := src_p + 1;
+            
+            if (dst_p = end_dst_p) then 
+               dst_p := start_dst_p
+            else
+               dst_p := dst_p + 1;
+               
+            tp^.pty_incount := tp^.pty_incount + 1;
+            num_to_copy_to_in_q := num_to_copy_to_in_q - 1         
+         end;
+         tp^.pty_inhead := dst_p;
+         
          
          i := 0;
          while (i < packet_size) do  begin
@@ -586,6 +631,7 @@ begin
          tmp_str[i] := 0;
          k_cpr(PTY_COLOR, "term num : "); k_cpr_hex_num(PTY_COLOR, tmp_p^.terminal_num); k_prln(1);
          k_cpr(PTY_COLOR, "Str is : "); k_cpr(PTY_COLOR, adr(tmp_str)); k_prln(1);
+         k_cpr(PTY_COLOR, "pty incount is : "); k_cpr_hex_num(PTY_COLOR, tp^.pty_incount); k_prln(1);
          
          buffer_num := buffer_num + 1
       end
@@ -594,6 +640,63 @@ begin
    (* Global var set by actual interrupt; cleared here *)
    num_tctlr_buffers_filled := 0;
       
+   
+   (* Now check all waiting procs to see if any are waiting for input
+      which may have been satisfied as a result of chars arriving during
+      interrupt *)
+   k_cpr(PTY_COLOR, "Checking all ptys to see if proc is waiting..."); k_prln(1);
+   terminal_num := 0;
+   while (terminal_num < NR_PTYS) do begin
+      tp := adr(pty_struct[terminal_num]);
+      (*
+      k_cpr(PTY_COLOR, "Checking terminal : "); k_cpr_hex_num(PTY_COLOR, terminal_num); k_prln(1);
+      *)
+      
+      terminal_num := terminal_num + 1;
+   
+      (* Check to see if the in_q has any chars in it *)
+      if (tp^.pty_incount = 0) then continue;
+   
+      (* Check to see if user proc is waiting for chars *)
+      if (tp^.pty_inleft = 0) then continue;
+
+      k_cpr(PTY_COLOR, "  inleft and incount both > 0 ... "); k_prln(1);
+
+      (* Point at the process entry whose mem space we will fill 
+       * We need rp so we can get the user process DS *)
+      rp := proc_addr(tp^.pty_inproc);
+
+      (* Copy from in_q to user *)
+      while (1) do begin
+         (* Check to see if the in_q has any chars in it *)
+         if (tp^.pty_incount = 0) then break;
+      
+         (* Check to see if user proc is waiting for chars *)
+         if (tp^.pty_inleft = 0) then break;
+
+         ch := tp^.pty_intail^;
+         tp^.pty_intail := tp^.pty_intail + 1;
+
+         if tp^.pty_intail = adr(tp^.pty_inqueue[PTY_IN_BYTES]) then begin
+            tp^.pty_intail := adr(tp^.pty_inqueue)
+         end;
+
+         phys_copy(0, adr(ch),               (* Copy from inqueue to *)
+                   rp^.DS, tp^.pty_in_vir,   (* to  user addr space  *)
+                   1);                       (* amount to copy.      *)
+
+         tp^.pty_inleft  := tp^.pty_inleft - 1;
+         tp^.pty_incount := tp^.pty_incount - 1;
+         replyee := tp^.pty_incaller;
+         caller  := tp^.pty_inproc;
+         k_cpr(PTY_COLOR, "  sending reply..."); k_prln(1);
+         k_cpr(PTY_COLOR, "   copied char : "); k_cpr_hex_num(PTY_COLOR, ch); k_prln(1);
+         k_cpr(PTY_COLOR, "   Checking replyee : "); k_cpr_hex_num(PTY_COLOR, replyee); k_prln(1);
+         k_cpr(PTY_COLOR, "   Checking caller : "); k_cpr_hex_num(PTY_COLOR, caller); k_prln(1);
+         pty_reply(TASK_REPLY, replyee, caller, 1, 0, 0)         
+      end
+      
+   end;
    
    DebugOut(PTY_COLOR, "Leaving do_pty_int()", 1)
 end;
