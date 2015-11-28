@@ -11,6 +11,8 @@
 #define TCTLR_DATA_ADDR $F020
 #define TCTLR_STATUS_ADDR $F021
 
+#define TERMINAL_INPUT 1
+
 (*
    * Memory map $F020, $F021 for high speed UART
         * 0 - data in AND out
@@ -35,6 +37,14 @@ type
 
 type
    tctlr_buffer_type = array[256] of integer;
+   
+type
+   ptc_packet_type = record
+      packet_type : integer;
+      terminal_num : integer;
+      packet_size : integer;
+      rest : array[253] of integer
+   end;
    
 var
    tctlr_buffer : array[NUM_TCTLR_BUFFERS] of tctlr_buffer_type,

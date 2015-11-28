@@ -549,7 +549,7 @@ var
    host_transmission_status : integer,
    packet_type : integer,
    packet_size : integer,
-   tmp_p : ^integer,
+   tmp_p : ^ptc_packet_type,
    buffer_num : integer,
    num_bytes_received_from_terminal : integer;
 
@@ -570,30 +570,27 @@ begin
       padding (for a total of 256 bytes)      
       *)
       
-
+      (* tctlr_buffer was filled by low level interrupt routine *)
       tmp_p := adr(tctlr_buffer[buffer_num]);    
       packet_type := tmp_p^;
+      if (packet_type = TERMINAL_INPUT) then begin
+         k_cpr(PTY_COLOR, "Dealing with terminal input from buffer num : "); k_cpr_hex_num(PTY_COLOR, buffer_num); k_prln(1);
       
-      tmp_p := tmp_p + 1;
-      terminal_num := tmp_p^;
-
-      tmp_p := tmp_p + 1;
-      packet_size := tmp_p^;
-      
-      tmp_p := tmp_p + 1;
-      i := 0;
-      while (i < packet_size) do  begin
-         tmp_str[i] := tmp_p^;
-         tmp_p := tmp_p + 1;
-         i := i + 1
-      end;
-      tmp_str[i] := 0;
-      k_cpr(PTY_COLOR, "term num : "); k_cpr_hex_num(PTY_COLOR, terminal_num); k_prln(1);
-      k_cpr(PTY_COLOR, "Str is : "); k_cpr(PTY_COLOR, adr(tmp_str)); k_prln(1);
-      
-      buffer_num := buffer_num + 1
+         packet_size := tmp_p^.packet_size;
+         
+         i := 0;
+         while (i < packet_size) do  begin
+            tmp_str[i] := tmp_p^.rest[i];
+            i := i + 1
+         end;
+         tmp_str[i] := 0;
+         k_cpr(PTY_COLOR, "term num : "); k_cpr_hex_num(PTY_COLOR, tmp_p^.terminal_num); k_prln(1);
+         k_cpr(PTY_COLOR, "Str is : "); k_cpr(PTY_COLOR, adr(tmp_str)); k_prln(1);
+         
+         buffer_num := buffer_num + 1
+      end
+    
    end;
-   
    (* Global var set by actual interrupt; cleared here *)
    num_tctlr_buffers_filled := 0;
       

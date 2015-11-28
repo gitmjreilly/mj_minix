@@ -319,6 +319,9 @@ def main():
     global cmd_channel
     global transmission_status
     
+    TERMINAL_INPUT = 1
+    WRITE_ACK = 2
+    
         
     if (len(sys.argv) != 4) :
         print "USAGE - prog sim host port"
@@ -369,7 +372,7 @@ def main():
                 sub_str = "".join(serial_ports[serial_port_num].received_data[0:n+1])
                 print "DEBUG FULL sub str is [%s]\n" % sub_str
                 
-                packet = build_packet(serial_port_num, 7, sub_str)
+                packet = build_packet(serial_port_num, TERMINAL_INPUT, sub_str)
                 
                 cmd_channel.send_to_host(packet)
                 serial_ports[serial_port_num].received_data[:] = serial_ports[serial_port_num].received_data[n+1:]
