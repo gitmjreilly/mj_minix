@@ -142,7 +142,7 @@ begin
    _tctlr_write_one(t); (* term num as ASCII *)
    
 
-   (* Send 2 digit hex string lengt *)
+   (* Send 2 digit hex string length *)
    (* Convert the length to a string
     * func returns 4 hex digit string, but we only want the last 2  *)
    num_to_hex_str(len, adr(num_str));

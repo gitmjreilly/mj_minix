@@ -109,18 +109,16 @@ var
     pty_mess : t_pty_reply_message;
 
 begin
-   (*
    k_cpr(PTY_COLOR, "   Entered pty_reply()"); k_prln(1);
-   *)
+
    pty_mess.m_type := code;
    pty_mess.REP_PROC_NR := proc_nr;
    pty_mess.REP_STATUS := status;
    pty_mess.PTY_FLAGS := extra;
    pty_mess.PTY_SPEK := other;
-   send_p(replyee, adr(pty_mess))
-   (*
+   send_p(replyee, adr(pty_mess));
    k_cpr(PTY_COLOR, "   Leaving pty_reply()"); k_prln(1)
-   *)
+
 end;
 (*=================================================================*)
 
@@ -474,6 +472,7 @@ var
    caller : integer;
 
 begin
+   debug_flag := 1;
    DebugOut(PTY_COLOR, "Entering finish ()", 1);
 
    replyee := tp^.pty_otcaller;
@@ -481,7 +480,8 @@ begin
 
    pty_reply(TASK_REPLY, replyee, caller, code, 0, 0);
 
-   DebugOut(PTY_COLOR, "Leaving finish ", 1)
+   DebugOut(PTY_COLOR, "Leaving finish ", 1);
+   debug_flag := 0
 end;
 (*=================================================================*)
 
@@ -573,6 +573,8 @@ begin
    
    buffer_num := 0;
    while (buffer_num < num_tctlr_buffers_filled) do begin
+
+      k_cpr(PTY_COLOR, "Examining buffer num : "); k_cpr_hex_num(PTY_COLOR, buffer_num); k_prln(1);
    
       (* Get and (for now) throw away packet from PTC *)
       
@@ -589,11 +591,11 @@ begin
       packet_type := tmp_p^.packet_type;
       terminal_num := tmp_p^.terminal_num;
       packet_size := tmp_p^.packet_size;
+      tp := adr(pty_struct[terminal_num]);
       
       if (packet_type = TERMINAL_INPUT) then begin
-         k_cpr(PTY_COLOR, "Dealing with terminal input from buffer num : "); k_cpr_hex_num(PTY_COLOR, buffer_num); k_prln(1);
+         k_cpr(PTY_COLOR, "  Dealing with terminal input  ");  k_prln(1);
       
-         tp := adr(pty_struct[terminal_num]);
    
          num_to_copy_to_in_q := packet_size;
          tmp_p := adr(tctlr_buffer[buffer_num]);
@@ -631,12 +633,26 @@ begin
          tmp_str[i] := 0;
          k_cpr(PTY_COLOR, "term num : "); k_cpr_hex_num(PTY_COLOR, tmp_p^.terminal_num); k_prln(1);
          k_cpr(PTY_COLOR, "Str is : "); k_cpr(PTY_COLOR, adr(tmp_str)); k_prln(1);
-         k_cpr(PTY_COLOR, "pty incount is : "); k_cpr_hex_num(PTY_COLOR, tp^.pty_incount); k_prln(1);
+         k_cpr(PTY_COLOR, "pty incount is : "); k_cpr_hex_num(PTY_COLOR, tp^.pty_incount); k_prln(1)
          
-         buffer_num := buffer_num + 1
-      end
+      end (* Code handling TERMINAL INPUT *)
+      else begin (* Handling a write ack *)
+         k_cpr(PTY_COLOR, "  Sending WRITE reply message "); k_prln(1);
+         finish(tp, 0);
+         k_cpr(PTY_COLOR, "  Finished Sending WRITE reply message "); k_prln(1)
+         
+      end;
+      buffer_num := buffer_num + 1
     
-   end;
+    
+   end; 
+   
+   
+   
+   
+   
+   
+   
    (* Global var set by actual interrupt; cleared here *)
    num_tctlr_buffers_filled := 0;
       
@@ -835,11 +851,17 @@ end;
 procedure do_pty_write (tp : ^pty_struct_type, m_ptr : ^t_pty_write_message) ;
 var
    code : integer,
+   rp : ^t_process_entry,
    caller : integer,
+   orig_num_chars : integer,
+   terminal_num : integer,
+   offset : integer,
+   c : integer,
+   tmp_array : array[5] of integer,
    tmp_str : array[20] of integer;
 
 begin
-   DebugOut(PTY_COLOR, "   Entered do_pty_write()", 1);
+   k_cpr(PTY_COLOR, "   Entered do_pty_write()"); k_prln(1);
 
 
    (* Copy useful stuff from message to pty struct 
@@ -857,16 +879,63 @@ begin
 
    (* AST uses a ptr to func which ultimately calls console() 
     * We use the same func name here but call it directly *)
+    (*
    console(tp);
+   *)
 
+   (* Given pty_outproc, we can look up the procs DS
+    * and then fetch chars from user space. *)
+   rp := proc_addr(tp^.pty_outproc);
+   SetES(rp^.DS);
+
+   orig_num_chars := tp^.pty_outleft;
+
+   terminal_num := tp^.pty_terminal_num;
+
+
+   debug_flag := 1;
+   DebugOut(PTY_COLOR, "  Fetching all chars from user space for output", 1);
+   offset := tp^.pty_out_vir;
+   (* Fill the out_q *)
+   while (tp^.pty_outleft > 0) do begin
+      LongFetch(offset, adr(c));
+      (* out_char in AST1 is about writing to screen
+       * here it is about populating tctlr one char at a time with out_char *)
+      tmp_array[0] := c;
+      (*
+      DebugOut(PTY_COLOR, "   DEBUG - Saw char(from user) : ", 0); tmp_array[1] := 0;
+      DebugOut(PTY_COLOR, adr(tmp_array), 1);
+      *)
+      
+      (*
+      if (tp^.pty_cum = PTY_OUT_BYTES) then begin
+         tctlr_write_to_str_to_term(terminal_num, adr(tp^.pty_outqueue), tp^.pty_cum);
+         tp^.pty_cum := 0
+      end;
+      *)
+       
+      tp^.pty_outleft := tp^.pty_outleft - 1;
+      offset := offset + 1;
+      tp^.pty_outqueue[tp^.pty_cum] := c;
+      tp^.pty_cum := tp^.pty_cum + 1
+
+   end; (* while loop iterating over pty_outleft chars from user proc *)
+   tctlr_write_to_str_to_term(terminal_num, adr(tp^.pty_outqueue), tp^.pty_cum);
+   tp^.pty_cum := 0;
+   debug_flag := 0;
+
+   (* -------------------- *)
+   
    (* TODO 
     * This is NOT what AST does.
     * We are immediately notifying caller that write is complete.
     * AST did it in interrupt.
     * Removed call to finish() in do_pty_int() hierarchy. *)
+    (*
    finish(tp, 0);   
+   *)
    
-   DebugOut(PTY_COLOR, "   Leaving do_pty_write()", 1)
+   k_cpr(PTY_COLOR, "   Leaving do_pty_write()"); k_prln(1)
 
 end; 
 (*=================================================================*)

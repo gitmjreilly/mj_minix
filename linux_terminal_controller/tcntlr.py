@@ -10,6 +10,8 @@ from time import sleep
 # Constants?
 NUM_TERMINALS = 8
 BASE_TCP_PORT = 7000
+TERMINAL_INPUT = 1
+WRITE_ACK = 2
   
    
 class Sim_Serial_Port(object):
@@ -274,8 +276,12 @@ def do_cmd(cmd_from_host):
         # Get the data from the host and transmit it to the correct terminal
         data = cmd_channel.get_raw_data_from_host(num_bytes_to_send)
         serial_ports[serial_port_num].transmit_to_terminal(data)
-        # print "DEBUG Setting transmission status for port %d" % (serial_port_num)
-        transmission_status[serial_port_num] = 1
+
+        print "Sending a write ack for serial port : %d " % serial_port_num
+        packet = build_packet(serial_port_num, WRITE_ACK, "")        
+        cmd_channel.send_to_host(packet)
+
+
         
     elif (cmd_from_host.startswith("c")):
         # String is of form cPP
@@ -319,8 +325,6 @@ def main():
     global cmd_channel
     global transmission_status
     
-    TERMINAL_INPUT = 1
-    WRITE_ACK = 2
     
         
     if (len(sys.argv) != 4) :
