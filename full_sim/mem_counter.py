@@ -3,7 +3,7 @@ from time import sleep
 
 # inc = 8 matches h/w and results in interrupt every 43ms
 # If clock is running at 12MHz, an increment of 8 results in 43ms rollover
-SCHEDULED_INCREMENT = 32
+SCHEDULED_INCREMENT = 8
 
 
 class Mem_Counter(object):

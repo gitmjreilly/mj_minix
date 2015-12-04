@@ -104,7 +104,7 @@ class CPU(object):
         self.RSP.write(0xFE00)
 
         self.INT_CTL_LOW = Register()
-        self.INT_CTL_LOW.write = self.special_write
+        # self.INT_CTL_LOW.write = self.special_write
 
         self._interrupt_pin = 0
         
