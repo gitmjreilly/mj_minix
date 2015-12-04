@@ -167,22 +167,7 @@ class CMD_Channel(object):
         if (num_sent != len(s)) :
             print "WARNING did not send all of string to host [%s]" % s
   
-    def send_packet_to_host(self, terminal_num, s):
-        padding = [chr(48)] * ((256 - 2 - len(s)))
-        print "DEBUG len of s is %d" % len(s)
-        print "DEBUG len of padding is %d" % len(padding)
-
-        packet = chr(terminal_num + 48 ) + chr(len(s) + 48)  + s + "".join(padding)
-        print "\n\nDEBUG packet is [%s]\n [%s]\n [%s]\n [%s]\n " % ( chr(terminal_num + 48 ),  chr(len(s) + 48) ,  s ,  "".join(padding) )
-
-        print "Sending packet - len is [%d]" % (len(packet))
-        num_sent = self.socket.send(packet)
-        if (num_sent != 256) :
-            print "WARNING did not send all of packet to host [%s]" % s
  
- 
-
-
 
  
             
@@ -277,7 +262,7 @@ def do_cmd(cmd_from_host):
         data = cmd_channel.get_raw_data_from_host(num_bytes_to_send)
         serial_ports[serial_port_num].transmit_to_terminal(data)
 
-        print "Sending a write ack for serial port : %d " % serial_port_num
+        print "Sending a write ack for serial port : %d to the host" % serial_port_num
         packet = build_packet(serial_port_num, WRITE_ACK, "")        
         cmd_channel.send_to_host(packet)
 
@@ -306,12 +291,12 @@ def build_packet(terminal_num, packet_type, body = "") :
     # todo change offset to 0
     ascii_offset = 0
     padding = "0" * ((256 - 3 - len(body)))
-    print "DEBUG len of body is %d" % len(body)
-    print "DEBUG len of padding is %d" % len(padding)
+    # print "DEBUG len of body is %d" % len(body)
+    # print "DEBUG len of padding is %d" % len(padding)
 
     packet = chr(packet_type + ascii_offset) + chr(terminal_num + ascii_offset) + chr(len(body) + ascii_offset)  + body + padding
-    print "\n\nDEBUG packet is [%s]\n [%s]\n [%s]\n [%s]\n [%s]\n " % ( chr(packet_type + ascii_offset), chr(terminal_num + ascii_offset ),  chr(len(body) + ascii_offset) ,  body ,  "".join(padding) )
-    print "\nlen of packet is [%d]\n" % (len(packet))
+    # print "\n\nDEBUG packet is [%s]\n [%s]\n [%s]\n [%s]\n [%s]\n " % ( chr(packet_type + ascii_offset), chr(terminal_num + ascii_offset ),  chr(len(body) + ascii_offset) ,  body ,  "".join(padding) )
+    # print "\nlen of packet is [%d]\n" % (len(packet))
     return(packet)
 
 
@@ -376,6 +361,7 @@ def main():
                 sub_str = "".join(serial_ports[serial_port_num].received_data[0:n+1])
                 print "DEBUG FULL sub str is [%s]\n" % sub_str
                 
+                print "Sending data packet from terminal : %d to host" % (serial_port_num)
                 packet = build_packet(serial_port_num, TERMINAL_INPUT, sub_str)
                 
                 cmd_channel.send_to_host(packet)

@@ -143,7 +143,8 @@ class FifoSerialPort(object):
             # status word
             if (self._num_bytes_in_rx_fifo > 0) :
                 value |= 0x0002
-            if (self._num_bytes_in_tx_fifo == 0) :
+            # if (self._num_bytes_in_tx_fifo == 0) :
+            if (self._num_bytes_in_tx_fifo < self._output_fifo_size) :
                 value |= 0x0001
 
         elif (address == 2):

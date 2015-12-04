@@ -895,6 +895,7 @@ begin
    proc_ptr^.rsp := $FE00;
    proc_ptr^.ptos := 0;
    proc_ptr^.rtos := 0;
+   proc_ptr^.flags := 1; (* int_ctl_low --> ints enabled *)
    proc_ptr^.pc := start_address_ptr^;
    
    ready(proc_ptr)
@@ -1005,6 +1006,7 @@ begin
    proc_ptr^.rsp := $FE00;
    proc_ptr^.ptos := 0;
    proc_ptr^.rtos := 0;
+   proc_ptr^.flags := 1;
    proc_ptr^.pc := start_address_ptr^;
 
    proc_ptr^.flags := 1;

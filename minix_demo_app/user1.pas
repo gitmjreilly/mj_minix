@@ -132,11 +132,12 @@ var
 
 begin
 
-   pr("This is a long running proc"); prln(1);
+   (* pr("This is a long running proc"); prln(1); *)
    i := 1000;
    while i <> 0 do begin
-      i := i - 1;
-      j := 8000;
+      (* i := i - 1; *)
+      i := i;
+      j := 1000;
       while j <> 0 do begin
          j := j - 1
       end

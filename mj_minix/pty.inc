@@ -109,15 +109,12 @@ var
     pty_mess : t_pty_reply_message;
 
 begin
-   k_cpr(PTY_COLOR, "   Entered pty_reply()"); k_prln(1);
-
    pty_mess.m_type := code;
    pty_mess.REP_PROC_NR := proc_nr;
    pty_mess.REP_STATUS := status;
    pty_mess.PTY_FLAGS := extra;
    pty_mess.PTY_SPEK := other;
-   send_p(replyee, adr(pty_mess));
-   k_cpr(PTY_COLOR, "   Leaving pty_reply()"); k_prln(1)
+   send_p(replyee, adr(pty_mess))
 
 end;
 (*=================================================================*)
@@ -472,7 +469,6 @@ var
    caller : integer;
 
 begin
-   debug_flag := 1;
    DebugOut(PTY_COLOR, "Entering finish ()", 1);
 
    replyee := tp^.pty_otcaller;
@@ -480,8 +476,7 @@ begin
 
    pty_reply(TASK_REPLY, replyee, caller, code, 0, 0);
 
-   DebugOut(PTY_COLOR, "Leaving finish ", 1);
-   debug_flag := 0
+   DebugOut(PTY_COLOR, "Leaving finish ", 1)
 end;
 (*=================================================================*)
 
@@ -568,13 +563,14 @@ var
 
 begin
    DebugOut(PTY_COLOR, "Entered do_pty_int() examining all terminals", 1);
-
+   (*
    k_cpr(PTY_COLOR, "  num_buffers filled : "); k_cpr_hex_num(PTY_COLOR, num_tctlr_buffers_filled); k_prln(1);
+   *)
    
    buffer_num := 0;
    while (buffer_num < num_tctlr_buffers_filled) do begin
 
-      k_cpr(PTY_COLOR, "Examining buffer num : "); k_cpr_hex_num(PTY_COLOR, buffer_num); k_prln(1);
+      (* k_cpr(PTY_COLOR, "Examining buffer num : "); k_cpr_hex_num(PTY_COLOR, buffer_num); k_prln(1); *)
    
       (* Get and (for now) throw away packet from PTC *)
       
@@ -594,7 +590,7 @@ begin
       tp := adr(pty_struct[terminal_num]);
       
       if (packet_type = TERMINAL_INPUT) then begin
-         k_cpr(PTY_COLOR, "  Dealing with terminal input  ");  k_prln(1);
+         (* k_cpr(PTY_COLOR, "  Dealing with terminal input  ");  k_prln(1); *)
       
    
          num_to_copy_to_in_q := packet_size;
@@ -622,24 +618,26 @@ begin
             tp^.pty_incount := tp^.pty_incount + 1;
             num_to_copy_to_in_q := num_to_copy_to_in_q - 1         
          end;
-         tp^.pty_inhead := dst_p;
+         tp^.pty_inhead := dst_p
          
-         
+         (*
          i := 0;
          while (i < packet_size) do  begin
             tmp_str[i] := tmp_p^.rest[i];
             i := i + 1
          end;
          tmp_str[i] := 0;
+         
          k_cpr(PTY_COLOR, "term num : "); k_cpr_hex_num(PTY_COLOR, tmp_p^.terminal_num); k_prln(1);
          k_cpr(PTY_COLOR, "Str is : "); k_cpr(PTY_COLOR, adr(tmp_str)); k_prln(1);
          k_cpr(PTY_COLOR, "pty incount is : "); k_cpr_hex_num(PTY_COLOR, tp^.pty_incount); k_prln(1)
+         *)
          
       end (* Code handling TERMINAL INPUT *)
       else begin (* Handling a write ack *)
-         k_cpr(PTY_COLOR, "  Sending WRITE reply message "); k_prln(1);
-         finish(tp, 0);
-         k_cpr(PTY_COLOR, "  Finished Sending WRITE reply message "); k_prln(1)
+         (* k_cpr(PTY_COLOR, "  Sending WRITE reply message "); k_prln(1); *)
+         finish(tp, 0)
+         (* k_cpr(PTY_COLOR, "  Finished Sending WRITE reply message "); k_prln(1) *)
          
       end;
       buffer_num := buffer_num + 1
@@ -654,13 +652,21 @@ begin
    
    
    (* Global var set by actual interrupt; cleared here *)
+   ASM
+      DI
+   END;
    num_tctlr_buffers_filled := 0;
+   ASM
+      EI
+   END;
       
    
    (* Now check all waiting procs to see if any are waiting for input
       which may have been satisfied as a result of chars arriving during
       interrupt *)
+   (*
    k_cpr(PTY_COLOR, "Checking all ptys to see if proc is waiting..."); k_prln(1);
+   *)
    terminal_num := 0;
    while (terminal_num < NR_PTYS) do begin
       tp := adr(pty_struct[terminal_num]);
@@ -676,7 +682,7 @@ begin
       (* Check to see if user proc is waiting for chars *)
       if (tp^.pty_inleft = 0) then continue;
 
-      k_cpr(PTY_COLOR, "  inleft and incount both > 0 ... "); k_prln(1);
+      (* k_cpr(PTY_COLOR, "  inleft and incount both > 0 ... "); k_prln(1); *)
 
       (* Point at the process entry whose mem space we will fill 
        * We need rp so we can get the user process DS *)
@@ -705,10 +711,12 @@ begin
          tp^.pty_incount := tp^.pty_incount - 1;
          replyee := tp^.pty_incaller;
          caller  := tp^.pty_inproc;
+         (*
          k_cpr(PTY_COLOR, "  sending reply..."); k_prln(1);
          k_cpr(PTY_COLOR, "   copied char : "); k_cpr_hex_num(PTY_COLOR, ch); k_prln(1);
          k_cpr(PTY_COLOR, "   Checking replyee : "); k_cpr_hex_num(PTY_COLOR, replyee); k_prln(1);
-         k_cpr(PTY_COLOR, "   Checking caller : "); k_cpr_hex_num(PTY_COLOR, caller); k_prln(1);
+         k_cpr(PTY_COLOR, "   Checking caller : "); k_cpr_hex_num(PTY_COLOR, caller); k_prln(1); 
+         *)
          pty_reply(TASK_REPLY, replyee, caller, 1, 0, 0)         
       end
       
@@ -861,8 +869,9 @@ var
    tmp_str : array[20] of integer;
 
 begin
+   (*
    k_cpr(PTY_COLOR, "   Entered do_pty_write()"); k_prln(1);
-
+   *)
 
    (* Copy useful stuff from message to pty struct 
     * otcaller is the process that actually sent the message *)
@@ -893,7 +902,6 @@ begin
    terminal_num := tp^.pty_terminal_num;
 
 
-   debug_flag := 1;
    DebugOut(PTY_COLOR, "  Fetching all chars from user space for output", 1);
    offset := tp^.pty_out_vir;
    (* Fill the out_q *)
@@ -921,8 +929,7 @@ begin
 
    end; (* while loop iterating over pty_outleft chars from user proc *)
    tctlr_write_to_str_to_term(terminal_num, adr(tp^.pty_outqueue), tp^.pty_cum);
-   tp^.pty_cum := 0;
-   debug_flag := 0;
+   tp^.pty_cum := 0
 
    (* -------------------- *)
    
@@ -934,8 +941,9 @@ begin
     (*
    finish(tp, 0);   
    *)
-   
+   (*
    k_cpr(PTY_COLOR, "   Leaving do_pty_write()"); k_prln(1)
+   *)
 
 end; 
 (*=================================================================*)
@@ -1078,14 +1086,14 @@ begin
       end
       else if p^.m_type = PTY_INT then begin
          (* Something happened with the tctlr *)
-         lock();
+         (* lock(); *)
          int_message := p;
-         if (debug_flag >= 0) then begin
+         if (debug_flag >= 1) then begin
             k_cpr(PTY_COLOR, "   PTY: Recvd PTY_INT msg...");  k_prln(1)
          end;
          (* TODO invoke do_pty_int *)
-         do_pty_int();
-         restore()
+         do_pty_int()
+         (* restore() *)
       end
       else begin
          k_cpr(PTY_COLOR, "   PTY: UNKNOWN message type!"); k_prln(1);

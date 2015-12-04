@@ -19,8 +19,10 @@ def is16BitPositive(val) :
 		return(0)
 ######################################################################
 
-
-
+def special_write(self, value):
+    self.value = value & 0xFFFF
+    print "*** SPECIAL_WRITE ***"
+    
 class CPU(object):
 
     AND_OPC = 27
@@ -78,7 +80,11 @@ class CPU(object):
     UM_PLUS_OPC = 32
     XOR_OPC = 29
 
-
+    def special_write(self, value):
+        print "*** SPECIAL_WRITE ***"
+        print "    CS:PC %4X:%4XX    old value : %4X new value : %4X" % (self.CS.value, self.PC.value,  self.INT_CTL_LOW.value, value)
+        self.INT_CTL_LOW.value = value & 0xFFFF
+    
 
     def __init__(self):
         """ Initialize with the base_type """
@@ -98,6 +104,7 @@ class CPU(object):
         self.RSP.write(0xFE00)
 
         self.INT_CTL_LOW = Register()
+        self.INT_CTL_LOW.write = self.special_write
 
         self._interrupt_pin = 0
         
