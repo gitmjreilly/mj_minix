@@ -224,33 +224,7 @@ class Serial_CMD_Channel(object):
 def do_cmd(cmd_from_host):
     global transmission_status
     
-    # print "DEBUG - Got command [%s] - Acting on it..." % cmd_from_host
-    if (cmd_from_host == "s"):
-        # print "DEBUG received a buffer status command [%s]" % cmd_from_host
-        for serial_port_num in range(NUM_TERMINALS):
-            size = serial_ports[serial_port_num].get_buffer_size()
-            s = "%02X%1d" % (size, transmission_status[serial_port_num])
-            # print "   " + s
-            # The protocol calls for line separation
-            cmd_channel.send_to_host(s + "\n")
-        # print "----"
-    elif (cmd_from_host.startswith("r")):
-        # Receive FROM a terminal
-        #
-        # String is of form rPPYY
-        # pp is the port num in hex
-        # YY is the amount of data to return
-        # YY must be <= filled buffer size
-        l = list(cmd_from_host)
-        serial_port_num =   int( "".join(l[1:3]), 16)
-        num_bytes_to_send = int( "".join(l[3:7]), 16)
-        
-        print ("DEBUG Retrieiving [%04X] bytes from serial port buffer [%02x] " % 
-            (num_bytes_to_send, serial_port_num))
-        s = serial_ports[serial_port_num].get_data(num_bytes_to_send)
-        cmd_channel.send_to_host(s)
-        print "port num %d [%s]" % (serial_port_num, s)
-    elif (cmd_from_host.startswith("t")):
+    if (cmd_from_host.startswith("t")):
         # String is of form tPPYY
         # PP is the port num in hex
         # YY is the amount of data to transmit
@@ -260,21 +234,16 @@ def do_cmd(cmd_from_host):
         num_bytes_to_send = int( "".join(l[3:5]), 16)
         # Get the data from the host and transmit it to the correct terminal
         data = cmd_channel.get_raw_data_from_host(num_bytes_to_send)
+        print "Sending (cmd %s) data [%d bytes] from host to terminal %d" % (cmd_from_host, num_bytes_to_send, serial_port_num)
+        print "   %s" % data
         serial_ports[serial_port_num].transmit_to_terminal(data)
 
         print "Sending a write ack for serial port : %d to the host" % serial_port_num
         packet = build_packet(serial_port_num, WRITE_ACK, "")        
         cmd_channel.send_to_host(packet)
+        print "--------"
 
 
-        
-    elif (cmd_from_host.startswith("c")):
-        # String is of form cPP
-        # PP is the port num in hex
-        l = list(cmd_from_host)
-        serial_port_num =   int( "".join(l[1:3]), 16)
-        print "Clearing transmission status for port %d" % (serial_port_num)
-        transmission_status[serial_port_num] = 0
     else:
         print "Bad command! <%s> length <%d>" % (cmd_from_host, len(cmd_from_host))
         sys.exit(1)

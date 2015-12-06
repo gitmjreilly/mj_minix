@@ -1803,7 +1803,7 @@ begin
       else if task = $FFF8 then DebugOut(HW_COLOR, "PTY", 1)
       else if task = $FC19 then DebugOut(HW_COLOR, "IDLE", 1);
       if task = PTY then begin
-         DebugOut(HW_COLOR, "    INTERRUPT : Remembering PTY", 1);
+         k_cpr(HW_COLOR, "    INTERRUPT : Remembering PTY"); k_prln(1);
          pty_int_was_seen := 1
       end
    end
@@ -1813,7 +1813,7 @@ begin
       else if task = $FFF8 then DebugOut(HW_COLOR, "PTY", 1)
       else if task = $FC19 then DebugOut(HW_COLOR, "IDLE", 1);
       if task = PTY then begin
-         DebugOut(HW_COLOR, "    INTERRUPT : Clearing PTY flag", 1);
+         k_cpr(HW_COLOR, "    INTERRUPT : Clearing PTY flag"); k_prln(1);
          pty_int_was_seen := 0
       end
    end;
@@ -2042,12 +2042,15 @@ begin
        * The clock task only accepts interrupt messages now and does
        * not look at the m_type.
        *)
-      interrupt(CLOCK, adr(int_mess))
+      interrupt(CLOCK, adr(int_mess));
       (* TODO - Remove interrupt() for PTY from clock int handling *)
-      (*
-      hw_pty_mess.m_type := PTY_INT;
-      interrupt(PTY, adr(hw_pty_mess))
-      *)      
+      
+  
+      if (pty_int_was_seen = 1) then begin
+         k_cpr(HW_COLOR, "senting pty int message from clk b/c pending pty_int"); k_prln(1);
+         hw_pty_mess.m_type := PTY_INT;
+         interrupt(PTY, adr(hw_pty_mess))
+      end
    end;
 
 
@@ -2240,7 +2243,7 @@ begin
    PatchVectors();
    interrupt_mask_ptr^ := 0;
 
-   interrupt_mask_ptr^ := interrupt_mask_ptr^ OR CLOCK_INT_MASK;
+   (* interrupt_mask_ptr^ := interrupt_mask_ptr^ OR CLOCK_INT_MASK; *)
    interrupt_mask_ptr^ := interrupt_mask_ptr^ OR PTC_UART_RX_QUARTER_FULL_MASK;
    
  

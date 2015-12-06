@@ -602,7 +602,7 @@ begin
    while (1) do begin
       (* $0003 is the type for read *)
       m1^.m_type := $0003; 
-      nbytes := $200;
+      nbytes := $F0;
       buffer := adr(file_buffer);
 
       send_p(FS_PROC_NR, m1);
@@ -677,7 +677,7 @@ begin
 
    (* $0004 is the type for write *)
    m1^.m_type := $0004; 
-   nbytes := $200;
+   nbytes := $F0;
    buffer := adr(file_buffer);
    
    pr("buffer addr is : ");
