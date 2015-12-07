@@ -2243,7 +2243,7 @@ begin
    PatchVectors();
    interrupt_mask_ptr^ := 0;
 
-   (* interrupt_mask_ptr^ := interrupt_mask_ptr^ OR CLOCK_INT_MASK; *)
+   interrupt_mask_ptr^ := interrupt_mask_ptr^ OR CLOCK_INT_MASK; 
    interrupt_mask_ptr^ := interrupt_mask_ptr^ OR PTC_UART_RX_QUARTER_FULL_MASK;
    
  

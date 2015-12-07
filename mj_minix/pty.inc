@@ -15,7 +15,7 @@
 #include "tctlr.inc"
 
 #define PTY_IN_BYTES 200
-#define PTY_OUT_BYTES 200
+#define PTY_OUT_BYTES 300
 #define NR_PTYS 8
 
 type
@@ -34,7 +34,7 @@ type
       pty_incount : integer;
       
       pty_lfct : integer;
-      pty_outqueue : array[PTY_IN_BYTES] of integer; 
+      pty_outqueue : array[PTY_OUT_BYTES] of integer; 
       pty_outhead : ^integer;
       pty_outtail : ^integer;
       pty_outcount : integer;
@@ -898,6 +898,7 @@ begin
    SetES(rp^.DS);
 
    orig_num_chars := tp^.pty_outleft;
+   k_cpr(PTY_COLOR, "in PTY_WRITE orig_num_chars is : "); k_cpr_hex_num(PTY_COLOR, orig_num_chars); k_prln(1);
 
    terminal_num := tp^.pty_terminal_num;
 
