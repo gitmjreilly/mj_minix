@@ -121,6 +121,52 @@ end;
 (*=================================================================*)
 
 
+
+(*=================================================================
+ * Print a string with parameterized num \n's
+(*=================================================================*)
+procedure pr_n(s : ^integer, num_new_lines : integer);
+var
+   p : ^t_pty_write_message,
+   reply_mess : ^pty_message,
+   len : integer,
+   tmp_array : array [300] of integer;
+
+begin
+   p := adr(app_mess);
+   reply_mess := adr(app_mess);
+
+   
+   str_len(s, adr(len));
+   str_copy(s, adr(tmp_array));
+   
+   s := adr(tmp_array[len]);
+   
+   while (num_new_lines > 0) do begin
+      s^ := 13;
+      s := s + 1;
+
+      s^ := ASCII_LF;
+      s := s + 1;
+
+      num_new_lines := num_new_lines - 1
+   end;
+   s^ := 0;
+   
+   str_len(adr(tmp_array), adr(len));
+
+   
+   p^.m_type := PTY_WRITE;
+   (* Device is ignored - proc num determines comm channel *)
+   p^.DEVICE := 0;
+   p^.COUNT := len;
+   p^.ADDRESS := adr(tmp_array);
+   send_p(PTY, p);
+   receive_p(PTY, p)
+end;
+(*=================================================================*)
+
+
 (*=================================================================
  * Print a bunch(n) of blanks
 (*=================================================================*)

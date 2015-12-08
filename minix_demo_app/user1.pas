@@ -22,28 +22,28 @@ var
 procedure help() ;
 
 begin
-   pr("Help for demo program"); prln(2);
+   pr_n("Help for demo program", 2);
 
-   pr("intense (a long running cpu hog)"); prln(1);
-   pr("fib (a fibonacci printer) "); prln(1);
-   pr("guess (a number guessing game) "); prln(1);
-   pr("ham   (City Ruling Game) "); prln(1);
-   pr("read_sec   (read a disk sector) "); prln(1);
-   pr("write_sec   (write a disk sector) "); prln(1);
-   pr("sys_copy  (copy using systask)"); prln(1);
-   pr("clear_buff (clr the dest buffer)"); prln(1);
-   pr("set_buff   (set the src buffer)"); prln(1);
-   pr("fs_ping   (send chmod sys call to fs)"); prln(1);
-   pr("open_file   fs open syscall"); prln(1);
-   pr("stat_file   fs open syscall"); prln(1);
-   pr("creat_file   fs creat syscall"); prln(1);
-   pr("sync_fs   sync_fs syscall"); prln(1);
-   pr("read_file   fs read syscall"); prln(1);
-   pr("write_file   fs write syscall"); prln(1);
-   pr("cat_file   fs read syscall"); prln(1);
-   pr("lseek   fs lseek syscall"); prln(1);
-   pr("close_file   fs close syscall"); prln(1);
-   pr("print_buff (print the dest buffer)"); prln(1)
+   pr_n("intense (a long running cpu hog)", 1); 
+   pr_n("fib (a fibonacci printer) ", 1); 
+   pr_n("guess (a number guessing game) ", 1); 
+   pr_n("ham   (City Ruling Game) ", 1); 
+   pr_n("read_sec   (read a disk sector) ", 1); 
+   pr_n("write_sec   (write a disk sector) ", 1); 
+   pr_n("sys_copy  (copy using systask)", 1); 
+   pr_n("clear_buff (clr the dest buffer)", 1); 
+   pr_n("set_buff   (set the src buffer)", 1); 
+   pr_n("fs_ping   (send chmod sys call to fs)", 1); 
+   pr_n("open_file   fs open syscall", 1); 
+   pr_n("stat_file   fs open syscall", 1); 
+   pr_n("creat_file   fs creat syscall", 1); 
+   pr_n("sync_fs   sync_fs syscall", 1); 
+   pr_n("read_file   fs read syscall", 1); 
+   pr_n("write_file   fs write syscall", 1); 
+   pr_n("cat_file   fs read syscall", 1); 
+   pr_n("lseek   fs lseek syscall", 1); 
+   pr_n("close_file   fs close syscall", 1); 
+   pr_n("print_buff (print the dest buffer)", 1)
 
 end;
 (********************************************************************)
