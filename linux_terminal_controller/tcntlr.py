@@ -138,11 +138,23 @@ class CMD_Channel(object):
             
             data = self.socket.recv(1)
             self.active_line += data
-                
-            if (self.active_line.endswith("\n")):
-                s = self.active_line.rstrip()
+            print "========"
+            print "DEBUG active line is [%s]" % (self.active_line)
+             
+            l = list(self.active_line)
+            if (len(l) == 2):
+                text_len = ord(l[1])
+                terminal_num = (ord(l[0]))
+                print "Debug Text Len is decimal %d   line len is %d term is %d " % (text_len, len(l), terminal_num)
+                    
+                s = self.active_line
                 self.active_line = ""
                 return(s)
+            
+            # if (self.active_line.endswith("\n")):
+                # s = self.active_line.rstrip()
+                # self.active_line = ""
+                # return(s)
 
             
     def get_raw_data_from_host(self, num_bytes_to_receive):
@@ -224,14 +236,15 @@ class Serial_CMD_Channel(object):
 def do_cmd(cmd_from_host):
     global transmission_status
     
-    if (cmd_from_host.startswith("t")):
-        # String is of form tPPYY
-        # PP is the port num in hex
-        # YY is the amount of data to transmit
+    # if (cmd_from_host.startswith("t")):
+    if (True):
+        # String is of form PY
+        # P is the byte val for the port
+        # Y is the byte val for the amount of data to transmit
         # Raw data comes after command line
         l = list(cmd_from_host)
-        serial_port_num =   int( "".join(l[1:3]), 16)
-        num_bytes_to_send = int( "".join(l[3:5]), 16)
+        serial_port_num =  ord(l[0])    #            int( "".join(l[1:3]), 16)
+        num_bytes_to_send = ord(l[1])   # int( "".join(l[3:5]), 16)
         # Get the data from the host and transmit it to the correct terminal
         data = cmd_channel.get_raw_data_from_host(num_bytes_to_send)
         print "Sending (cmd %s) data [%d bytes] from host to terminal %d" % (cmd_from_host, num_bytes_to_send, serial_port_num)

@@ -590,10 +590,11 @@ begin
       tp := adr(pty_struct[terminal_num]);
       
       if (packet_type = TERMINAL_INPUT) then begin
-         (* k_cpr(PTY_COLOR, "  Dealing with terminal input  ");  k_prln(1); *)
+         k_cpr(PTY_COLOR, "  Dealing with terminal input  ");  k_prln(1);
       
    
          num_to_copy_to_in_q := packet_size;
+         k_cpr(PTY_COLOR, "    num chars recvd is (hex) : "); k_cpr_hex_num(PTY_COLOR, packet_size); k_prln(1);
          tmp_p := adr(tctlr_buffer[buffer_num]);
          src_p := adr(tmp_p^.rest);
          dst_p := tp^.pty_inhead;

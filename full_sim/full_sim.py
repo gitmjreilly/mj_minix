@@ -91,7 +91,7 @@ def construct_computer_system():
         name = "Disk Controller")
     
     serial_2 = FifoSerialPort(
-        listen_port = 5500, 
+        listen_port = 6000, 
         input_delay = 1200, 
         output_delay = 1200,
         name = "Terminal Controller")
