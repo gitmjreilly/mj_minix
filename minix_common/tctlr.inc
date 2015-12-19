@@ -5,7 +5,7 @@
 
 (* This constant must be matched in the PTY driver *)
 #define NUM_TERMINALS 8
-#define NUM_TCTLR_BUFFERS 4
+#define NUM_TCTLR_BUFFERS 8
 
 
 #define TCTLR_DATA_ADDR $F020

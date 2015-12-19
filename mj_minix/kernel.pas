@@ -2087,6 +2087,15 @@ begin
       k_cpr_hex_num(KERNEL_COLOR, tmp_p^); k_prln(1);
       
       k_cpr(KERNEL_COLOR, "   num_tctlr_buffers_filled : "); k_cpr_hex_num(KERNEL_COLOR, num_tctlr_buffers_filled); k_prln(1);
+      
+      if (num_tctlr_buffers_filled = NUM_TCTLR_BUFFERS) then begin
+         k_cpr(KERNEL_COLOR, "   FATAL!!! Out of tctlr buffers!  HALTING system!");  k_prln(1);
+         asm
+            HALT
+         end
+      end;
+      
+      
       tmp_p := adr(tctlr_buffer[num_tctlr_buffers_filled]);
       num_tctlr_buffers_filled := num_tctlr_buffers_filled + 1;
       
@@ -2342,6 +2351,47 @@ begin
    k_pr("Enable mem checks now, if running in simulator"); k_prln(1);
 
 
+   load_file(
+      "/var/tmp/main.hex.sim",
+      adr(DataSize), 
+      adr(LoadAddress),
+      adr(StartAddress), 
+      1,
+      adr(Status));   
+
+   load_file(
+      "/var/tmp/user1.hex.sim",
+      adr(DataSize), 
+      adr(LoadAddress),
+      adr(StartAddress), 
+      4,
+      adr(Status));   
+
+   load_file(
+      "/var/tmp/user1.hex.sim",
+      adr(DataSize), 
+      adr(LoadAddress),
+      adr(StartAddress), 
+      5,
+      adr(Status));   
+
+   load_file(
+      "/var/tmp/user1.hex.sim",
+      adr(DataSize), 
+      adr(LoadAddress),
+      adr(StartAddress), 
+      6,
+      adr(Status));   
+
+   load_file(
+      "/var/tmp/user1.hex.sim",
+      adr(DataSize), 
+      adr(LoadAddress),
+      adr(StartAddress), 
+      7,
+      adr(Status));   
+
+   
    while 1=1 do  begin
       k_pr("MJ Console Shell >");
       k_gets(adr(Line));
