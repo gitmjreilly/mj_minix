@@ -61,7 +61,7 @@ begin
 	-- 10Mhz / 64k / 2^8 = 16 seconds?
 --	derived_clock <= fast_counter(2);
 
-	derived_clock <= fast_counter(4);
+	derived_clock <= fast_counter(2);
 
 	count: process (derived_clock, reset)
 	begin

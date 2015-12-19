@@ -2,6 +2,7 @@
 import os
 import sys
 import serial
+import re
 
 
 def UARTBlast(SerialDevice):
@@ -17,8 +18,16 @@ def UARTBlast(SerialDevice):
 #
 def main():
 
-
-    ActualDeviceList = ["/dev/ttyUSB0", "/dev/ttyUSB1"]
+    print "Building ttyUSB list..."
+    ActualDeviceList = list()
+    for ShortName in os.listdir("/dev"):
+        if (re.match("^ttyUSB", ShortName)):
+            print "  Found %s" % (ShortName)
+            ActualDeviceList.append("/dev/" + ShortName)
+    
+   
+    
+    # ActualDeviceList = ["/dev/ttyUSB0", "/dev/ttyUSB1", "/dev/ttyUSB2" ]
  
  
     while (True):
@@ -29,7 +38,7 @@ def main():
             UARTBlast(ActualDevice)
             
             while (True):
-                print "Which was it (C)onsole (D)isk ?"
+                print "Which was it (C)onsole (D)isk or (T)erm ?"
                 Ans = raw_input().upper()
                 if (Ans == "C" or Ans == "D" or Ans == "T") :
                     break
@@ -38,6 +47,8 @@ def main():
                 LogicalName = "console_uart"
             elif (Ans == "D") :
                 LogicalName = "disk_uart"
+            elif (Ans == "T") :
+                LogicalName = "term_uart"
                 
             NameMap[LogicalName] = ActualDevice
             
@@ -45,6 +56,7 @@ def main():
         
         UARTBlast(NameMap["console_uart"]);
         UARTBlast(NameMap["disk_uart"]);
+        UARTBlast(NameMap["term_uart"]);
     
         print "Did LED's blink from left to right in cons, disk, term order ?"
         Ans = raw_input().upper()
