@@ -5,6 +5,7 @@ import sys
 
 #PTC  IS AT PORT 5050.
 #HOST IS AT PORT 6000.
+HOST_PORT = 6001
 
 requests    = 16 * [0]
 connections = 0
@@ -58,7 +59,7 @@ def get_from_host(a):
     global host
     print 'PTC connecting to host...'
     host = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    host.connect(('127.0.0.1',6000))
+    host.connect(('127.0.0.1',HOST_PORT))
     while (1):
         term = host.recv(1)
         terminal = ord(term)
@@ -81,7 +82,8 @@ def get_from_host(a):
 class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
     pass
 
-t = ThreadedTCPServer(('',5050), service)
+# t = ThreadedTCPServer(('',5050), service)
+t = ThreadedTCPServer(('', 4659), service)
 q = Thread(target=get_from_host,args=(0,))
 q.start()
 t.serve_forever()

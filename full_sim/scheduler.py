@@ -12,7 +12,7 @@ class Scheduler(object):
     def __init__(self):
         print "Initializing the scheduler"
         p = __scheduled_event_record__(-1, None, "Head of schedule - no event")
-        r = __scheduled_event_record__(20000000000, None, "Tail of schedule - no event")
+        r = __scheduled_event_record__(200000000000, None, "Tail of schedule - no event")
         p.next = r
         r.next = None
         self.time = 0
