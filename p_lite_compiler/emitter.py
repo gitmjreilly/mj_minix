@@ -13,7 +13,7 @@ def Emit(Line, LineNum):
     NewLineWasEmitted = False
 
 
-def EmitLabel(AsmLabel, LineNum):
+def EmitCodeLabel(AsmLabel, LineNum):
     """ Emit line to the annotated listing file. """
 
     global NewLineWasEmitted

@@ -96,18 +96,18 @@ def do_production_if(return_label, external_break_label, external_continue_label
 
     look_ahead = tokenizer.get_look_ahead()
     if ((look_ahead != "ELSE") and (look_ahead != "ELSIF")):
-        emitter.EmitLabel(after_then_label, tokenizer.get_line_num())
+        emitter.EmitCodeLabel(after_then_label, tokenizer.get_line_num())
     elif look_ahead == "ELSE":
         tokenizer.get_token()
         emitter.Emit("BRA " + done_label, tokenizer.get_line_num())
-        emitter.EmitLabel(after_then_label, tokenizer.get_line_num())
+        emitter.EmitCodeLabel(after_then_label, tokenizer.get_line_num())
         do_production_statement(return_label, external_break_label, external_continue_label)
     else:   # must be "ELSIF"
         while tokenizer.get_look_ahead() == "ELSIF":
             tokenizer.get_token() # throwaway the ELSIF
             emitter.Emit("BRA " + done_label, tokenizer.get_line_num())
 
-            emitter.EmitLabel(after_then_label, tokenizer.get_line_num())
+            emitter.EmitCodeLabel(after_then_label, tokenizer.get_line_num())
 
             do_production_expression()
 
@@ -123,12 +123,12 @@ def do_production_if(return_label, external_break_label, external_continue_label
         if look_ahead == "ELSE":
             tokenizer.get_token() # throw away the ELSE
             emitter.Emit("BRA " + done_label)
-            emitter.EmitLabel(after_then_label, tokenizer.get_line_num())
+            emitter.EmitCodeLabel(after_then_label, tokenizer.get_line_num())
             do_production_statement(return_label, external_break_label,external_continue_label)
         else:
-            emitter.EmitLabel(after_then_label, tokenizer.get_line_num())
+            emitter.EmitCodeLabel(after_then_label, tokenizer.get_line_num())
             
-    emitter.EmitLabel(done_label, tokenizer.get_line_num())
+    emitter.EmitCodeLabel(done_label, tokenizer.get_line_num())
 
     end_production (get_function_name())
             
@@ -220,14 +220,14 @@ def do_production_factor():
         
         string_constant = token
         string_label = get_next_label()
-        emitter.EmitLabel(string_label, tokenizer.get_line_num())
+        emitter.EmitCodeLabel(string_label, tokenizer.get_line_num())
         emitter.Emit("DW", tokenizer.get_line_num())
         for i in range(1, len(token) - 1):
             emitter.Emit(str(ord(list(token)[i])), tokenizer.get_line_num())
         emitter.Emit("0", tokenizer.get_line_num())
         emitter.Emit("ENDDW", tokenizer.get_line_num())
 
-        emitter.EmitLabel(l2, tokenizer.get_line_num())
+        emitter.EmitCodeLabel(l2, tokenizer.get_line_num())
 
         emitter.Emit(string_label, tokenizer.get_line_num())
         
@@ -280,9 +280,9 @@ def do_production_term():
             emitter.Emit("S_LESS", tokenizer.get_line_num())
             emitter.Emit("JMPF " + l2, tokenizer.get_line_num())
             emitter.Emit("0 BRA " + l1, tokenizer.get_line_num())
-            emitter.EmitLabel(l2, tokenizer.get_line_num())
+            emitter.EmitCodeLabel(l2, tokenizer.get_line_num())
             emitter.Emit("1", tokenizer.get_line_num())
-            emitter.EmitLabel(l1, tokenizer.get_line_num())
+            emitter.EmitCodeLabel(l1, tokenizer.get_line_num())
         elif token == "<=":
             l2 = get_next_label()
             l1 = get_next_label()
@@ -291,18 +291,18 @@ def do_production_term():
             emitter.Emit("S_LESS", tokenizer.get_line_num())
             emitter.Emit("JMPF " + l2, tokenizer.get_line_num())
             emitter.Emit("0 BRA " + l1, tokenizer.get_line_num())
-            emitter.EmitLabel(l2, tokenizer.get_line_num())
+            emitter.EmitCodeLabel(l2, tokenizer.get_line_num())
             emitter.Emit("1", tokenizer.get_line_num())
-            emitter.EmitLabel(l1, tokenizer.get_line_num())
+            emitter.EmitCodeLabel(l1, tokenizer.get_line_num())
         elif token == "<>":
             l2 = get_next_label()
             l1 = get_next_label()
             emitter.Emit("== ", tokenizer.get_line_num())
             emitter.Emit("JMPF " + l2, tokenizer.get_line_num())
             emitter.Emit("0 BRA " + l1, tokenizer.get_line_num())
-            emitter.EmitLabel(l2, tokenizer.get_line_num())
+            emitter.EmitCodeLabel(l2, tokenizer.get_line_num())
             emitter.Emit("1", tokenizer.get_line_num())
-            emitter.EmitLabel(l1, tokenizer.get_line_num())
+            emitter.EmitCodeLabel(l1, tokenizer.get_line_num())
         elif token == "/":
             emitter.Emit("JSR __SIGNED_DIV TO_R DROP DROP FROM_R", tokenizer.get_line_num())
         elif token == "MOD":
@@ -932,7 +932,7 @@ def do_production_procedure_declaration():
     tokenizer.get_token() # Get rid of PROCEDURE, present upon entry
 
     procedure_name = tokenizer.get_token() 
-    emitter.EmitLabel(procedure_name, tokenizer.get_line_num())
+    emitter.EmitCodeLabel(procedure_name, tokenizer.get_line_num())
 
     throw_away = tokenizer.get_token()
     if throw_away != "(":
@@ -1027,7 +1027,7 @@ def do_production_procedure_declaration():
         logger.error("Expected ';'", throw_away)
 
     is_compiling_subroutine = False
-    emitter.EmitLabel(return_label, tokenizer.get_line_num())
+    emitter.EmitCodeLabel(return_label, tokenizer.get_line_num())
 
     # Emit the procedure exit code
     emitter.Emit("FROM_R", tokenizer.get_line_num())
@@ -1067,7 +1067,7 @@ def do_production_function_declaration():
     tokenizer.get_token() # Get rid of FUNCTION, present upon entry
 
     function_name = tokenizer.get_token() 
-    emitter.EmitLabel(function_name, tokenizer.get_line_num())
+    emitter.EmitCodeLabel(function_name, tokenizer.get_line_num())
 
     throw_away = tokenizer.get_token()
     if throw_away != "(":
@@ -1174,7 +1174,7 @@ def do_production_function_declaration():
         logger.error("Expected ';'", throw_away)
 
     is_compiling_subroutine = False
-    emitter.EmitLabel(return_label, tokenizer.get_line_num())
+    emitter.EmitCodeLabel(return_label, tokenizer.get_line_num())
 
     # Emit the procedure exit code
     emitter.Emit("FROM_R", tokenizer.get_line_num())
@@ -1216,7 +1216,7 @@ def do_production_statement(return_label, external_break_label, external_continu
     elif look_ahead == "WHILE":
         tokenizer.get_token()
         loop_label = get_next_label()
-        emitter.EmitLabel(loop_label, tokenizer.get_line_num())
+        emitter.EmitCodeLabel(loop_label, tokenizer.get_line_num())
         do_production_expression()
         label = get_next_label()
         emitter.Emit("JMPF " + label, tokenizer.get_line_num())
@@ -1228,7 +1228,7 @@ def do_production_statement(return_label, external_break_label, external_continu
         do_production_statement(return_label, label, loop_label)
         emitter.Emit("BRA " + loop_label, tokenizer.get_line_num())
 
-        emitter.EmitLabel(label, tokenizer.get_line_num())
+        emitter.EmitCodeLabel(label, tokenizer.get_line_num())
     elif look_ahead == "BREAK":
         tokenizer.get_token()
         if external_break_label == "":
@@ -1344,7 +1344,7 @@ def do_production_block():
     while tokenizer.get_look_ahead() in ["CONST", "VAR", "PROCEDURE", "FUNCTION", "TYPE", "INCLUDE", "GUARD"]:
         do_production_declaration()
 
-    emitter.EmitLabel("MAIN", tokenizer.LineNum())
+    emitter.EmitCodeLabel("MAIN", tokenizer.LineNum())
 
     is_compiling_subroutine = False # This should have been cleared in proc decl
     do_production_statement("", "", "")
