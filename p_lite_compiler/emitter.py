@@ -1,7 +1,7 @@
 
 
 
-def Emit(Line, LineNum):
+def EmitCode(Line, LineNum):
     """ Emit Line to the annotated listing file. """
 
     global NewLineWasEmitted
