@@ -27,6 +27,64 @@ def EmitCodeLabel(AsmLabel, LineNum):
     NewLineWasEmitted = True
 
 
+def EmitData(Line, LineNum):
+    """ Emit Line to the annotated listing file. """
+
+    global NewLineWasEmitted
+    global OutputFile
+
+    if NewLineWasEmitted:
+        OutputFile.writelines('               ');
+    OutputFile.writelines(Line + ' ');
+    NewLineWasEmitted = False
+
+
+def EmitDataLabel(AsmLabel, LineNum):
+    """ Emit line to the annotated listing file. """
+
+    global NewLineWasEmitted
+    global OutputFile
+
+    if not NewLineWasEmitted:
+        OutputFile.writelines('\n')
+
+    OutputFile.writelines('               ')
+    OutputFile.writelines(AsmLabel + ':\n')
+    NewLineWasEmitted = True
+
+
+    
+
+def EmitUData(Line, LineNum):
+    """ Emit Line to the annotated listing file. """
+
+    global NewLineWasEmitted
+    global OutputFile
+
+    if NewLineWasEmitted:
+        OutputFile.writelines('               ');
+    OutputFile.writelines(Line + ' ');
+    NewLineWasEmitted = False
+
+
+def EmitUDataLabel(AsmLabel, LineNum):
+    """ Emit line to the annotated listing file. """
+
+    global NewLineWasEmitted
+    global OutputFile
+
+    if not NewLineWasEmitted:
+        OutputFile.writelines('\n')
+
+    OutputFile.writelines('               ')
+    OutputFile.writelines(AsmLabel + ':\n')
+    NewLineWasEmitted = True
+
+
+    
+    
+    
+    
 def EmitSrc(SrcLine, LineNum):
     """ Emit line to the annotated listing file. """
 

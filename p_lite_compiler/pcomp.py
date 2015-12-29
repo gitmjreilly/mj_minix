@@ -220,12 +220,12 @@ def do_production_factor():
         
         string_constant = token
         string_label = get_next_label()
-        emitter.EmitCodeLabel(string_label, tokenizer.get_line_num())
-        emitter.EmitCode("DW", tokenizer.get_line_num())
+        emitter.EmitDataLabel(string_label, tokenizer.get_line_num())
+        emitter.EmitData("DW", tokenizer.get_line_num())
         for i in range(1, len(token) - 1):
-            emitter.EmitCode(str(ord(list(token)[i])), tokenizer.get_line_num())
-        emitter.EmitCode("0", tokenizer.get_line_num())
-        emitter.EmitCode("ENDDW", tokenizer.get_line_num())
+            emitter.EmitData(str(ord(list(token)[i])), tokenizer.get_line_num())
+        emitter.EmitData("0", tokenizer.get_line_num())
+        emitter.EmitData("ENDDW", tokenizer.get_line_num())
 
         emitter.EmitCodeLabel(l2, tokenizer.get_line_num())
 
@@ -631,7 +631,7 @@ def do_production_variable():
                 symtab.Global_Variable(type_name))
             asm_str = variable_name + ':' + ' DS '  + str(type_size)
 
-            emitter.EmitCode(asm_str, tokenizer.get_line_num())
+            emitter.EmitUCode(asm_str, tokenizer.get_line_num())
 
         local_variable_stack_offset += type_size
 
