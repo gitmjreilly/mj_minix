@@ -411,48 +411,22 @@ sub AssembleNumber {
 sub AssembleGlobalVariable {
 	my $Token = $_[0];
 	
-	my @Stuff = split('\'', $Token);
-	my $VariableName = $Stuff[0];
-	my $Attribute = $Stuff[1];
-	
-	my $LCOffset;
-	
-	if ($Attribute eq "") {
-		$Attribute = "addr";
-	}
-	
-	if ($Attribute eq "addr") {
-		$LCOffset = 0;
-	}
-	elsif ($Attribute eq "val") {
-		$LCOffset = 1;
-	}
-	elsif ($Attribute eq "ref") {
-		$LCOffset = 2;
-	}
-	else {
-		Error("Unknown attribute [$Attribute]\n");
-		return;
-	}	
+	my $VariableName = $Token;
 
 	
 	if ($PassNum == 1) {
-		$LC += 2 + $LCOffset;
+		$LC += 2 ;
 		return;
 	}
 		
 	#
 	# If we've gotten this far, we are in the 2nd pass
 	#
-	AssembleNumber($SymbolTable{$VariableName}->{'Value'});
-	if ($Attribute eq "val") {
-		AssembleInstruction("FETCH");
-		return;
+	if (IsGlobalVariable($VariableName)) {
+		AssembleNumber($SymbolTable{$VariableName}->{'Value'});
 	}
-	if ($Attribute eq "ref") {
-		AssembleInstruction("FETCH");
-		AssembleInstruction("FETCH");
-		return;
+	else {
+		Error("Symbol [$VariableName] is an undefined symbol - found in pass 2");
 	}
 
 }
@@ -830,12 +804,13 @@ else {
 				last;
 			}
 
-			if (IsGlobalVariable($Token)) {
-				AssembleGlobalVariable($Token);
-				next;
-			}
+			# if (IsGlobalVariable($Token)) {
+				# AssembleGlobalVariable($Token);
+				# next;
+			# }
+			AssembleGlobalVariable($Token);
 				
-			Error("Unknown token [$Token] on line [$LineNum]\n");
+			# Error("Unknown token [$Token] on line [$LineNum]\n");
 		}
 		$LineNum++;
 

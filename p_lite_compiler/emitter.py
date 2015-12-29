@@ -26,52 +26,60 @@ def EmitCodeLabel(AsmLabel, LineNum):
     OutputFile.writelines(AsmLabel + ':\n')
     NewLineWasEmitted = True
 
+   
 
+   
+#####################################################################
+# Data only comes after a data label (otherwise what's the point of 
+# the data?
+# So we never have to worry about a new line BEFORE data
 def EmitData(Line, LineNum):
     """ Emit Line to the annotated listing file. """
 
-    global NewLineWasEmitted
-    global OutputFile
+    global DataNewLineWasEmitted
+    global DataBuffer
 
-    if NewLineWasEmitted:
-        OutputFile.writelines('               ');
-    OutputFile.writelines(Line + ' ');
-    NewLineWasEmitted = False
+    DataBuffer.append(Line + ' ');
+#####################################################################
 
 
+#####################################################################
 def EmitDataLabel(AsmLabel, LineNum):
     """ Emit line to the annotated listing file. """
 
-    global NewLineWasEmitted
-    global OutputFile
+    global DataNewLineWasEmitted
+    global DataBuffer
 
-    if not NewLineWasEmitted:
-        OutputFile.writelines('\n')
 
-    OutputFile.writelines('               ')
-    OutputFile.writelines(AsmLabel + ':\n')
-    NewLineWasEmitted = True
+    DataBuffer.append('\n')
+
+    DataBuffer.append('               ')
+    DataBuffer.append(AsmLabel + ': ')
+#####################################################################
 
 
     
 
+#####################################################################
 def EmitUData(Line, LineNum):
     """ Emit Line to the annotated listing file. """
 
     global NewLineWasEmitted
-    global OutputFile
+    global UDataBuffer
 
     if NewLineWasEmitted:
         OutputFile.writelines('               ');
     OutputFile.writelines(Line + ' ');
     NewLineWasEmitted = False
+#####################################################################
 
 
+#####################################################################
 def EmitUDataLabel(AsmLabel, LineNum):
     """ Emit line to the annotated listing file. """
 
     global NewLineWasEmitted
-    global OutputFile
+    global UDataBuffer
 
     if not NewLineWasEmitted:
         OutputFile.writelines('\n')
@@ -79,12 +87,14 @@ def EmitUDataLabel(AsmLabel, LineNum):
     OutputFile.writelines('               ')
     OutputFile.writelines(AsmLabel + ':\n')
     NewLineWasEmitted = True
+#####################################################################
 
 
     
     
     
     
+#####################################################################
 def EmitSrc(SrcLine, LineNum):
     """ Emit line to the annotated listing file. """
 
@@ -100,21 +110,37 @@ def EmitSrc(SrcLine, LineNum):
     OutputFile.writelines((';SRC ', '%4d'%LineNum, '|', '%s'%SrcLine))
     OutputFile.writelines("\n")
     NewLineWasEmitted = True
+#####################################################################
 
 
 
 
+#####################################################################
 def FinishEmitter():
     global OutputFile
 
+    OutputFile.writelines(DataBuffer)
     OutputFile.close()
+#####################################################################
     
 
+#####################################################################
 def EmitInit(OutputFileName):
     """ Initialize the emitter, by opening OutputFileName. """
 
     global OutputFile
     global NewLineWasEmitted
+    global DataNewLineWasEmitted
+    
+    global DataBuffer
+    global UDataBuffer
+    
+    
 
     OutputFile = open(OutputFileName, 'w')
     NewLineWasEmitted = True
+
+    DataBuffer = list()
+    UDataBuffer = list()
+#####################################################################
+    
