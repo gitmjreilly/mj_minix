@@ -54,7 +54,7 @@ def EmitDataLabel(AsmLabel, LineNum):
     DataBuffer.append('\n')
 
     DataBuffer.append('               ')
-    DataBuffer.append(AsmLabel + ': ')
+    DataBuffer.append(AsmLabel + ': \n')
 #####################################################################
 
 
@@ -67,10 +67,7 @@ def EmitUData(Line, LineNum):
     global NewLineWasEmitted
     global UDataBuffer
 
-    if NewLineWasEmitted:
-        OutputFile.writelines('               ');
-    OutputFile.writelines(Line + ' ');
-    NewLineWasEmitted = False
+    UDataBuffer.append(Line + " ");
 #####################################################################
 
 
@@ -81,12 +78,10 @@ def EmitUDataLabel(AsmLabel, LineNum):
     global NewLineWasEmitted
     global UDataBuffer
 
-    if not NewLineWasEmitted:
-        OutputFile.writelines('\n')
-
-    OutputFile.writelines('               ')
-    OutputFile.writelines(AsmLabel + ':\n')
-    NewLineWasEmitted = True
+    UDataBuffer.append('\n')
+    UDataBuffer.append('               ')
+    UDataBuffer.append(AsmLabel + ': ')
+    
 #####################################################################
 
 
@@ -120,6 +115,7 @@ def FinishEmitter():
     global OutputFile
 
     OutputFile.writelines(DataBuffer)
+    OutputFile.writelines(UDataBuffer)
     OutputFile.close()
 #####################################################################
     

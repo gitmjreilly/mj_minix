@@ -629,8 +629,9 @@ def do_production_variable():
             global_symbol_table.add(
                 variable_name,
                 symtab.Global_Variable(type_name))
-            asm_str = variable_name + ':' + ' DS '  + str(type_size)
+            asm_str = ' DS '  + str(type_size)
 
+            emitter.EmitUDataLabel(variable_name, tokenizer.get_line_num())
             emitter.EmitUData(asm_str, tokenizer.get_line_num())
 
         local_variable_stack_offset += type_size
