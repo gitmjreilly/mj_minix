@@ -131,12 +131,10 @@ $InstructionInfo{"UM+"}->{'Value'} = 32;
 $InstructionInfo{"XOR"}->{'Value'} = 29;
 
 
-$PsuedoOpInfo{"CONST"} = 1;
 $PsuedoOpInfo{"DS"} = 1;
 $PsuedoOpInfo{"DG"} = 1;
 $PsuedoOpInfo{"DW"} = 1;
 $PsuedoOpInfo{"ENDDW"} = 1;
-$PsuedoOpInfo{"DSTR"} = 1;
 
 
 	$ValToHex[0]  = "0";
@@ -408,6 +406,7 @@ sub AssembleNumber {
 
 
 ###############################################################################
+# Please note GlobalVariable can also be a code label.
 sub AssembleGlobalVariable {
 	my $Token = $_[0];
 	
@@ -452,27 +451,6 @@ sub ProcessPsuedoOp {
 	my $Token = $_[0];
 
 
-	if ($Token eq "CONST") {
-		if ($PassNum == 2) { 
-			$TokenPointer += 2;
-			return; 
-		}
-
-		my $Symbol = $TokenList[$TokenPointer];
-		$TokenPointer++;
-
-		my $Val = $TokenList[$TokenPointer];
-		$TokenPointer++;
-
-		if (IsHexNumber($Val)) {
-			AddLabelToSymbolTable($Symbol, HexToNum($Val));
-		}
-		else {
-			AddLabelToSymbolTable($Symbol, $Val);
-		}
-
-		return;
-	}
 
 	if ($Token eq "DG") {
 		if ($PassNum == 1) {
@@ -747,7 +725,7 @@ else {
 	if ($PassNum > 2) { last; }
 
 	#
-	# Iterate over all lines in the the FileBuffer
+	# Iterate over all lines in the the global FileBuffer
 	#
 	$LineNum = 1;
 	while (1) {
