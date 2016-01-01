@@ -131,10 +131,13 @@ $InstructionInfo{"UM+"}->{'Value'} = 32;
 $InstructionInfo{"XOR"}->{'Value'} = 29;
 
 
-$PsuedoOpInfo{"DS"} = 1;
-$PsuedoOpInfo{"DG"} = 1;
-$PsuedoOpInfo{"DW"} = 1;
-$PsuedoOpInfo{"ENDDW"} = 1;
+$PsuedoOpInfo{".DS"} = 1;
+$PsuedoOpInfo{".DG"} = 1;
+$PsuedoOpInfo{".DW"} = 1;
+$PsuedoOpInfo{".ENDDW"} = 1;
+$PsuedoOpInfo{".CODE"} = 1;
+$PsuedoOpInfo{".DATA"} = 1;
+$PsuedoOpInfo{".UDATA"} = 1;
 
 
 	$ValToHex[0]  = "0";
@@ -452,7 +455,7 @@ sub ProcessPsuedoOp {
 
 
 
-	if ($Token eq "DG") {
+	if ($Token eq ".DG") {
 		if ($PassNum == 1) {
 			$LC += 1;
 			return;
@@ -462,7 +465,7 @@ sub ProcessPsuedoOp {
 		return;
 	}
 
-	if ($Token eq "DS") {
+	if ($Token eq ".DS") {
 		my $StorageSize = $TokenList[$TokenPointer];
 		$TokenPointer++;
 		if ($PassNum == 1) {
@@ -477,13 +480,13 @@ sub ProcessPsuedoOp {
 		return;
 	}
 
-	if ($Token eq "DW") {
+	if ($Token eq ".DW") {
 
 		while (1) {
 			my $NextToken = $TokenList[$TokenPointer];
 			$TokenPointer++;
 
-			if ($NextToken eq "ENDDW") { last; }
+			if ($NextToken eq ".ENDDW") { last; }
 
 			if ($PassNum == 2) {
 				if (IsHexNumber($NextToken)) {
@@ -497,6 +500,19 @@ sub ProcessPsuedoOp {
 		}
 		return;
 	}
+
+	if ($Token eq ".CODE") {
+		return;
+	}
+	
+	if ($Token eq ".DATA") {
+		return;
+	}
+	
+	if ($Token eq ".UDATA") {
+		return;
+	}
+	
 		
 }
 ###############################################################################

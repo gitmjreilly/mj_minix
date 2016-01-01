@@ -221,11 +221,11 @@ def do_production_factor():
         string_constant = token
         string_label = get_next_label()
         emitter.EmitDataLabel(string_label, tokenizer.get_line_num())
-        emitter.EmitData("DW", tokenizer.get_line_num())
+        emitter.EmitData(".DW", tokenizer.get_line_num())
         for i in range(1, len(token) - 1):
             emitter.EmitData(str(ord(list(token)[i])), tokenizer.get_line_num())
         emitter.EmitData("0", tokenizer.get_line_num())
-        emitter.EmitData("ENDDW", tokenizer.get_line_num())
+        emitter.EmitData(".ENDDW", tokenizer.get_line_num())
 
         emitter.EmitCodeLabel(l2, tokenizer.get_line_num())
 
@@ -576,7 +576,7 @@ def do_production_guard():
 
     tokenizer.get_token() # Get rid of GUARD, present upon entry
 
-    asm_str = ' DG '
+    asm_str = ' .DG '
     emitter.EmitCode(asm_str, tokenizer.get_line_num())
 
     token = tokenizer.get_token()
@@ -629,7 +629,7 @@ def do_production_variable():
             global_symbol_table.add(
                 variable_name,
                 symtab.Global_Variable(type_name))
-            asm_str = ' DS '  + str(type_size)
+            asm_str = ' .DS '  + str(type_size)
 
             emitter.EmitUDataLabel(variable_name, tokenizer.get_line_num())
             emitter.EmitUData(asm_str, tokenizer.get_line_num())

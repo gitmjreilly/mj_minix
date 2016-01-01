@@ -114,7 +114,13 @@ def EmitSrc(SrcLine, LineNum):
 def FinishEmitter():
     global OutputFile
 
+    # Source Code and corresponding ASM have already been
+    # emitted
+    # Now we emit initialized and unintialized data at the end 
+    # of the compilation.
+    OutputFile.writelines(".DATA")
     OutputFile.writelines(DataBuffer)
+    OutputFile.writelines(".UDATA")
     OutputFile.writelines(UDataBuffer)
     OutputFile.close()
 #####################################################################
