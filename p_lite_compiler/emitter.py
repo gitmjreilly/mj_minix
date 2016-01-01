@@ -118,9 +118,9 @@ def FinishEmitter():
     # emitted
     # Now we emit initialized and unintialized data at the end 
     # of the compilation.
-    OutputFile.writelines(".DATA")
+    OutputFile.writelines("\n.DATA\n")
     OutputFile.writelines(DataBuffer)
-    OutputFile.writelines(".UDATA")
+    OutputFile.writelines("\n.UDATA\n")
     OutputFile.writelines(UDataBuffer)
     OutputFile.close()
 #####################################################################
@@ -142,6 +142,7 @@ def EmitInit(OutputFileName):
     OutputFile = open(OutputFileName, 'w')
     NewLineWasEmitted = True
 
+    OutputFile.writelines("\n.CODE\n")
     DataBuffer = list()
     UDataBuffer = list()
 #####################################################################

@@ -502,10 +502,12 @@ sub ProcessPsuedoOp {
 	}
 
 	if ($Token eq ".CODE") {
+		$LC = 0x403;
 		return;
 	}
 	
 	if ($Token eq ".DATA") {
+		$LC = 0x100;
 		return;
 	}
 	
@@ -727,13 +729,15 @@ ReadFile($SrcFileName);
 $PassNum = 1;
 while (1) {
 
-	if ($UseNewFormat) {
-		$LC = $LoadAddress;
-	}
-	else {
-		$LC = 256 * 4 + 3;
-		$LoadAddress = $LC;
-	}
+	# if ($UseNewFormat) {
+		# $LC = $LoadAddress;
+	# }
+	# else {
+		# $LC = 256 * 4 + 3;
+		# $LoadAddress = $LC;
+	# }
+	$LC = "UNDEFINED";
+	
 
 	printf("LC is %4x\n", $LC);
 
