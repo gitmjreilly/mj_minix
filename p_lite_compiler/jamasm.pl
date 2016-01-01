@@ -326,14 +326,14 @@ sub IsGlobalVariable {
 ###############################################################################
 sub AddLabelToSymbolTable {
 	my $Label = $_[0];
-	my $LC = $_[1];
+	my $Address = $_[1];
 
 	if (defined($SymbolTable{$Label})) {
 		Error("Label [$Label] already in Symbol Table; dup def on line [$LineNum]\n");
 		return;
 	}
 
-	$SymbolTable{$Label}->{'Value'} = $LC;
+	$SymbolTable{$Label}->{'Value'} = $Address;
 }
 ###############################################################################
 
@@ -520,7 +520,7 @@ sub ProcessPsuedoOp {
 
 ###############################################################################
 sub EmitToObjectAndList {
-	my $LC = $_[0];
+	my $Address = $_[0];
 	my $Val = $_[1];
 	my $ValType = $_[2];
 
@@ -544,8 +544,8 @@ sub SendObjectWordToList {
 
 ###############################################################################
 sub SendLCToList {
-	my $LC = $_[0];
-	printf(LISTFILE "@%s ", NumToHex($LC));
+	my $Address = $_[0];
+	printf(LISTFILE "@%s ", NumToHex($Address));
 }
 ###############################################################################
 
@@ -727,13 +727,13 @@ ReadFile($SrcFileName);
 $PassNum = 1;
 while (1) {
 
-if ($UseNewFormat) {
-	$LC = $LoadAddress;
-}
-else {
-	$LC = 256 * 4 + 3;
-	$LoadAddress = $LC;
-}
+	if ($UseNewFormat) {
+		$LC = $LoadAddress;
+	}
+	else {
+		$LC = 256 * 4 + 3;
+		$LoadAddress = $LC;
+	}
 
 	printf("LC is %4x\n", $LC);
 
