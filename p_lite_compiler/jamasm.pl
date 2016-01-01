@@ -48,6 +48,7 @@ my %SubroutineSymbolTables;
 my $LoadAddress;
 my $UseNewFormat;
 my $GlobalError = 0;
+my $ASMMode = "NONE";
 
 #
 # Placing the filenames here so they can be referenced
@@ -502,16 +503,30 @@ sub ProcessPsuedoOp {
 	}
 
 	if ($Token eq ".CODE") {
+		if ($ASMMode != "NONE") {
+			Error("Saw .CODE but assembly had already begun!");
+		}
+		$ASMMode = ".CODE";
 		$LC = 0x403;
 		return;
 	}
 	
 	if ($Token eq ".DATA") {
+		if ($ASMMode != ".CODE") {
+			Error("Saw .DATA but prev mode was not .CODE!");
+		}
+		$ASMMode = ".DATA";
+
 		$LC = 0x100;
 		return;
 	}
 	
 	if ($Token eq ".UDATA") {
+		if ($ASMMode != ".DATA") {
+			Error("Saw .UDATA but prev mode was not .DATA!");
+		}
+		$ASMMode = ".UDATA";
+
 		return;
 	}
 	
