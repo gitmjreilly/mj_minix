@@ -24,6 +24,11 @@ my $SRC_LINE_LISTING_WIDTH = 120;
 my $CODE_WORD = 0;
 my $DATA_WORD = 1;
 my $GUARD_WORD = 2;
+
+my $V1_LOAD_ADDRESS  = 0x0403;
+
+my $V3_CODE_LOAD_ADDRESS = 0x1000;
+my $V3_DATA_LOAD_ADDRESS = 0x8000;
 ###############################################################################
 
 
@@ -40,15 +45,23 @@ my %PsuedoOpInfo;
 my $PassNum;
 my $LC;
 my %InstructionInfo;
-my @ObjectBuffer;
-my @TypeBuffer;
+
+my @CodeBuffer;
+my @CodeTypeBuffer;
+my @DataBuffer;
+my @DataTypeBuffer;
+
 my @ValToHex;
 my %HexToVal;
 my %SubroutineSymbolTables;
-my $LoadAddress;
-my $UseNewFormat;
+my $CodeLoadAddress;
+my $DataLoadAddress;
+
 my $GlobalError = 0;
-my $ASMMode = "NONE";
+my $ASMMode;
+
+# define the output to be produced
+my $OutputFormat;
 
 #
 # Placing the filenames here so they can be referenced
@@ -64,7 +77,7 @@ my $ListFileName;
 
 ###############################################################################
 sub Usage {
-	printf("$0 -srcfile SrcFile -objfile ObjFile -listfile ListFile -errorfile ErrorFile [-loadaddress n]\n");
+	printf("$0 -outputformat 1|3 -srcfile SrcFile -objfile ObjFile -listfile ListFile -errorfile ErrorFile \n");
 }
 ###############################################################################
 
@@ -507,7 +520,16 @@ sub ProcessPsuedoOp {
 			Error("Saw .CODE but assembly had already begun!");
 		}
 		$ASMMode = ".CODE";
-		$LC = 0x403;
+		printf(STDERR "DEBUG Switching to $ASMMode\n");
+		# $LC = 0x0403;
+
+		if ($OutputFormat == 1) {
+			$LC = $V1_LOAD_ADDRESS;
+		}
+		if ($OutputFormat == 3) {
+			$LC = $V3_CODE_LOAD_ADDRESS;
+		}
+
 		return;
 	}
 	
@@ -516,8 +538,15 @@ sub ProcessPsuedoOp {
 			Error("Saw .DATA but prev mode was not .CODE!");
 		}
 		$ASMMode = ".DATA";
+		printf(STDERR "DEBUG Switching to $ASMMode\n");
 
-		$LC = 0x100;
+		if ($OutputFormat == 1) {
+			$LC = $LC;
+		}
+		if ($OutputFormat == 3) {
+			$LC = $V3_DATA_LOAD_ADDRESS;
+		}
+		# $LC += 0x0100;
 		return;
 	}
 	
@@ -526,6 +555,8 @@ sub ProcessPsuedoOp {
 			Error("Saw .UDATA but prev mode was not .DATA!");
 		}
 		$ASMMode = ".UDATA";
+		printf(STDERR "DEBUG Switching to $ASMMode\n");
+		# $LC += 0x0100;
 
 		return;
 	}
@@ -541,9 +572,25 @@ sub EmitToObjectAndList {
 	my $Val = $_[1];
 	my $ValType = $_[2];
 
-	push(@ObjectBuffer, $Val);
-	push(@TypeBuffer, $ValType);
-
+	if ($ASMMode eq ".CODE") {
+		push(@CodeBuffer, $Val);
+		push(@CodeTypeBuffer, $ValType);
+	}
+		
+	elsif ($ASMMode eq ".DATA") {
+		push(@DataBuffer, $Val);
+		push(@DataTypeBuffer, $ValType);
+	}
+		
+	elsif ($ASMMode eq ".UDATA") {
+		push(@DataBuffer, $Val);
+		push(@DataTypeBuffer, $ValType);
+	}
+	else {
+		Error("Unknown ASM mode in EmitToObjectAnd List");
+	}
+		
+		
 	# Ignoring LC for now...
 
 	SendObjectWordToList($Val);
@@ -598,29 +645,32 @@ sub SendNLToList {
 
 
 ###############################################################################
-sub OutputObject {
-	my $Val = $_[0];
+sub OutputV1Object {
 
-	if (! $UseNewFormat) { # Assume Pat's original loader format
-		my $Size = $#ObjectBuffer + 1;
-		printf(OBJFILE "%s", NumToHex($Size));
-		printf(OBJFILE "%s", 	NumToHex($SymbolTable{'MAIN'}->{'Value'}));
-		foreach my $ObjectWord (@ObjectBuffer) {
-			printf(OBJFILE "%s", NumToHex($ObjectWord));
-		}
+	# V1 format is Pat's Original loader format from 2006!
+	# Assume Loaded at 0x0403
+	# Start address defined by MAIN
+	#
+	# 
+	# loader i.e. ascii hex strings (organized as hex words - 4 digits each)
+	#    word 1 - word count excluding 2 word header
+	#    word 2 - starting address
+	#    words 2-n data words, loaded starting at 0x0403
+	# 	
+	open(OBJFILE, ">$ObjFileName") || die("Could not open $ObjFileName\n");
+	
+	my $Size = $#CodeBuffer + 1 + $#DataBuffer + 1;
+	printf(OBJFILE "%s", NumToHex($Size));
+	printf(OBJFILE "%s", 	NumToHex($SymbolTable{'MAIN'}->{'Value'}));
+	foreach my $ObjectWord (@CodeBuffer) {
+		printf(OBJFILE "%s", NumToHex($ObjectWord));
 	}
-	else { # We are generating the new ASCII HEX loader format.
-		my $Size = $#ObjectBuffer + 1;
-		printf(OBJFILE "%s", NumToHex(0));
-		printf(OBJFILE "%s", NumToHex(2));
-		printf(OBJFILE "%s", NumToHex($Size));
-		printf(OBJFILE "%s", NumToHex($LoadAddress));
-		printf(OBJFILE "%s", 	NumToHex($SymbolTable{'MAIN'}->{'Value'}));
-		foreach my $ObjectWord (@ObjectBuffer) {
-			printf(OBJFILE "%s", NumToHex($ObjectWord));
-		}
+	foreach my $ObjectWord (@DataBuffer) {
+		printf(OBJFILE "%s", NumToHex($ObjectWord));
 	}
 	close(OBJFILE);
+	
+	return;
 
     #
     # Create another output file for use with the simulator
@@ -631,7 +681,7 @@ sub OutputObject {
     open(OBJFILE, ">$SimulatorObjFileName") || 
         die("Could not open $ObjFileName\n");
 
-	my $Size = $#ObjectBuffer + 1;
+	my $Size = $#CodeBuffer + 1;
 
     # First 2 hex words are the MAGIC signature for use with the loader
 #	printf(OBJFILE "%s\r", NumToHex(0));
@@ -644,6 +694,8 @@ sub OutputObject {
 	printf(OBJFILE "%s%s", chr(0), chr(0));
 	printf(OBJFILE "%s%s", chr(0), chr(2));
 
+	my $LoadAddress = $V1_LOAD_ADDRESS;
+	
 	printf(OBJFILE "%s%s", 
         chr(($Size >>8) & 255), 
         chr($Size & 255)         );
@@ -655,25 +707,121 @@ sub OutputObject {
         chr($SymbolTable{'MAIN'}->{'Value'}  & 255  )      );
 
 
-    if ($#ObjectBuffer != $#TypeBuffer) {
-        printf("FATAL Error ObjectBuffer and TypeBuffer are not the same length\n");
+    if ($#CodeBuffer != $#CodeTypeBuffer) {
+        printf("FATAL Error CodeBuffer and CodeTypeBuffer are not the same length\n");
         exit(1);
     }
 
     my $i;
-    for $i (0..$#ObjectBuffer) {
-#		printf(OBJFILE "%s\r", NumToHex($TypeBuffer[$i]));
-#		printf(OBJFILE "%s\r", NumToHex($ObjectBuffer[$i]));
+    for $i (0..$#CodeBuffer) {
+#		printf(OBJFILE "%s\r", NumToHex($CodeTypeBuffer[$i]));
+#		printf(OBJFILE "%s\r", NumToHex($CodeBuffer[$i]));
 
-        printf(OBJFILE "%s", chr($TypeBuffer[$i] & 255));
+        printf(OBJFILE "%s", chr($CodeTypeBuffer[$i] & 255));
 		printf(OBJFILE "%s%s", 
-            chr(($ObjectBuffer[$i] >> 8) & 255), 
-            chr($ObjectBuffer[$i]  & 255)        );
+            chr(($CodeBuffer[$i] >> 8) & 255), 
+            chr($CodeBuffer[$i]  & 255)        );
 	}
 	close(OBJFILE);
 
 }
 ###############################################################################
+
+
+
+###############################################################################
+sub OutputV3Object {
+
+	# V3 output format
+	# Each word comes as 2 bytes MSB first
+	#    word 1     :  Words 1 and 2 are a MAGIC identifier 0000 0003
+	#    word 2  
+	#    word 3     : size of CODE in words
+	#    word 4     : CODE loading address
+	#    word 5     : CODE starting address
+	#
+	#    word 6     : size of DATA in words
+	#    word 7     : DATA loading address
+	#
+	# words 2 * size in words for code
+	#
+	# words 2 * size in words for data
+	#
+
+
+	my $V3FileName = $ObjFileName . ".V3" ;
+
+    open(OBJFILE, ">$V3FileName") || 
+        die("Could not open V3 File : $V3FileName\n");
+
+	my $CodeSize = $#CodeBuffer + 1;
+	printf(STDERR "DEBUG CodeBuffer size is %X\n", $CodeSize);
+
+
+	# Write pair of magic words
+	# Words 1 and 2
+	printf(OBJFILE "%s%s", chr(0), chr(0));
+	printf(OBJFILE "%s%s", chr(0), chr(3));
+
+	# Word 3 size of code in words
+	printf(OBJFILE "%s%s", 
+        chr(($CodeSize >>8) & 255), 
+        chr($CodeSize & 255)         );
+
+	# Word 4 Code Loading Address
+	printf(OBJFILE "%s%s", 
+        chr(($V3_CODE_LOAD_ADDRESS >>8) & 255), 
+        chr($V3_CODE_LOAD_ADDRESS & 255)  );
+		
+	# Word 5 Code Starting Address		
+	printf(OBJFILE "%s%s", 
+        chr(($SymbolTable{'MAIN'}->{'Value'} >>8) & 255), 
+        chr($SymbolTable{'MAIN'}->{'Value'}  & 255  )      );
+
+
+	my $DataSize = $#DataBuffer + 1 ;
+	printf(STDERR "DEBUG DataBuffer size is %X\n", $DataSize);
+
+	# Word 6 size of code in words
+	printf(OBJFILE "%s%s", 
+        chr(($DataSize >>8) & 255), 
+        chr($DataSize & 255)         );
+
+	$DataLoadAddress = $V3_DATA_LOAD_ADDRESS;
+	# Word 7 Data Loading Address
+	printf(OBJFILE "%s%s", 
+        chr(($DataLoadAddress >>8) & 255), 
+        chr($DataLoadAddress & 255)  );
+		
+		
+		
+
+	# Write the code
+    my $i;
+    for $i (0..$#CodeBuffer) {
+		printf(OBJFILE "%s%s", 
+            chr(($CodeBuffer[$i] >> 8) & 255), 
+            chr($CodeBuffer[$i]  & 255)        );
+	}
+
+
+	# Write the data
+    my $i;
+    for $i (0..$#DataBuffer) {
+		printf(OBJFILE "%s%s", 
+            chr(($DataBuffer[$i] >> 8) & 255), 
+            chr($DataBuffer[$i]  & 255)        );
+	}
+
+
+
+
+	close(OBJFILE);
+
+}
+###############################################################################
+
+
 
 
 ###############################################################################
@@ -686,26 +834,26 @@ $| = 1;
 Init;
 
 GetOptions(	
-	"loadaddress=i" => \$LoadAddress,
+	"outputformat=i" => \$OutputFormat,
 	"srcfile=s"		=> \$SrcFileName,
 	"objfile=s"		=> \$ObjFileName,
 	"errorfile=s"		=> \$ErrorFileName,
 	"listfile=s"	=> \$ListFileName);
 	
 #
-# Note "usenewformat" is not required.  
-# Without it, Pat's original loader format will be generated.
-# With it, my new format will be generated.  The main difference
-# is the explicit setting of a load address.
-#	
-if (defined($LoadAddress)) {
-	$UseNewFormat = 1;
+if (! defined($OutputFormat) ) {	
+	printf(STDERR "ERROR: No Output Format specified.\n");
+	Usage();
+	exit(1);
 }
-else {
-	printf("DEBUG using OLD loader format\n");
-	$UseNewFormat = 0;
+
+if (($OutputFormat != 1) && ($OutputFormat != 3)) {
+	printf(STDERR "ERROR OutputFormat must be 1|3. \n");
+	Usage();
+	exit(1);
 }
 	
+
 
 if (! defined($SrcFileName) ) {
 	printf(STDERR "ERROR: No source file specified.\n");
@@ -732,7 +880,7 @@ if (! defined($ErrorFileName) ) {
 }
 
 open(LISTFILE, ">$ListFileName") || die("Could not open $ListFileName\n");
-open(OBJFILE, ">$ObjFileName") || die("Could not open $ObjFileName\n");
+
 open(ERRORFILE, ">$ErrorFileName") || die("Could not open $ErrorFileName\n");
 
 
@@ -744,14 +892,15 @@ ReadFile($SrcFileName);
 $PassNum = 1;
 while (1) {
 
-	# if ($UseNewFormat) {
-		# $LC = $LoadAddress;
+	# if ($OutputFormat == 1) {
+		# $LC = 0x0403;
 	# }
-	# else {
-		# $LC = 256 * 4 + 3;
-		# $LoadAddress = $LC;
+	# elsif ($OutputFormat == 3) {
+		# $LC = 0x0800;
 	# }
+	# $LoadAddress = $LC;
 	$LC = "UNDEFINED";
+	$ASMMode = "NONE";
 	
 
 	printf("LC is %4x\n", $LC);
@@ -759,6 +908,8 @@ while (1) {
 
 	if ($PassNum > 2) { last; }
 
+	printf(STDERR "DEBUG PassNum is <$PassNum>\n");
+	
 	#
 	# Iterate over all lines in the the global FileBuffer
 	#
@@ -850,7 +1001,10 @@ foreach my $SubroutineName (keys(%SubroutineSymbolTables)) {
 }
 
 
-OutputObject;
+OutputV1Object;
+
+OutputV3Object;
+
 exit($GlobalError);
 
 }

@@ -444,6 +444,85 @@ def loadObjectFile2() :
 ######################################################################
  
   
+
+######################################################################
+# Load an object file into the addressSpace.
+# The format is BINARY
+# V3 output format
+# Each word comes as 2 bytes MSB first
+#    word 1     :  Words 1 and 2 are a MAGIC identifier 0000 0003
+#    word 2  
+#    word 3     : size of CODE in words
+#    word 4     : CODE loading address
+#    word 5     : CODE starting address
+#
+#    word 6     : size of DATA in words
+#    word 7     : DATA loading address
+#
+# words 2 * size in words for code
+#
+# words 2 * size in words for data
+#
+
+
+def loadObjectFileV3() :
+    global the_cpu
+    
+    
+    obj_file_name = raw_input("Enter the name of the V3 (sep code & data) object file to load >")
+
+    try:
+        f = open(obj_file_name)
+    except:
+        print "Could not open the  object file.  Returning..."
+        return
+        
+    s = raw_input("Enter the proc num (same as in kernel) >")
+    seg_val = int(s, 16) * 0x10000
+    
+   
+    word1 = 256 * ord(f.read(1)) + ord(f.read(1))
+    word2 = 256 * ord(f.read(1)) + ord(f.read(1))
+    print "DEBUG word 1 is %04X word 2 is %04X" % (word1, word2)
+    if ((word1 != 0) or (word2 != 3)) :
+        print("ERROR did not see magic number in loaded object file!\n")
+        f.close()
+        return
+
+    print("Saw magic number in loaded file.  Continuing...")
+    
+    codelength = 256 * ord(f.read(1)) + ord(f.read(1))
+    codeloadAddr = 256 * ord(f.read(1)) + ord(f.read(1))
+    codestartAddr = 256 * ord(f.read(1)) + ord(f.read(1))
+    print("CODE length is %04X load addr is %04X start addr is %04X" % ( codelength, codeloadAddr, codestartAddr))
+
+    datalength = 256 * ord(f.read(1)) + ord(f.read(1))
+    dataloadAddr = 256 * ord(f.read(1)) + ord(f.read(1))
+    print("Data length is %04X load addr is %04X " % ( datalength, dataloadAddr))
+    
+
+
+    for memoryAddr in range(codeloadAddr + seg_val, (codeloadAddr + codelength + seg_val)) :
+        dataWord = 256 * ord(f.read(1)) + ord(f.read(1))
+        address_space.write(memoryAddr, dataWord)
+
+    for memoryAddr in range(dataloadAddr + seg_val, (dataloadAddr + datalength + seg_val)) :
+        dataWord = 256 * ord(f.read(1)) + ord(f.read(1))
+        address_space.write(memoryAddr, dataWord)
+
+
+    if (seg_val == 0):
+        print ("Seg val is 0 so we will set PC")
+        print("Setting PC to %04X" % codestartAddr)
+        the_cpu.set_pc(codestartAddr)
+        the_cpu.CS.write(0)
+        the_cpu.ES.write(0)
+        the_cpu.DS.write(0)
+
+    f.close()
+######################################################################
+ 
+  
 ######################################################################
 def help_message():
     print "This is the help message..."
@@ -461,6 +540,7 @@ def help_message():
     print "H - show address history"
     print "l - load 403 object file"
     print "L - load sim object file"
+    print "L3 - Load a V3 object file"
     print ""
     print "i - Block interrupt from reaching CPU"
     print "I - Restore normal interrupt behaviour"
@@ -583,6 +663,10 @@ while (True):
         
     if (selection == "L"):
         loadObjectFile2()
+        continue
+        
+    if (selection == "L3"):
+        loadObjectFileV3()
         continue
         
     if (selection == "i"):
