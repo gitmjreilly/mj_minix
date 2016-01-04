@@ -657,7 +657,9 @@ sub OutputV1Object {
 	#    word 2 - starting address
 	#    words 2-n data words, loaded starting at 0x0403
 	# 	
-	open(OBJFILE, ">$ObjFileName") || die("Could not open $ObjFileName\n");
+	my $V1FileName = $ObjFileName . ".V1" ;
+
+	open(OBJFILE, ">$V1FileName") || die("Could not open $V1FileName\n");
 	
 	my $Size = $#CodeBuffer + 1 + $#DataBuffer + 1;
 	printf(OBJFILE "%s", NumToHex($Size));

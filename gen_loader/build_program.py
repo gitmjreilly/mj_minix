@@ -13,8 +13,7 @@ include_dir = "/home/mjamet/src/src-ten-year/minix_common"
 output_dir = "./obj";
 
 
-print "We assume the test1 main is called test1.pas"
-base_name = "second"
+base_name = "gen_loader"
 
 cpp_command = "cpp -I %s %s.pas %s/%s.p" % \
         (include_dir, base_name, output_dir, base_name)
