@@ -28,7 +28,9 @@ my $GUARD_WORD = 2;
 my $V1_LOAD_ADDRESS  = 0x0403;
 
 my $V3_CODE_LOAD_ADDRESS = 0x1000;
-my $V3_DATA_LOAD_ADDRESS = 0x8000;
+my $V3_DATA_LOAD_ADDRESS = 0x0100;
+
+my $V4_CODE_LOAD_ADDRESS = 0x1000;
 ###############################################################################
 
 
@@ -53,7 +55,6 @@ my @DataTypeBuffer;
 
 my @ValToHex;
 my %HexToVal;
-my %SubroutineSymbolTables;
 my $CodeLoadAddress;
 my $DataLoadAddress;
 
@@ -77,7 +78,7 @@ my $ListFileName;
 
 ###############################################################################
 sub Usage {
-	printf("$0 -outputformat 1|3 -srcfile SrcFile -objfile ObjFile -listfile ListFile -errorfile ErrorFile \n");
+	printf("$0 -outputformat 1|3|4 -srcfile SrcFile -objfile ObjFile -listfile ListFile -errorfile ErrorFile \n");
 }
 ###############################################################################
 
@@ -516,25 +517,26 @@ sub ProcessPsuedoOp {
 	}
 
 	if ($Token eq ".CODE") {
-		if ($ASMMode != "NONE") {
+		if ($ASMMode ne "NONE") {
 			Error("Saw .CODE but assembly had already begun!");
 		}
 		$ASMMode = ".CODE";
-		printf(STDERR "DEBUG Switching to $ASMMode\n");
-		# $LC = 0x0403;
 
 		if ($OutputFormat == 1) {
 			$LC = $V1_LOAD_ADDRESS;
 		}
-		if ($OutputFormat == 3) {
+		elsif ($OutputFormat == 3) {
 			$LC = $V3_CODE_LOAD_ADDRESS;
+		}
+		elsif ($OutputFormat == 4) {
+			$LC = $V4_CODE_LOAD_ADDRESS;
 		}
 
 		return;
 	}
 	
 	if ($Token eq ".DATA") {
-		if ($ASMMode != ".CODE") {
+		if ($ASMMode ne ".CODE") {
 			Error("Saw .DATA but prev mode was not .CODE!");
 		}
 		$ASMMode = ".DATA";
@@ -543,15 +545,18 @@ sub ProcessPsuedoOp {
 		if ($OutputFormat == 1) {
 			$LC = $LC;
 		}
-		if ($OutputFormat == 3) {
+		elsif ($OutputFormat == 3) {
 			$LC = $V3_DATA_LOAD_ADDRESS;
 		}
-		# $LC += 0x0100;
+		elsif ($OutputFormat == 4) {
+			$LC = $LC;
+		}
+
 		return;
 	}
 	
 	if ($Token eq ".UDATA") {
-		if ($ASMMode != ".DATA") {
+		if ($ASMMode ne ".DATA") {
 			Error("Saw .UDATA but prev mode was not .DATA!");
 		}
 		$ASMMode = ".UDATA";
@@ -590,9 +595,6 @@ sub EmitToObjectAndList {
 		Error("Unknown ASM mode in EmitToObjectAnd List");
 	}
 		
-		
-	# Ignoring LC for now...
-
 	SendObjectWordToList($Val);
 }
 ###############################################################################
@@ -825,6 +827,99 @@ sub OutputV3Object {
 
 
 
+###############################################################################
+sub OutputV4Object {
+
+	# V4 output format
+	# Like V3 but assumes all go into a single 64K bank
+	#
+	# Each word comes as 2 bytes MSB first
+	#    word 1     :  Words 1 and 2 are a MAGIC identifier 0000 0004
+	#    word 2  
+	#    word 3     : size of CODE in words
+	#    word 4     : CODE loading address
+	#    word 5     : CODE starting address
+	#
+	#    word 6     : size of DATA in words
+	#    word 7     : DATA loading address
+	#
+	# words 2 * size in words for code
+	#
+	# words 2 * size in words for data
+	#
+
+
+	my $V4FileName = $ObjFileName . ".V4" ;
+
+    open(OBJFILE, ">$V4FileName") || 
+        die("Could not open V4 File : $V4FileName\n");
+
+	my $CodeSize = $#CodeBuffer + 1;
+	printf(STDERR "DEBUG CodeBuffer size is %X\n", $CodeSize);
+
+
+	# Write pair of magic words
+	# Words 1 and 2
+	printf(OBJFILE "%s%s", chr(0), chr(0));
+	printf(OBJFILE "%s%s", chr(0), chr(4));
+
+	# Word 3 size of code in words
+	printf(OBJFILE "%s%s", 
+        chr(($CodeSize >>8) & 255), 
+        chr($CodeSize & 255)         );
+
+	# Word 4 Code Loading Address
+	printf(OBJFILE "%s%s", 
+        chr(($V4_CODE_LOAD_ADDRESS >>8) & 255), 
+        chr($V4_CODE_LOAD_ADDRESS & 255)  );
+		
+	# Word 5 Code Starting Address		
+	printf(OBJFILE "%s%s", 
+        chr(($SymbolTable{'MAIN'}->{'Value'} >>8) & 255), 
+        chr($SymbolTable{'MAIN'}->{'Value'}  & 255  )      );
+
+
+	my $DataSize = $#DataBuffer + 1 ;
+	printf(STDERR "DEBUG DataBuffer size is %X\n", $DataSize);
+
+	# Word 6 size of code in words
+	printf(OBJFILE "%s%s", 
+        chr(($DataSize >>8) & 255), 
+        chr($DataSize & 255)         );
+
+	# $DataLoadAddress = $V4_DATA_LOAD_ADDRESS;
+	
+	$DataLoadAddress = $V4_CODE_LOAD_ADDRESS + $CodeSize;
+	
+	# Word 7 Data Loading Address
+	printf(OBJFILE "%s%s", 
+        chr(($DataLoadAddress >>8) & 255), 
+        chr($DataLoadAddress & 255)  );
+
+		
+	# Write the code
+    my $i;
+    for $i (0..$#CodeBuffer) {
+		printf(OBJFILE "%s%s", 
+            chr(($CodeBuffer[$i] >> 8) & 255), 
+            chr($CodeBuffer[$i]  & 255)        );
+	}
+
+
+	# Write the data
+    my $i;
+    for $i (0..$#DataBuffer) {
+		printf(OBJFILE "%s%s", 
+            chr(($DataBuffer[$i] >> 8) & 255), 
+            chr($DataBuffer[$i]  & 255)        );
+	}
+
+	close(OBJFILE);
+}
+###############################################################################
+
+
+
 
 ###############################################################################
 # 
@@ -849,8 +944,8 @@ if (! defined($OutputFormat) ) {
 	exit(1);
 }
 
-if (($OutputFormat != 1) && ($OutputFormat != 3)) {
-	printf(STDERR "ERROR OutputFormat must be 1|3. \n");
+if (($OutputFormat != 1) && ($OutputFormat != 3) && ($OutputFormat != 4) ) {
+	printf(STDERR "ERROR OutputFormat must be 1|3|4. \n");
 	Usage();
 	exit(1);
 }
@@ -894,19 +989,9 @@ ReadFile($SrcFileName);
 $PassNum = 1;
 while (1) {
 
-	# if ($OutputFormat == 1) {
-		# $LC = 0x0403;
-	# }
-	# elsif ($OutputFormat == 3) {
-		# $LC = 0x0800;
-	# }
-	# $LoadAddress = $LC;
 	$LC = "UNDEFINED";
 	$ASMMode = "NONE";
 	
-
-	printf("LC is %4x\n", $LC);
-
 
 	if ($PassNum > 2) { last; }
 
@@ -991,21 +1076,17 @@ foreach my $Symbol (sort(keys(%SymbolTable))) {
 	printf(LISTFILE "%-15s %4s\n", $Symbol, NumToHex($SymbolTable{$Symbol}->{'Value'}));
 }
 
-printf(LISTFILE "Subroutine Symbol tables:\n");
-foreach my $SubroutineName (keys(%SubroutineSymbolTables)) {
-	printf(LISTFILE "  Sub is $SubroutineName \n");
-	my $LocalSymbolTablePtr = $SubroutineSymbolTables{$SubroutineName};
-	foreach my $LocalVar (sort(keys(%{$LocalSymbolTablePtr}))) {
-		printf(LISTFILE "    Local Var $LocalVar\n");
-		printf(LISTFILE "      Size $LocalSymbolTablePtr->{$LocalVar}->{'Size'}\n");
-		printf(LISTFILE "      LC   $LocalSymbolTablePtr->{$LocalVar}->{'LC'}\n");		
-	}
+
+if ($OutputFormat == 1) {
+	OutputV1Object();
+}
+elsif ($OutputFormat == 3) {
+	OutputV3Object();
+}
+elsif ($OutputFormat == 4) {
+	OutputV4Object();
 }
 
-
-OutputV1Object;
-
-OutputV3Object;
 
 exit($GlobalError);
 
