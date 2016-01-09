@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/pypy
 
 """ Main Computer Simulator Program """
 
@@ -110,6 +110,9 @@ def construct_computer_system():
     address_space.add_device(0x2F000, 0x2F00F, console_serial_port)
     address_space.add_device(0x3F000, 0x3F00F, console_serial_port)
     address_space.add_device(0x4F000, 0x4F00F, console_serial_port)
+    address_space.add_device(0x5F000, 0x5F00F, console_serial_port)
+    address_space.add_device(0x6F000, 0x6F00F, console_serial_port)
+    address_space.add_device(0x7F000, 0x7F00F, console_serial_port)
     
     # Make sure to keep RAM at end of address space because 
     # address space is searched (for devices) in insertion order
@@ -444,6 +447,183 @@ def loadObjectFile2() :
 ######################################################################
  
   
+
+######################################################################
+# Load an object file into the addressSpace.
+# The format is BINARY
+# V3 output format
+# Each word comes as 2 bytes MSB first
+#    word 1     :  Words 1 and 2 are a MAGIC identifier 0000 0003
+#    word 2  
+#    word 3     : size of CODE in words
+#    word 4     : CODE loading address
+#    word 5     : CODE starting address
+#
+#    word 6     : size of DATA in words
+#    word 7     : DATA loading address
+#
+# words 2 * size in words for code
+#
+# words 2 * size in words for data
+#
+
+
+def loadObjectFileV3(obj_file_name, proc_num) :
+    global the_cpu
+    
+    
+    print "Your V3 file name is : %s" % (obj_file_name)
+    print "Your proc_num is : %d" % (proc_num)
+
+    try:
+        f = open(obj_file_name)
+    except:
+        print "Could not open the  object file.  Returning..."
+        return
+    
+    code_bank_num = 2 * (proc_num + 1)
+    data_bank_num = 2 * (proc_num + 1) + 1
+    
+    code_seg_val = code_bank_num * 0x10000
+    data_seg_val = data_bank_num * 0x10000
+    print "Code seg : %4X   Data seg : %4X" % (code_seg_val, data_seg_val)
+    
+   
+    word1 = 256 * ord(f.read(1)) + ord(f.read(1))
+    word2 = 256 * ord(f.read(1)) + ord(f.read(1))
+    print "DEBUG word 1 is %04X word 2 is %04X" % (word1, word2)
+    if ((word1 != 0) or (word2 != 3)) :
+        print("ERROR did not see magic number in loaded object file!\n")
+        f.close()
+        return
+
+    print("Saw magic number in loaded file.  Continuing...")
+    
+    codelength = 256 * ord(f.read(1)) + ord(f.read(1))
+    codeloadAddr = 256 * ord(f.read(1)) + ord(f.read(1))
+    codestartAddr = 256 * ord(f.read(1)) + ord(f.read(1))
+    print("CODE length is %04X load addr is %04X start addr is %04X" % ( codelength, codeloadAddr, codestartAddr))
+
+    datalength = 256 * ord(f.read(1)) + ord(f.read(1))
+    dataloadAddr = 256 * ord(f.read(1)) + ord(f.read(1))
+    print("Data length is %04X load addr is %04X " % ( datalength, dataloadAddr))
+    
+
+
+    for memoryAddr in range(codeloadAddr + code_seg_val, (codeloadAddr + codelength + code_seg_val)) :
+        dataWord = 256 * ord(f.read(1)) + ord(f.read(1))
+        address_space.write(memoryAddr, dataWord)
+
+    for memoryAddr in range(dataloadAddr + data_seg_val, (dataloadAddr + datalength + data_seg_val)) :
+        dataWord = 256 * ord(f.read(1)) + ord(f.read(1))
+        address_space.write(memoryAddr, dataWord)
+
+
+    if (code_seg_val == 0):
+        print ("Seg val is 0 so we will set PC CS, ES and DS")
+        print("Setting PC to %04X" % codestartAddr)
+        the_cpu.set_pc(codestartAddr)
+        the_cpu.CS.write(0)
+        the_cpu.ES.write(0)
+        the_cpu.DS.write(0x1000)
+        the_cpu.PSP.write(0xFF00)
+        the_cpu.RSP.write(0xFE00)        
+
+    f.close()
+######################################################################
+ 
+
+######################################################################
+# Load an object file into the addressSpace.
+# The format is BINARY
+# V4 output format
+# Like V3 but assumed to load in single bank
+# so addresses in code & data do NOT overlap.
+#
+# Each word comes as 2 bytes MSB first
+#    word 1     :  Words 1 and 2 are a MAGIC identifier 0000 0003
+#    word 2  
+#    word 3     : size of CODE in words
+#    word 4     : CODE loading address
+#    word 5     : CODE starting address
+#
+#    word 6     : size of DATA in words
+#    word 7     : DATA loading address
+#
+# words 2 * size in words for code
+#
+# words 2 * size in words for data
+#
+
+
+def loadObjectFileV4(obj_file_name, proc_num) :
+    global the_cpu
+    
+    
+    print "Your V4 file name is : %s" % (obj_file_name)
+    print "Your proc_num is : %d" % (proc_num)
+
+    try:
+        f = open(obj_file_name)
+    except:
+        print "Could not open the  object file.  Returning..."
+        return
+    
+    code_bank_num = 2 * (proc_num + 1)
+    data_bank_num = code_bank_num
+    
+    code_seg_val = code_bank_num * 0x10000
+    data_seg_val = data_bank_num * 0x10000
+    print "Code seg : %4X   Data seg : %4X" % (code_seg_val, data_seg_val)
+    
+   
+    word1 = 256 * ord(f.read(1)) + ord(f.read(1))
+    word2 = 256 * ord(f.read(1)) + ord(f.read(1))
+    print "DEBUG word 1 is %04X word 2 is %04X" % (word1, word2)
+    if ((word1 != 0) or (word2 != 4)) :
+        print("ERROR did not see magic number in loaded object file!\n")
+        f.close()
+        return
+
+    print("Saw magic number in loaded file.  Continuing...")
+    
+    codelength = 256 * ord(f.read(1)) + ord(f.read(1))
+    codeloadAddr = 256 * ord(f.read(1)) + ord(f.read(1))
+    codestartAddr = 256 * ord(f.read(1)) + ord(f.read(1))
+    print("CODE length is %04X load addr is %04X start addr is %04X" % ( codelength, codeloadAddr, codestartAddr))
+
+    datalength = 256 * ord(f.read(1)) + ord(f.read(1))
+    dataloadAddr = 256 * ord(f.read(1)) + ord(f.read(1))
+    print("Data length is %04X load addr is %04X " % ( datalength, dataloadAddr))
+    
+
+
+    for memoryAddr in range(codeloadAddr + code_seg_val, (codeloadAddr + codelength + code_seg_val)) :
+        dataWord = 256 * ord(f.read(1)) + ord(f.read(1))
+        address_space.write(memoryAddr, dataWord)
+
+    for memoryAddr in range(dataloadAddr + data_seg_val, (dataloadAddr + datalength + data_seg_val)) :
+        dataWord = 256 * ord(f.read(1)) + ord(f.read(1))
+        address_space.write(memoryAddr, dataWord)
+
+
+    if (code_seg_val == 0):
+        print ("Seg val is 0 so we will set PC CS, ES and DS")
+        print("Setting PC to %04X" % codestartAddr)
+        the_cpu.set_pc(codestartAddr)
+        the_cpu.CS.write(0)
+        the_cpu.ES.write(0)
+        the_cpu.DS.write(0x0000)
+        the_cpu.PSP.write(0xFF00)
+        the_cpu.RSP.write(0xFE00)        
+
+    f.close()
+######################################################################
+ 
+  
+
+
+ 
 ######################################################################
 def help_message():
     print "This is the help message..."
@@ -461,6 +641,9 @@ def help_message():
     print "H - show address history"
     print "l - load 403 object file"
     print "L - load sim object file"
+    print "L3 - Load a V3 object file"
+    print "L4 - Load a V4 object file"
+    print "load_all - Load up full V3 system (kern, fs, user procs)"
     print ""
     print "i - Block interrupt from reaching CPU"
     print "I - Restore normal interrupt behaviour"
@@ -583,6 +766,28 @@ while (True):
         
     if (selection == "L"):
         loadObjectFile2()
+        continue
+        
+    if (selection == "L3"):
+        obj_file_name = raw_input("Enter the name of the V3 (sep code & data) object file to load >")
+        proc_num = raw_input("Enter the proc num (same as in kernel) >")
+        proc_num = int(proc_num, 16)
+        loadObjectFileV3(obj_file_name, proc_num)
+        continue
+        
+    if (selection == "L4"):
+        obj_file_name = raw_input("Enter the name of the V4 (combined code & data) object file to load >")
+        proc_num = raw_input("Enter the proc num (same as in kernel) >")
+        proc_num = int(proc_num, 16)
+        loadObjectFileV4(obj_file_name, proc_num)
+        continue
+        
+    if (selection == "load_all"):
+        loadObjectFileV4("/var/tmp/kernel.hex.V4", -1)
+        loadObjectFileV3("/var/tmp/main.hex.V3", 1)
+        loadObjectFileV3("/var/tmp/user1.hex.V3", 4)
+        loadObjectFileV3("/var/tmp/user1.hex.V3", 5)
+        loadObjectFileV3("/var/tmp/user1.hex.V3", 6)
         continue
         
     if (selection == "i"):

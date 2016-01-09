@@ -38,7 +38,7 @@ if (status != 0):
     status = os.system(tail_command)
     exit(1)
 
-jamasm_command = "jamasm.pl -srcfile %s/%s.jam -objfile %s/%s.hex -listfile %s/%s.lst -errorfile %s/%s.err " % \
+jamasm_command = "jamasm.pl -outputformat 1 -srcfile %s/%s.jam -objfile %s/%s.hex -listfile %s/%s.lst -errorfile %s/%s.err " % \
         (output_dir, base_name, output_dir, base_name, output_dir, base_name, output_dir, base_name)
 print "Running : " + jamasm_command
 status = os.system(jamasm_command)

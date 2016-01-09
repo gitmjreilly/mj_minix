@@ -86,7 +86,7 @@ def do_production_if(return_label, external_break_label, external_continue_label
     do_production_expression()
 
     after_then_label = get_next_label()
-    emitter.Emit("JMPF " + after_then_label, tokenizer.get_line_num())
+    emitter.EmitCode("JMPF " + after_then_label, tokenizer.get_line_num())
 
     throw_away = tokenizer.get_token() # Throw away the THEN
     if throw_away != "THEN":
@@ -96,23 +96,23 @@ def do_production_if(return_label, external_break_label, external_continue_label
 
     look_ahead = tokenizer.get_look_ahead()
     if ((look_ahead != "ELSE") and (look_ahead != "ELSIF")):
-        emitter.EmitLabel(after_then_label, tokenizer.get_line_num())
+        emitter.EmitCodeLabel(after_then_label, tokenizer.get_line_num())
     elif look_ahead == "ELSE":
         tokenizer.get_token()
-        emitter.Emit("BRA " + done_label, tokenizer.get_line_num())
-        emitter.EmitLabel(after_then_label, tokenizer.get_line_num())
+        emitter.EmitCode("BRA " + done_label, tokenizer.get_line_num())
+        emitter.EmitCodeLabel(after_then_label, tokenizer.get_line_num())
         do_production_statement(return_label, external_break_label, external_continue_label)
     else:   # must be "ELSIF"
         while tokenizer.get_look_ahead() == "ELSIF":
             tokenizer.get_token() # throwaway the ELSIF
-            emitter.Emit("BRA " + done_label, tokenizer.get_line_num())
+            emitter.EmitCode("BRA " + done_label, tokenizer.get_line_num())
 
-            emitter.EmitLabel(after_then_label, tokenizer.get_line_num())
+            emitter.EmitCodeLabel(after_then_label, tokenizer.get_line_num())
 
             do_production_expression()
 
             after_then_label = get_next_label()
-            emitter.Emit("JMPF " + after_then_label, tokenizer.get_line_num())
+            emitter.EmitCode("JMPF " + after_then_label, tokenizer.get_line_num())
 
             throw_away = tokenizer.get_token() # Throw away the THEN
             if throw_away != "THEN":
@@ -122,13 +122,13 @@ def do_production_if(return_label, external_break_label, external_continue_label
 
         if look_ahead == "ELSE":
             tokenizer.get_token() # throw away the ELSE
-            emitter.Emit("BRA " + done_label)
-            emitter.EmitLabel(after_then_label, tokenizer.get_line_num())
+            emitter.EmitCode("BRA " + done_label)
+            emitter.EmitCodeLabel(after_then_label, tokenizer.get_line_num())
             do_production_statement(return_label, external_break_label,external_continue_label)
         else:
-            emitter.EmitLabel(after_then_label, tokenizer.get_line_num())
+            emitter.EmitCodeLabel(after_then_label, tokenizer.get_line_num())
             
-    emitter.EmitLabel(done_label, tokenizer.get_line_num())
+    emitter.EmitCodeLabel(done_label, tokenizer.get_line_num())
 
     end_production (get_function_name())
             
@@ -168,7 +168,7 @@ def do_production_factor():
         if throw_away != ")":
             logger.error("Expected ')' after ADR function", throw_away)
 
-        emitter.Emit(instruction, tokenizer.get_line_num())
+        emitter.EmitCode(instruction, tokenizer.get_line_num())
 
 
         
@@ -180,7 +180,7 @@ def do_production_factor():
         if isinstance(variable_classification, symtab.Constant_Variable):
             logger.general_log("  Found a const")
             constant_name = tokenizer.get_token()
-            emitter.Emit(str(variable_classification.value), tokenizer.get_line_num())
+            emitter.EmitCode(str(variable_classification.value), tokenizer.get_line_num())
 
         elif isinstance(variable_classification, symtab.Function_Variable):
             logger.general_log("Found a function")
@@ -189,7 +189,7 @@ def do_production_factor():
         else:
             logger.general_log("  NOT a const")
             do_production_variable_access()
-            emitter.Emit("FETCH", tokenizer.get_line_num())
+            emitter.EmitCode("FETCH", tokenizer.get_line_num())
 
     # TODO Still have to check for function calls
                           
@@ -197,13 +197,13 @@ def do_production_factor():
                                
     elif str_is_numeric(look_ahead):
         token = tokenizer.get_token()
-        emitter.Emit(token, tokenizer.get_line_num())
+        emitter.EmitCode(token, tokenizer.get_line_num())
 
 
     elif str_is_hex_numeric(look_ahead):
         token = tokenizer.get_token()
         token = "0x" + token.lstrip("$")
-        emitter.Emit(token, tokenizer.get_line_num())
+        emitter.EmitCode(token, tokenizer.get_line_num())
 
     elif look_ahead == "(":
         tokenizer.get_token()
@@ -216,20 +216,20 @@ def do_production_factor():
         token = tokenizer.get_token()
 
         l2 = get_next_label()
-        emitter.Emit("BRA " + l2, tokenizer.get_line_num())
+        emitter.EmitCode("BRA " + l2, tokenizer.get_line_num())
         
         string_constant = token
         string_label = get_next_label()
-        emitter.EmitLabel(string_label, tokenizer.get_line_num())
-        emitter.Emit("DW", tokenizer.get_line_num())
+        emitter.EmitDataLabel(string_label, tokenizer.get_line_num())
+        emitter.EmitData(".DW", tokenizer.get_line_num())
         for i in range(1, len(token) - 1):
-            emitter.Emit(str(ord(list(token)[i])), tokenizer.get_line_num())
-        emitter.Emit("0", tokenizer.get_line_num())
-        emitter.Emit("ENDDW", tokenizer.get_line_num())
+            emitter.EmitData(str(ord(list(token)[i])), tokenizer.get_line_num())
+        emitter.EmitData("0", tokenizer.get_line_num())
+        emitter.EmitData(".ENDDW", tokenizer.get_line_num())
 
-        emitter.EmitLabel(l2, tokenizer.get_line_num())
+        emitter.EmitCodeLabel(l2, tokenizer.get_line_num())
 
-        emitter.Emit(string_label, tokenizer.get_line_num())
+        emitter.EmitCode(string_label, tokenizer.get_line_num())
         
     else:
         logger.error("Expected a FACTOR", look_ahead)
@@ -267,48 +267,48 @@ def do_production_term():
         # Both values are on stack now
 
         if token == "<":
-            # emitter.Emit("JSR __SIGNED_LESS TO_R DROP DROP FROM_R", tokenizer.get_line_num())
-            emitter.Emit("S_LESS", tokenizer.get_line_num())
+            # emitter.EmitCode("JSR __SIGNED_LESS TO_R DROP DROP FROM_R", tokenizer.get_line_num())
+            emitter.EmitCode("S_LESS", tokenizer.get_line_num())
         elif token == "=":
-            emitter.Emit("==", tokenizer.get_line_num())
+            emitter.EmitCode("==", tokenizer.get_line_num())
         elif token == ">":
-            emitter.Emit("SWAP S_LESS", tokenizer.get_line_num())
+            emitter.EmitCode("SWAP S_LESS", tokenizer.get_line_num())
         elif token == ">=":
             l2 = get_next_label()
             l1 = get_next_label()
-            # emitter.Emit("JSR __SIGNED_LESS TO_R DROP DROP FROM_R", tokenizer.get_line_num())
-            emitter.Emit("S_LESS", tokenizer.get_line_num())
-            emitter.Emit("JMPF " + l2, tokenizer.get_line_num())
-            emitter.Emit("0 BRA " + l1, tokenizer.get_line_num())
-            emitter.EmitLabel(l2, tokenizer.get_line_num())
-            emitter.Emit("1", tokenizer.get_line_num())
-            emitter.EmitLabel(l1, tokenizer.get_line_num())
+            # emitter.EmitCode("JSR __SIGNED_LESS TO_R DROP DROP FROM_R", tokenizer.get_line_num())
+            emitter.EmitCode("S_LESS", tokenizer.get_line_num())
+            emitter.EmitCode("JMPF " + l2, tokenizer.get_line_num())
+            emitter.EmitCode("0 BRA " + l1, tokenizer.get_line_num())
+            emitter.EmitCodeLabel(l2, tokenizer.get_line_num())
+            emitter.EmitCode("1", tokenizer.get_line_num())
+            emitter.EmitCodeLabel(l1, tokenizer.get_line_num())
         elif token == "<=":
             l2 = get_next_label()
             l1 = get_next_label()
-            emitter.Emit("SWAP", tokenizer.get_line_num())
-            # emitter.Emit("JSR __SIGNED_LESS TO_R DROP DROP FROM_R", tokenizer.get_line_num())
-            emitter.Emit("S_LESS", tokenizer.get_line_num())
-            emitter.Emit("JMPF " + l2, tokenizer.get_line_num())
-            emitter.Emit("0 BRA " + l1, tokenizer.get_line_num())
-            emitter.EmitLabel(l2, tokenizer.get_line_num())
-            emitter.Emit("1", tokenizer.get_line_num())
-            emitter.EmitLabel(l1, tokenizer.get_line_num())
+            emitter.EmitCode("SWAP", tokenizer.get_line_num())
+            # emitter.EmitCode("JSR __SIGNED_LESS TO_R DROP DROP FROM_R", tokenizer.get_line_num())
+            emitter.EmitCode("S_LESS", tokenizer.get_line_num())
+            emitter.EmitCode("JMPF " + l2, tokenizer.get_line_num())
+            emitter.EmitCode("0 BRA " + l1, tokenizer.get_line_num())
+            emitter.EmitCodeLabel(l2, tokenizer.get_line_num())
+            emitter.EmitCode("1", tokenizer.get_line_num())
+            emitter.EmitCodeLabel(l1, tokenizer.get_line_num())
         elif token == "<>":
             l2 = get_next_label()
             l1 = get_next_label()
-            emitter.Emit("== ", tokenizer.get_line_num())
-            emitter.Emit("JMPF " + l2, tokenizer.get_line_num())
-            emitter.Emit("0 BRA " + l1, tokenizer.get_line_num())
-            emitter.EmitLabel(l2, tokenizer.get_line_num())
-            emitter.Emit("1", tokenizer.get_line_num())
-            emitter.EmitLabel(l1, tokenizer.get_line_num())
+            emitter.EmitCode("== ", tokenizer.get_line_num())
+            emitter.EmitCode("JMPF " + l2, tokenizer.get_line_num())
+            emitter.EmitCode("0 BRA " + l1, tokenizer.get_line_num())
+            emitter.EmitCodeLabel(l2, tokenizer.get_line_num())
+            emitter.EmitCode("1", tokenizer.get_line_num())
+            emitter.EmitCodeLabel(l1, tokenizer.get_line_num())
         elif token == "/":
-            emitter.Emit("JSR __SIGNED_DIV TO_R DROP DROP FROM_R", tokenizer.get_line_num())
+            emitter.EmitCode("JSR __SIGNED_DIV TO_R DROP DROP FROM_R", tokenizer.get_line_num())
         elif token == "MOD":
-            emitter.Emit("JSR __SIGNED_MOD TO_R DROP DROP FROM_R", tokenizer.get_line_num())
+            emitter.EmitCode("JSR __SIGNED_MOD TO_R DROP DROP FROM_R", tokenizer.get_line_num())
         else:
-            emitter.Emit(token, tokenizer.get_line_num())
+            emitter.EmitCode(token, tokenizer.get_line_num())
 
 
         look_ahead = tokenizer.get_look_ahead()
@@ -327,14 +327,14 @@ def do_production_expression():
     look_ahead = tokenizer.get_look_ahead()
     if (look_ahead == "+") or (look_ahead == "-"):
         if look_ahead == "-":
-            emitter.Emit("0", tokenizer.get_line_num())
+            emitter.EmitCode("0", tokenizer.get_line_num())
             do_negative = True
         tokenizer.get_token()
 
     do_production_term()
 
     if do_negative:
-        emitter.Emit("-", tokenizer.get_line_num())
+        emitter.EmitCode("-", tokenizer.get_line_num())
 
     look_ahead = tokenizer.get_look_ahead()
     while ((look_ahead == "+") or (look_ahead == "-")):
@@ -342,7 +342,7 @@ def do_production_expression():
 
         do_production_term()
         
-        emitter.Emit(throw_away, tokenizer.get_line_num())
+        emitter.EmitCode(throw_away, tokenizer.get_line_num())
 
         look_ahead = tokenizer.get_look_ahead()
 
@@ -576,8 +576,8 @@ def do_production_guard():
 
     tokenizer.get_token() # Get rid of GUARD, present upon entry
 
-    asm_str = ' DG '
-    emitter.Emit(asm_str, tokenizer.get_line_num())
+    asm_str = ' .DG '
+    emitter.EmitUData(asm_str, tokenizer.get_line_num())
 
     token = tokenizer.get_token()
     if token != ";":
@@ -629,9 +629,10 @@ def do_production_variable():
             global_symbol_table.add(
                 variable_name,
                 symtab.Global_Variable(type_name))
-            asm_str = variable_name + ':' + ' DS '  + str(type_size)
+            asm_str = ' .DS '  + str(type_size)
 
-            emitter.Emit(asm_str, tokenizer.get_line_num())
+            emitter.EmitUDataLabel(variable_name, tokenizer.get_line_num())
+            emitter.EmitUData(asm_str, tokenizer.get_line_num())
 
         local_variable_stack_offset += type_size
 
@@ -654,7 +655,7 @@ def do_production_asm():
     
     while tokenizer.get_asm_look_ahead() != "END":
         raw_token = tokenizer.get_asm_token()
-        emitter.Emit(raw_token, tokenizer.get_line_num())
+        emitter.EmitCode(raw_token, tokenizer.get_line_num())
         
     tokenizer.get_token() # throwaway END
     
@@ -691,18 +692,18 @@ def do_production_variable_access():
     if variable_description:
         logger.general_log("DEBUG " + variable_name + " is a local variable.")
         logger.general_log(str(variable_description))
-        # emitter.Emit("R_FETCH", tokenizer.get_line_num())
-        # emitter.Emit(str(variable_description.stack_offset), tokenizer.get_line_num())
-        # emitter.Emit("+", tokenizer.get_line_num())
+        # emitter.EmitCode("R_FETCH", tokenizer.get_line_num())
+        # emitter.EmitCode(str(variable_description.stack_offset), tokenizer.get_line_num())
+        # emitter.EmitCode("+", tokenizer.get_line_num())
 
-        emitter.Emit("L_VAR", tokenizer.get_line_num())
-        emitter.Emit(str(variable_description.stack_offset), tokenizer.get_line_num())
+        emitter.EmitCode("L_VAR", tokenizer.get_line_num())
+        emitter.EmitCode(str(variable_description.stack_offset), tokenizer.get_line_num())
     else:
         variable_description = global_symbol_table.get_data(variable_name)
         if not variable_description:
             logger.error("unknown var : ", variable_name)
 
-        emitter.Emit(variable_name, tokenizer.get_line_num())
+        emitter.EmitCode(variable_name, tokenizer.get_line_num())
 
 
     # Now we have a variable description; it is either global
@@ -741,7 +742,7 @@ def do_production_variable_access():
                 logger.general_log("Ending productin ARRAY Access")   
 
                 array_element_storage_size = typetab.type_table.get_type_storage(type_description.base_type)
-                emitter.Emit(str(array_element_storage_size) + " * +", tokenizer.get_line_num())
+                emitter.EmitCode(str(array_element_storage_size) + " * +", tokenizer.get_line_num())
 
                 # Now that we have compiled the offset calculation we are at the
                 # point in the token stream where we are (potentially) compiling
@@ -767,7 +768,7 @@ def do_production_variable_access():
                 (field_type, field_offset) = tmp
                 logger.general_log("Got field info field : " + field_name + " type : " + field_type)
 
-                emitter.Emit(str(field_offset) + " +", tokenizer.get_line_num())
+                emitter.EmitCode(str(field_offset) + " +", tokenizer.get_line_num())
 
                 # Now we are effectively looking at a new type - the field's type
                 type_description = typetab.type_table.get_data(field_type)
@@ -784,7 +785,7 @@ def do_production_variable_access():
                 tokenizer.get_token()
 
                 logger.general_log(" The type is : " + programmer_type)
-                emitter.Emit("FETCH", tokenizer.get_line_num())
+                emitter.EmitCode("FETCH", tokenizer.get_line_num())
                 logger.general_log("  switching to base type")
                 type_description = typetab.type_table.get_data(type_description.base_type)
             else:
@@ -814,7 +815,7 @@ def do_production_assignment():
     # TODO
     do_production_expression()
 
-    emitter.Emit("STORE2", tokenizer.get_line_num())
+    emitter.EmitCode("STORE2", tokenizer.get_line_num())
 
     end_production (get_function_name())
 #---------------------------------------------------------------------
@@ -842,7 +843,7 @@ def do_production_procedure_call():
 
     tokenizer.get_token() # get rid of ")"
 
-    emitter.Emit("JSR " + procedure_name, tokenizer.get_line_num())
+    emitter.EmitCode("JSR " + procedure_name, tokenizer.get_line_num())
 
     variable_classification = global_symbol_table.get_data(procedure_name)
     if not variable_classification:
@@ -853,7 +854,7 @@ def do_production_procedure_call():
                      " params.  Saw : " + str(num_actual_params), procedure_name)
 
     for i in range(num_actual_params):
-        emitter.Emit("DROP", tokenizer.get_line_num())
+        emitter.EmitCode("DROP", tokenizer.get_line_num())
 
 
     end_production (get_function_name())
@@ -884,7 +885,7 @@ def do_production_function_call():
 
     tokenizer.get_token() # get rid of ")"
 
-    emitter.Emit("JSR " + function_name, tokenizer.get_line_num())
+    emitter.EmitCode("JSR " + function_name, tokenizer.get_line_num())
 
 
     variable_classification = global_symbol_table.get_data(function_name)
@@ -897,13 +898,13 @@ def do_production_function_call():
 
     # The return value is assumed to be on top of parameter stack
     # We need to save it until we drop all of the original parameters
-    emitter.Emit("TO_R" , tokenizer.get_line_num())
+    emitter.EmitCode("TO_R" , tokenizer.get_line_num())
 
     for i in range(num_actual_params):
-        emitter.Emit("DROP", tokenizer.get_line_num())
+        emitter.EmitCode("DROP", tokenizer.get_line_num())
 
 
-    emitter.Emit("FROM_R", tokenizer.get_line_num())
+    emitter.EmitCode("FROM_R", tokenizer.get_line_num())
 
 
     end_production (get_function_name())
@@ -932,7 +933,7 @@ def do_production_procedure_declaration():
     tokenizer.get_token() # Get rid of PROCEDURE, present upon entry
 
     procedure_name = tokenizer.get_token() 
-    emitter.EmitLabel(procedure_name, tokenizer.get_line_num())
+    emitter.EmitCodeLabel(procedure_name, tokenizer.get_line_num())
 
     throw_away = tokenizer.get_token()
     if throw_away != "(":
@@ -1010,15 +1011,15 @@ def do_production_procedure_declaration():
     if tokenizer.get_look_ahead() == "VAR":
         (num_variables, local_variable_stack_offset) = do_production_variable()
 
-    # Emit the procedure entry code
-    # Emit a 0 so all parameters are pushed onto the pstack
-    emitter.Emit("0", tokenizer.get_line_num())
-    emitter.Emit("SP_FETCH", tokenizer.get_line_num())
-    emitter.Emit("TO_R", tokenizer.get_line_num())
-    emitter.Emit("SP_FETCH", tokenizer.get_line_num())
-    emitter.Emit(str(local_variable_stack_offset), tokenizer.get_line_num())
-    emitter.Emit("+", tokenizer.get_line_num())
-    emitter.Emit("SP_STORE", tokenizer.get_line_num())
+    # EmitCode the procedure entry code
+    # EmitCode a 0 so all parameters are pushed onto the pstack
+    emitter.EmitCode("0", tokenizer.get_line_num())
+    emitter.EmitCode("SP_FETCH", tokenizer.get_line_num())
+    emitter.EmitCode("TO_R", tokenizer.get_line_num())
+    emitter.EmitCode("SP_FETCH", tokenizer.get_line_num())
+    emitter.EmitCode(str(local_variable_stack_offset), tokenizer.get_line_num())
+    emitter.EmitCode("+", tokenizer.get_line_num())
+    emitter.EmitCode("SP_STORE", tokenizer.get_line_num())
 
     do_production_statement(return_label, "", "")
 
@@ -1027,13 +1028,13 @@ def do_production_procedure_declaration():
         logger.error("Expected ';'", throw_away)
 
     is_compiling_subroutine = False
-    emitter.EmitLabel(return_label, tokenizer.get_line_num())
+    emitter.EmitCodeLabel(return_label, tokenizer.get_line_num())
 
-    # Emit the procedure exit code
-    emitter.Emit("FROM_R", tokenizer.get_line_num())
-    emitter.Emit("SP_STORE", tokenizer.get_line_num())
-    emitter.Emit("DROP", tokenizer.get_line_num())
-    emitter.Emit("RET", tokenizer.get_line_num())
+    # EmitCode the procedure exit code
+    emitter.EmitCode("FROM_R", tokenizer.get_line_num())
+    emitter.EmitCode("SP_STORE", tokenizer.get_line_num())
+    emitter.EmitCode("DROP", tokenizer.get_line_num())
+    emitter.EmitCode("RET", tokenizer.get_line_num())
 
     # logger.general_log("The local symbol table is: ")
     # local_symbol_table.dump()
@@ -1067,7 +1068,7 @@ def do_production_function_declaration():
     tokenizer.get_token() # Get rid of FUNCTION, present upon entry
 
     function_name = tokenizer.get_token() 
-    emitter.EmitLabel(function_name, tokenizer.get_line_num())
+    emitter.EmitCodeLabel(function_name, tokenizer.get_line_num())
 
     throw_away = tokenizer.get_token()
     if throw_away != "(":
@@ -1155,17 +1156,17 @@ def do_production_function_declaration():
     if tokenizer.get_look_ahead() == "VAR":
         (num_variables, local_variable_stack_offset) = do_production_variable()
 
-    # Emit the function entry code
+    # EmitCode the function entry code
     # Push dummy param (used as space for return val)
-    emitter.Emit("0x1111", tokenizer.get_line_num())
+    emitter.EmitCode("0x1111", tokenizer.get_line_num())
     # Push a val force all params into RAM
-    emitter.Emit("0x9999", tokenizer.get_line_num())
-    emitter.Emit("SP_FETCH", tokenizer.get_line_num())
-    emitter.Emit("TO_R", tokenizer.get_line_num())
-    emitter.Emit("SP_FETCH", tokenizer.get_line_num())
-    emitter.Emit(str(local_variable_stack_offset + 1), tokenizer.get_line_num())
-    emitter.Emit("+", tokenizer.get_line_num())
-    emitter.Emit("SP_STORE", tokenizer.get_line_num())
+    emitter.EmitCode("0x9999", tokenizer.get_line_num())
+    emitter.EmitCode("SP_FETCH", tokenizer.get_line_num())
+    emitter.EmitCode("TO_R", tokenizer.get_line_num())
+    emitter.EmitCode("SP_FETCH", tokenizer.get_line_num())
+    emitter.EmitCode(str(local_variable_stack_offset + 1), tokenizer.get_line_num())
+    emitter.EmitCode("+", tokenizer.get_line_num())
+    emitter.EmitCode("SP_STORE", tokenizer.get_line_num())
 
     do_production_statement(return_label, "", "")
 
@@ -1174,13 +1175,13 @@ def do_production_function_declaration():
         logger.error("Expected ';'", throw_away)
 
     is_compiling_subroutine = False
-    emitter.EmitLabel(return_label, tokenizer.get_line_num())
+    emitter.EmitCodeLabel(return_label, tokenizer.get_line_num())
 
-    # Emit the procedure exit code
-    emitter.Emit("FROM_R", tokenizer.get_line_num())
-    emitter.Emit("SP_STORE", tokenizer.get_line_num())
-    emitter.Emit("DROP", tokenizer.get_line_num())
-    emitter.Emit("RET", tokenizer.get_line_num())
+    # EmitCode the procedure exit code
+    emitter.EmitCode("FROM_R", tokenizer.get_line_num())
+    emitter.EmitCode("SP_STORE", tokenizer.get_line_num())
+    emitter.EmitCode("DROP", tokenizer.get_line_num())
+    emitter.EmitCode("RET", tokenizer.get_line_num())
 
     # logger.general_log("The local symbol table is: ")
     # local_symbol_table.dump()
@@ -1216,39 +1217,39 @@ def do_production_statement(return_label, external_break_label, external_continu
     elif look_ahead == "WHILE":
         tokenizer.get_token()
         loop_label = get_next_label()
-        emitter.EmitLabel(loop_label, tokenizer.get_line_num())
+        emitter.EmitCodeLabel(loop_label, tokenizer.get_line_num())
         do_production_expression()
         label = get_next_label()
-        emitter.Emit("JMPF " + label, tokenizer.get_line_num())
+        emitter.EmitCode("JMPF " + label, tokenizer.get_line_num())
 
         token = tokenizer.get_token()
         if token != "DO":
             logger.error("Expected DO ", token)
 
         do_production_statement(return_label, label, loop_label)
-        emitter.Emit("BRA " + loop_label, tokenizer.get_line_num())
+        emitter.EmitCode("BRA " + loop_label, tokenizer.get_line_num())
 
-        emitter.EmitLabel(label, tokenizer.get_line_num())
+        emitter.EmitCodeLabel(label, tokenizer.get_line_num())
     elif look_ahead == "BREAK":
         tokenizer.get_token()
         if external_break_label == "":
             logger.error("Tried to break but there is no loop!", tokenizer.get_look_ahead())
 
-        emitter.Emit("BRA " + external_break_label, tokenizer.get_line_num())
+        emitter.EmitCode("BRA " + external_break_label, tokenizer.get_line_num())
     
     elif look_ahead == "CONTINUE":
         tokenizer.get_token()
         if external_continue_label == "":
             logger.error("Tried to CONTINUE but there is no loop!", tokenizer.get_look_ahead())
 
-        emitter.Emit("BRA " + external_continue_label, tokenizer.get_line_num())
+        emitter.EmitCode("BRA " + external_continue_label, tokenizer.get_line_num())
     
     elif look_ahead == "RETURN":
         tokenizer.get_token()
         if return_label == "":
             logger.error("Tried to RETURN outside a subroutine!", tokenizer.get_look_ahead())
 
-        emitter.Emit("BRA " + return_label, tokenizer.get_line_num())
+        emitter.EmitCode("BRA " + return_label, tokenizer.get_line_num())
 
     elif look_ahead == "RETVAL":
         tokenizer.get_token() # throwaway retval
@@ -1266,8 +1267,8 @@ def do_production_statement(return_label, external_break_label, external_continu
 
         # The return val should be stored just as if it were the rightmost
         # param in the function call
-        emitter.Emit("R_FETCH 1 - STORE", tokenizer.get_line_num())
-        emitter.Emit("BRA " + return_label, tokenizer.get_line_num())
+        emitter.EmitCode("R_FETCH 1 - STORE", tokenizer.get_line_num())
+        emitter.EmitCode("BRA " + return_label, tokenizer.get_line_num())
 
 
     elif look_ahead == "IF":
@@ -1344,7 +1345,7 @@ def do_production_block():
     while tokenizer.get_look_ahead() in ["CONST", "VAR", "PROCEDURE", "FUNCTION", "TYPE", "INCLUDE", "GUARD"]:
         do_production_declaration()
 
-    emitter.EmitLabel("MAIN", tokenizer.LineNum())
+    emitter.EmitCodeLabel("MAIN", tokenizer.LineNum())
 
     is_compiling_subroutine = False # This should have been cleared in proc decl
     do_production_statement("", "", "")

@@ -903,6 +903,99 @@ begin
 end;   
 (*-----------------------------------------------------------------*) 
 
+
+(*-----------------------------------------------------------------*) 
+(*
+	 V3 output format
+	 Each word comes as 2 bytes MSB first
+	    word 1     :  Words 1 and 2 are a MAGIC identifier 0000 0003
+	    word 2  
+	    word 3     : size of CODE in words
+	    word 4     : CODE loading address
+	    word 5     : CODE starting address
+	
+	    word 6     : size of DATA in words
+	    word 7     : DATA loading address
+	
+	 words 2 * size in words for code
+	
+	 words 2 * size in words for data
+*)
+procedure load_V3_header(
+   filename_ptr : ^integer,
+   program_size_ptr : ^integer, 
+   code_load_address_ptr : ^integer, 
+   start_address_ptr : ^integer, 
+   proc_num : integer,
+   status_ptr : ^integer);
+  
+var
+   word1 : integer,
+   word2 : integer,
+   VersionNum: integer,
+   size : integer,
+   Tmp: integer,
+   proc_ptr : ^t_process_entry,
+   TmpStr : array[50] of integer,
+   WordCount: integer,
+   code_seg_val : integer,
+   data_seg_val : integer,
+   magic : integer,
+   stat : integer,
+   BufPtr: t_word_ptr;
+ 
+begin
+   code_seg_val := 2 * (proc_num + 1)        * $1000;
+   data_seg_val := (2 * (proc_num + 1)  + 1) * $1000;
+
+   proc_ptr :=  proc_addr(proc_num);
+
+   if proc_ptr^.p_flags AND P_SLOT_FREE <> P_SLOT_FREE then begin
+      k_pr("This slot is already in use!  Try again."); k_prln(1);
+      return
+   end;
+   proc_ptr^.p_flags := 0;
+
+   ConsolePrintStr("Load Name is :", 0); ConsolePrintStr(filename_ptr, 1); k_prln(1);
+
+   disk_ctlr_open_file(filename_ptr, adr(stat));
+   if (stat <> 0) then  begin
+      k_pr("Could not open file; returning..."); k_prln(1);
+      status_ptr^ := 1;
+      return
+   end;
+
+   word1 := dc_get_file_word();
+   word2 := dc_get_file_word();
+   if ((word1 <> 0) OR (word2 <> 3)) then begin
+      k_pr("ERROR did not see magic 0000:0003 returning...");
+      return
+   end;
+   k_pr("Magic num has been read..."); k_prln(1);
+   
+   (* Word 3  code size *)
+   program_size_ptr^ := dc_get_file_word();
+   (* Word 4  code load_address - ignored *)
+   code_load_address_ptr^ := dc_get_file_word();
+   start_address_ptr^ := dc_get_file_word();
+   
+   disk_ctlr_close_file(adr(stat));
+
+   proc_ptr^.ds := data_seg_val;
+   proc_ptr^.cs := code_seg_val;
+   proc_ptr^.es := data_seg_val;
+   proc_ptr^.psp := $FF00;
+   proc_ptr^.rsp := $FE00;
+   proc_ptr^.ptos := 0;
+   proc_ptr^.rtos := 0;
+   proc_ptr^.flags := 1; (* int_ctl_low --> ints enabled *)
+   proc_ptr^.pc := start_address_ptr^;
+   
+   ready(proc_ptr)
+   
+end;   
+(*-----------------------------------------------------------------*) 
+
 #####################################################################
 (*
 
@@ -2161,6 +2254,7 @@ begin
    end;
    *)
    
+ 
    Ptr := $FD00;
    Ptr^ := $0004; # BRANCH
    Ptr := $FD01;
@@ -2170,6 +2264,14 @@ begin
    Ptr^ := $0004; # BRANCH
    Ptr := $FD03;
    Ptr^ := adr(s_call);
+  
+   
+   
+
+   
+
+
+   
 
    (* Mark vectors as CODE_RO for simulator so their contents
     * may be executed. The LONG_TYPE_STORE instruction is a 
@@ -2232,17 +2334,26 @@ begin
    set_type := 0;
 
 
+   
+
+   interrupt_status_ptr := $F000;
+   interrupt_status_ptr^ := 65;
+   ConsolePrintStr("Starting Kernel Now", 1); 
+
+   
    interrupt_status_ptr := $F010;
    interrupt_mask_ptr := $F011;
    interrupt_clear_ptr := $F012;
 
-   ConsolePrintStr("Starting kernel...", 1);
 
-
+(* 
    ASM
       k_stack K_SP_STORE
       k_rstack RP_STORE
    END;
+*)
+
+
 
    (* Ints dont need to be enabled until "run" *)
    ASM
@@ -2289,6 +2400,7 @@ begin
    pty_int_was_seen := 0;
 
    
+
    load_task(
       adr(disk_task),
       adr(floppy_task_p_stack),
@@ -2465,7 +2577,36 @@ begin
          continue
       end;
       
-      
+      compare_strings(ArgV, "load_v3_header", adr(ans));
+      if (ans = 1) then begin
+         k_pr("Calling load_v3_header"); k_prln(1);
+         
+         k_pr("Enter hex v3 file name >"); k_gets(adr(filename));
+         k_pr("Enter proc_num > "); k_get_num(adr(slot_num));
+     
+         load_v3_header(
+            adr(filename),
+            adr(DataSize), 
+            adr(LoadAddress),
+            adr(StartAddress), 
+            slot_num,
+            adr(Status));
+          
+         if (Status <> 0) then begin
+            k_pr("Could not load v3 header.."); k_prln(1);
+            continue
+         end;
+         
+         k_pr("data size : "); k_pr_hex_num(datasize); k_prln(1);
+         k_pr("loadaddress size : "); k_pr_hex_num(loadAddress); k_prln(1);
+         k_pr("Start Address size : "); k_pr_hex_num(StartAddress); k_prln(1);
+         continue
+      end;
+     
+     
+     
+     
+     
       BIOS_StrCmp(ArgV, "load_file", adr(Ans));
       if Ans = 1 then begin
          ConsoleOut(KERNEL_COLOR, "Enter name of file to load>", 0);

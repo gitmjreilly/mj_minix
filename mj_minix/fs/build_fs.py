@@ -42,7 +42,7 @@ if (status != 0):
 hex_output_name = output_dir + "/" + base_name + ".hex"
 list_output_name = output_dir + "/" + base_name + ".lst"
 error_output_name = output_dir + "/" + base_name + ".err"
-jamasm_command = "jamasm.pl -srcfile %s -objfile %s -listfile %s -errorfile %s -loadaddress 4096 " % \
+jamasm_command = "jamasm.pl -outputformat 3 -srcfile %s -objfile %s -listfile %s -errorfile %s " % \
         (jam_output_name, hex_output_name, list_output_name, error_output_name)
 print "Running : " + jamasm_command
 status = os.system(jamasm_command)

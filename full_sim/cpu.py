@@ -456,7 +456,7 @@ class CPU(object):
             self.mem_write(scaledDS + self.PSP.read(), self.PTOS.read())
             self.PSP.inc()
 
-            literal = self.code_read(scaledDS + self.PC.read())
+            literal = self.code_read(scaledCS + self.PC.read())
             self.PTOS.write(literal + self.RTOS.read())
             self.PC.inc()
 
