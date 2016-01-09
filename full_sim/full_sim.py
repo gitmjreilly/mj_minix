@@ -110,6 +110,9 @@ def construct_computer_system():
     address_space.add_device(0x2F000, 0x2F00F, console_serial_port)
     address_space.add_device(0x3F000, 0x3F00F, console_serial_port)
     address_space.add_device(0x4F000, 0x4F00F, console_serial_port)
+    address_space.add_device(0x5F000, 0x5F00F, console_serial_port)
+    address_space.add_device(0x6F000, 0x6F00F, console_serial_port)
+    address_space.add_device(0x7F000, 0x7F00F, console_serial_port)
     
     # Make sure to keep RAM at end of address space because 
     # address space is searched (for devices) in insertion order
@@ -785,7 +788,6 @@ while (True):
         loadObjectFileV3("/var/tmp/user1.hex.V3", 4)
         loadObjectFileV3("/var/tmp/user1.hex.V3", 5)
         loadObjectFileV3("/var/tmp/user1.hex.V3", 6)
-        loadObjectFileV3("/var/tmp/user1.hex.V3", 7)
         continue
         
     if (selection == "i"):

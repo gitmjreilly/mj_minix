@@ -968,11 +968,14 @@ begin
    word1 := dc_get_file_word();
    word2 := dc_get_file_word();
    if ((word1 <> 0) OR (word2 <> 3)) then begin
-      k_pr("ERROR did not see magic 0000:0002 returning...");
+      k_pr("ERROR did not see magic 0000:0003 returning...");
       return
    end;
    k_pr("Magic num has been read..."); k_prln(1);
+   
+   (* Word 3  code size *)
    program_size_ptr^ := dc_get_file_word();
+   (* Word 4  code load_address - ignored *)
    code_load_address_ptr^ := dc_get_file_word();
    start_address_ptr^ := dc_get_file_word();
    
@@ -2574,7 +2577,36 @@ begin
          continue
       end;
       
-      
+      compare_strings(ArgV, "load_v3_header", adr(ans));
+      if (ans = 1) then begin
+         k_pr("Calling load_v3_header"); k_prln(1);
+         
+         k_pr("Enter hex v3 file name >"); k_gets(adr(filename));
+         k_pr("Enter proc_num > "); k_get_num(adr(slot_num));
+     
+         load_v3_header(
+            adr(filename),
+            adr(DataSize), 
+            adr(LoadAddress),
+            adr(StartAddress), 
+            slot_num,
+            adr(Status));
+          
+         if (Status <> 0) then begin
+            k_pr("Could not load v3 header.."); k_prln(1);
+            continue
+         end;
+         
+         k_pr("data size : "); k_pr_hex_num(datasize); k_prln(1);
+         k_pr("loadaddress size : "); k_pr_hex_num(loadAddress); k_prln(1);
+         k_pr("Start Address size : "); k_pr_hex_num(StartAddress); k_prln(1);
+         continue
+      end;
+     
+     
+     
+     
+     
       BIOS_StrCmp(ArgV, "load_file", adr(Ans));
       if Ans = 1 then begin
          ConsoleOut(KERNEL_COLOR, "Enter name of file to load>", 0);

@@ -577,7 +577,7 @@ def do_production_guard():
     tokenizer.get_token() # Get rid of GUARD, present upon entry
 
     asm_str = ' .DG '
-    emitter.EmitCode(asm_str, tokenizer.get_line_num())
+    emitter.EmitUData(asm_str, tokenizer.get_line_num())
 
     token = tokenizer.get_token()
     if token != ";":
