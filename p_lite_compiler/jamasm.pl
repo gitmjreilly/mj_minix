@@ -28,7 +28,7 @@ my $GUARD_WORD = 2;
 my $V1_LOAD_ADDRESS  = 0x0403;
 
 my $V3_CODE_LOAD_ADDRESS = 0x1000;
-my $V3_DATA_LOAD_ADDRESS = 0x0100;
+my $V3_DATA_LOAD_ADDRESS = 0x0800;
 
 my $V4_CODE_LOAD_ADDRESS = 0x1000;
 ###############################################################################

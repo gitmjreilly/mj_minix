@@ -1141,13 +1141,33 @@ end;
 #####################################################################
 
 
-#####################################################################
+
+
+
+
+
 (*
-procedure load_file_2(
-   DataSizePtr : t_word_ptr, 
-   LoadAddressPtr : t_word_ptr, 
-   StartAddressPtr : t_word_ptr, 
-   slot_num : integer,
+ Load an object file into the addressSpace.
+ The format is BINARY
+ V3 output format
+ Each word comes as 2 bytes MSB first
+    word 1     :  Words 1 and 2 are a MAGIC identifier 0000 0003
+    word 2  
+    word 3     : size of CODE in words
+    word 4     : CODE loading address
+    word 5     : CODE starting address
+
+    word 6     : size of DATA in words
+    word 7     : DATA loading address
+
+ words 2 * size in words for code
+
+ words 2 * size in words for data
+*)
+
+procedure load_v3_file(
+   FileNamePtr : t_word_ptr, 
+   proc_num : integer,
    StatusPtr : t_word_ptr);
   
 var
@@ -1155,79 +1175,167 @@ var
    Tmp: integer,
    proc_ptr : ^t_process_entry,
    TmpStr : array[50] of integer,
-   WordCount: integer,
-   LeadingZero: integer,
-   seg_val : integer,
+
+   data_seg_val : integer,
+   code_seg_val : integer,
+   
+   code_start_address : integer,
+   
+   code_size : integer,
+   data_size : integer,
+
+   code_load_address : integer, 
+   data_load_address : integer, 
+
+   magic : integer,
+   mem_type : integer,
    BufPtr: t_word_ptr;
 
 begin
-   seg_val := (slot_num + 1) * $1000;
-   SetES(seg_val);
-   proc_ptr := adr(process_table[slot_num]);
+   code_seg_val := 2 * (proc_num + 1)  * $1000;
+   data_seg_val := (2 * (proc_num + 1)  + 1) * $1000;
+   
+   
+   k_cpr(KERNEL_COLOR, " code seg : "); k_cpr_hex_num(KERNEL_COLOR, code_seg_val); k_prln(1);
+   k_cpr(KERNEL_COLOR, " data seg : "); k_cpr_hex_num(KERNEL_COLOR, data_seg_val); k_prln(1);
 
+   
+   proc_ptr :=  proc_addr(proc_num);
 
    if proc_ptr^.p_flags AND P_SLOT_FREE <> P_SLOT_FREE then begin
       ConsolePrintStr("This slot is already in use!  Try again.", 1);
       return
    end;
-
-   xmodem_rx_started := 0;
    
-   read4_2(adr(LeadingZero));
-   if LeadingZero <> 0 then begin
-      ConsolePrintStr("Did not see a leading zero in the loaded file!", 1);
+   ConsolePrintStr("Load Name is :", 0);
+   ConsolePrintStr(FileNamePtr, 1);
+
+
+   disk_ctlr_open_file(FileNamePtr, StatusPtr);
+   if StatusPtr^ <> 0 then begin
+      StatusPtr^ := 3;
+      return
+   end;
+   ConsolePrintStr("File has been opened.", 1);
+
+   (* Words 1 and 2 are the magic words must be 0x0000 : 0x0002 *)
+   magic := dc_get_file_word();
+   if magic <> 0 then begin
+      ConsolePrintStr("Did not see a magic zero in the loaded file!", 1);
       StatusPtr^ := 1;
+      disk_ctlr_close_file(adr(Tmp));
       return
    end;
+   ConsolePrintStr("magic zero has been read.", 1);
 
-   read4_2(adr(VersionNum));
-   if VersionNum <> 1 then begin
-      ConsolePrintStr("Version num was not 1 .", 1);
-      BIOS_NumToHexStr(VersionNum , adr(TmpStr));
-      ConsolePrintStr(adr(TmpStr), 1);
-      StatusPtr^ := 2;
+   magic := dc_get_file_word();
+   if magic <> 3 then begin
+      ConsolePrintStr("Did not see magic 3 in the loaded file!", 1);
+      StatusPtr^ := 1;
+      disk_ctlr_close_file(adr(Tmp));
       return
    end;
+   ConsolePrintStr("Magic number has been read.", 1);
 
-   read4_2(DataSizePtr);
+   (* Word 3 is the code size in words *)
+   code_size := dc_get_file_word();
 
-   read4_2(LoadAddressPtr);
+   (* word 4 is the code load_address *)
+   code_load_address := dc_get_file_word();
+   ConsolePrintStr("Load address has been read.", 1);
 
-   read4_2(StartAddressPtr);
 
-   proc_ptr^.ds := seg_val;
-   proc_ptr^.cs := seg_val;
-   proc_ptr^.es := seg_val;
-   proc_ptr^.psp := $A000;
-   proc_ptr^.rsp := $B000;
+     
+   (* word 5 is the code starting address *)
+   code_start_address := dc_get_file_word();
+   ConsolePrintStr("Start address has been read.", 1);
+
+   
+   k_cpr(KERNEL_COLOR, " code load : "); k_cpr_hex_num(KERNEL_COLOR, code_load_address); k_prln(1);
+   k_cpr(KERNEL_COLOR, " code start : "); k_cpr_hex_num(KERNEL_COLOR, code_start_address); k_prln(1);
+   k_cpr(KERNEL_COLOR, " code size : "); k_cpr_hex_num(KERNEL_COLOR, code_size); k_prln(1);
+   
+   
+   (* word 6 is the data size *)
+   data_size := dc_get_file_word();
+
+   (* word 7 is the data loading address *)
+   data_load_address := dc_get_file_word();
+
+   k_cpr(KERNEL_COLOR, " data load : "); k_cpr_hex_num(KERNEL_COLOR, data_load_address); k_prln(1);
+   k_cpr(KERNEL_COLOR, " data size : "); k_cpr_hex_num(KERNEL_COLOR, data_size); k_prln(1);
+   
+
+   proc_ptr^.ds := data_seg_val;
+   proc_ptr^.cs := code_seg_val;
+   proc_ptr^.es := data_seg_val;
+   proc_ptr^.psp := $FF00;
+   proc_ptr^.rsp := $FE00;
    proc_ptr^.ptos := 0;
    proc_ptr^.rtos := 0;
-   proc_ptr^.pc := StartAddressPtr^;
-   proc_ptr^.flags := 0;
-   
-   WordCount := 1;
-   BufPtr := LoadAddressPtr^;
-   while WordCount <= DataSizePtr^ do begin
-      if WordCount AND $00FF = 0 then begin
-         BIOS_NumToHexStr(WordCount, adr(tmp_str))
+   proc_ptr^.flags := 1;
+   proc_ptr^.pc := code_start_address;
+
+   proc_ptr^.flags := 1;
+ 
+   SetES(code_seg_val);
+   BufPtr := code_load_address;
+   while code_size  <> 0 do begin
+      code_size := code_size - 1;
+
+      if (code_size AND $00FF) = 0 then begin
          ConsolePrintStr("*", 0)
       end;
 
-      read4_2(adr(Tmp));
+      tmp := dc_get_file_word();
       LongStore(BufPtr, Tmp);
-      BufPtr := BufPtr + 1;
-      WordCount := WordCount + 1
+      
+      BufPtr := BufPtr + 1
+   end;
+   ConsolePrintStr("", 1);
+   k_cpr(KERNEL_COLOR, "Finished loading code..."); k_prln(1);
+   
+ 
+   SetES(data_seg_val);
+   BufPtr := data_load_address;
+   while data_size  <> 0 do begin
+      data_size := data_size - 1;
+
+      if (data_size AND $00FF) = 0 then begin
+         ConsolePrintStr("*", 0)
+      end;
+
+      tmp := dc_get_file_word();
+      LongStore(BufPtr, Tmp);
+      
+      BufPtr := BufPtr + 1
+   end;
+   ConsolePrintStr("", 1);
+   k_cpr(KERNEL_COLOR, "Finished loading data..."); k_prln(1);
+   
+   
+   
+   
+   
+
+   disk_ctlr_close_file(adr(Tmp));
+   if Tmp <> 0 then begin
+      StatusPtr^ := 4
    end;
 
-   finish_xmodem_read();
+   ConsoleOut(KERNEL_COLOR, "  Marking PROCESS ready", 1);
+   ready(proc_ptr);
 
    ConsolePrintStr("Setting p_flags to 0.", 1);
    proc_ptr^.p_flags := 0;
    StatusPtr^ := 0
 
 end;
-*)
 #####################################################################
+
+
+
+
 
 
 (* 
@@ -2346,12 +2454,12 @@ begin
    interrupt_clear_ptr := $F012;
 
 
-(* 
+
    ASM
       k_stack K_SP_STORE
       k_rstack RP_STORE
    END;
-*)
+
 
 
 
@@ -2576,6 +2684,8 @@ begin
          k_pr("Start Address size : "); k_pr_hex_num(StartAddress); k_prln(1);
          continue
       end;
+
+
       
       compare_strings(ArgV, "load_v3_header", adr(ans));
       if (ans = 1) then begin
@@ -2600,6 +2710,28 @@ begin
          k_pr("data size : "); k_pr_hex_num(datasize); k_prln(1);
          k_pr("loadaddress size : "); k_pr_hex_num(loadAddress); k_prln(1);
          k_pr("Start Address size : "); k_pr_hex_num(StartAddress); k_prln(1);
+         continue
+      end;
+     
+     
+      
+      compare_strings(ArgV, "load_v3_file", adr(ans));
+      if (ans = 1) then begin
+         k_pr("Calling load_v3_file"); k_prln(1);
+         
+         k_pr("Enter hex v3 file name >"); k_gets(adr(filename));
+         k_pr("Enter proc_num > "); k_get_num(adr(slot_num));
+     
+         load_v3_file(
+            adr(filename),
+            slot_num,
+            adr(Status));
+          
+         if (Status <> 0) then begin
+            k_pr("Could not load v3 file.."); k_prln(1);
+            continue
+         end;
+         
          continue
       end;
      

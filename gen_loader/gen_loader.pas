@@ -29,7 +29,7 @@ var
    (* Made start_addr global for easier reference by asm *)
    start_addr : ^integer,
 
-   k_stack : array[100] of integer,
+   k_stack : array[200] of integer,
    k_rstack : array[100] of integer;
    
 
@@ -174,7 +174,7 @@ end;
    We assume first 2 magic words have already been read.  We start
    at word 3.
    
-	 V3 output format
+	 V4 output format
 	 Each word comes as 2 bytes MSB first
 	    word 1     :  Words 1 and 2 are a MAGIC identifier 0000 0003
 	    word 2  
@@ -190,7 +190,7 @@ end;
 	 words 2 * size in words for data
 *)	
 
-procedure load_v3_file();
+procedure load_V4_file();
 var
    data_word : integer,
    
@@ -207,7 +207,7 @@ var
 
 
 begin
-   pr("Loading a V3 file...");
+   pr("Loading a V4 file...");
 
    (* Word 3 is code length *)
    code_length := get_word();
@@ -306,7 +306,7 @@ begin
    data_ptr := $F000;
    rx_empty_ptr := $F006;
    
-   pr("Starting second stage loader now!  We expect a sim or V3 file."); 
+   pr("Starting second stage loader now!  We expect a sim or V4 file."); 
    
    file_format := 0;
 
@@ -317,8 +317,8 @@ begin
    end;
     
    magic := get_word();
-   if (magic = 3) then begin
-      file_format := 3
+   if (magic = 4) then begin
+      file_format := 4
    end;
 
    if (file_format = 0) then begin
@@ -328,8 +328,8 @@ begin
       end
    end;
 
-   if (file_format = 3) then begin
-      load_v3_file()
+   if (file_format = 4) then begin
+      load_V4_file()
    end;
    
    pr("Saw good magic")
