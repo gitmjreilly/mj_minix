@@ -563,9 +563,6 @@ var
 
 begin
    DebugOut(PTY_COLOR, "Entered do_pty_int() examining all terminals", 1);
-   (*
-   k_cpr(PTY_COLOR, "  num_buffers filled : "); k_cpr_hex_num(PTY_COLOR, num_tctlr_buffers_filled); k_prln(1);
-   *)
    
    buffer_num := 0;
    while (buffer_num < num_tctlr_buffers_filled) do begin
@@ -623,7 +620,6 @@ begin
          
       end (* Code handling TERMINAL INPUT *)
       else begin (* Handling a write ack *)
-         (* k_cpr(PTY_COLOR, "  Sending WRITE reply message "); k_prln(1); *)
          finish(tp, 0)
          
       end;
@@ -639,13 +635,17 @@ begin
    
    
    (* Global var set by actual interrupt; cleared here *)
+   (*
    ASM
       DI
    END;
+   *)
    num_tctlr_buffers_filled := 0;
+   (*
    ASM
       EI
    END;
+   *)
       
    
    (* Now check all waiting procs to see if any are waiting for input
@@ -846,9 +846,7 @@ var
    tmp_str : array[20] of integer;
 
 begin
-   (*
-   k_cpr(PTY_COLOR, "   Entered do_pty_write()"); k_prln(1);
-   *)
+
 
    (* Copy useful stuff from message to pty struct 
     * otcaller is the process that actually sent the message *)
@@ -875,7 +873,6 @@ begin
    SetES(rp^.DS);
 
    orig_num_chars := tp^.pty_outleft;
-   (* k_cpr(PTY_COLOR, "in PTY_WRITE orig_num_chars is : "); k_cpr_hex_num(PTY_COLOR, orig_num_chars); k_prln(1); *)
 
    terminal_num := tp^.pty_terminal_num;
 
@@ -909,19 +906,6 @@ begin
    tctlr_write_to_str_to_term(terminal_num, adr(tp^.pty_outqueue), tp^.pty_cum);
    tp^.pty_cum := 0
 
-   (* -------------------- *)
-   
-   (* TODO 
-    * This is NOT what AST does.
-    * We are immediately notifying caller that write is complete.
-    * AST did it in interrupt.
-    * Removed call to finish() in do_pty_int() hierarchy. *)
-    (*
-   finish(tp, 0);   
-   *)
-   (*
-   k_cpr(PTY_COLOR, "   Leaving do_pty_write()"); k_prln(1)
-   *)
 
 end; 
 (*=================================================================*)

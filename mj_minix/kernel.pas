@@ -1984,7 +1984,7 @@ begin
       else if task = $FFF8 then DebugOut(HW_COLOR, "PTY", 1)
       else if task = $FC19 then DebugOut(HW_COLOR, "IDLE", 1);
       if task = PTY then begin
-         k_cpr(HW_COLOR, "    INT : Clrd PTY flag"); k_prln(1);
+         (* k_cpr(HW_COLOR, "    INT : Clrd PTY flag"); k_prln(1); *)
          pty_int_was_seen := 0
       end
    end;
@@ -2251,13 +2251,15 @@ begin
 
      
       (* TODO proper PTC packet handling *)
-      k_cpr(KERNEL_COLOR, "INT PTC 1/4 F"); k_prln(1);
+      (* k_cpr(KERNEL_COLOR, "INT PTC 1/4 F"); k_prln(1); *)
 
       tmp_p := $F03E;
-      k_cpr(KERNEL_COLOR, "  chars in rx buf : ");
-      k_cpr_hex_num(KERNEL_COLOR, tmp_p^); k_prln(1);
+      (* k_cpr(KERNEL_COLOR, "  chars in rx buf : "); *)
+      (*k_cpr_hex_num(KERNEL_COLOR, tmp_p^); k_prln(1); *)
       
-      k_cpr(KERNEL_COLOR, "   tctlr_bufs_filled : "); k_cpr_hex_num(KERNEL_COLOR, num_tctlr_buffers_filled); k_prln(1);
+      if (num_tctlr_buffers_filled > 0) then begin
+         k_cpr(KERNEL_COLOR, "   tctlr_bufs_filled : "); k_cpr_hex_num(KERNEL_COLOR, num_tctlr_buffers_filled); k_prln(1)
+      end;
       
       if (num_tctlr_buffers_filled = NUM_TCTLR_BUFFERS) then begin
          k_cpr(KERNEL_COLOR, "   FATAL!!! Out of tctlr buffers!  HALTING system!");  k_prln(1);
@@ -2276,7 +2278,7 @@ begin
          tmp_p := tmp_p + 1;
          i := i + 1
       end;
-      k_cpr(KERNEL_COLOR, "Emptied PTC 1/4 F"); k_prln(1);
+      (* k_cpr(KERNEL_COLOR, "Emptied PTC 1/4 F"); k_prln(1); *)
 
       interrupt_clear_ptr^ := PTC_UART_RX_QUARTER_FULL_MASK;
       interrupt_clear_ptr^ := 0;
