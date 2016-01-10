@@ -136,7 +136,7 @@ var
    num_str : array[6] of integer;
    
 begin
-   k_cpr(PTY_COLOR, "Sending string to PTC..."); 
+   (* k_cpr(PTY_COLOR, "Sending string to PTC...");  *)
 
    orig_s := s;
    orig_len := len;

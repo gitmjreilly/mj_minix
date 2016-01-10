@@ -899,7 +899,7 @@ begin
    SetES(rp^.DS);
 
    orig_num_chars := tp^.pty_outleft;
-   k_cpr(PTY_COLOR, "in PTY_WRITE orig_num_chars is : "); k_cpr_hex_num(PTY_COLOR, orig_num_chars); k_prln(1);
+   (* k_cpr(PTY_COLOR, "in PTY_WRITE orig_num_chars is : "); k_cpr_hex_num(PTY_COLOR, orig_num_chars); k_prln(1); *)
 
    terminal_num := tp^.pty_terminal_num;
 
