@@ -1375,36 +1375,6 @@ end;
 ####################################################################
 
 
-#####################################################################
-(* 
-   Save the entire state of a process.  An assembly language
-   procedure probably put all of these parameters on the 
-   stack.
-*)
-(*
-procedure Save(
-   PTOS : integer,
-   PSP  : integer,
-   RTOS : integer,
-   RSP  : integer,
-   CS   : integer,
-   PC   : integer,
-   FLAGS: integer);
-
-begin
-   proc_ptr^.ptos := PTOS;
-   proc_ptr^.psp := psp;
-   proc_ptr^.rtos := rtos;
-   proc_ptr^.rsp := rsp;
-   proc_ptr^.cs := cs;
-   proc_ptr^.pc := pc;
-   proc_ptr^.flags := flags
-end;
-*)
-#####################################################################
-
-
-
 
 #####################################################################
 procedure cp_mess(
@@ -2248,7 +2218,7 @@ begin
       
   
       if (pty_int_was_seen = 1) then begin
-         k_cpr(HW_COLOR, "senting pty int message from clk b/c pending pty_int"); k_prln(1);
+         k_cpr(HW_COLOR, "Sending PTY msg from clk b/c pending pty_int"); k_prln(1);
          hw_pty_mess.m_type := PTY_INT;
          interrupt(PTY, adr(hw_pty_mess))
       end
@@ -2281,7 +2251,7 @@ begin
 
      
       (* TODO proper PTC packet handling *)
-      k_cpr(KERNEL_COLOR, "Got PTC 1/4 full interrupt"); k_prln(1);
+      k_cpr(KERNEL_COLOR, "INT PTC 1/4 F"); k_prln(1);
 
       tmp_p := $F03E;
       k_cpr(KERNEL_COLOR, "  num chars in rx buffer is : ");
@@ -2299,8 +2269,6 @@ begin
       
       tmp_p := adr(tctlr_buffer[num_tctlr_buffers_filled]);
       num_tctlr_buffers_filled := num_tctlr_buffers_filled + 1;
-      
-      (* Get and (for now) thrown away packet from PTC *)
       i := 0;
       while (i < 256) do  begin
          ch := tctlr_get_raw();
@@ -2308,7 +2276,7 @@ begin
          tmp_p := tmp_p + 1;
          i := i + 1
       end;
-      k_cpr(KERNEL_COLOR, "Emptied PTC 1/4 full interrupt"); k_prln(1);
+      k_cpr(KERNEL_COLOR, "Emptied PTC 1/4 F"); k_prln(1);
 
       interrupt_clear_ptr^ := PTC_UART_RX_QUARTER_FULL_MASK;
       interrupt_clear_ptr^ := 0;
@@ -2441,11 +2409,6 @@ begin
    debug_flag := 0;
    set_type := 0;
 
-
-   
-
-   interrupt_status_ptr := $F000;
-   interrupt_status_ptr^ := 65;
    ConsolePrintStr("Starting Kernel Now", 1); 
 
    
