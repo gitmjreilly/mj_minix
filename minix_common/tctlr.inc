@@ -136,7 +136,6 @@ var
    num_str : array[6] of integer;
    
 begin
-   (* k_cpr(PTY_COLOR, "Sending string to PTC...");  *)
 
    orig_s := s;
    orig_len := len;
@@ -148,7 +147,6 @@ begin
       i := i + 1
    end;
    tmp_str[i] := 0;
-   k_cpr(PTY_COLOR, adr(tmp_str)); k_prln(1);
 
 
    _tctlr_write_one(terminal_num); (* term num as byte *)

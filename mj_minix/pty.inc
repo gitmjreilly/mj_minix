@@ -570,7 +570,6 @@ begin
    buffer_num := 0;
    while (buffer_num < num_tctlr_buffers_filled) do begin
 
-      (* k_cpr(PTY_COLOR, "Examining buffer num : "); k_cpr_hex_num(PTY_COLOR, buffer_num); k_prln(1); *)
    
       (* Get and (for now) throw away packet from PTC *)
       
@@ -590,11 +589,10 @@ begin
       tp := adr(pty_struct[terminal_num]);
       
       if (packet_type = TERMINAL_INPUT) then begin
-         k_cpr(PTY_COLOR, "  Dealing with terminal input  ");  k_prln(1);
-      
+        
    
          num_to_copy_to_in_q := packet_size;
-         k_cpr(PTY_COLOR, "    num chars recvd is (hex) : "); k_cpr_hex_num(PTY_COLOR, packet_size); k_prln(1);
+
          tmp_p := adr(tctlr_buffer[buffer_num]);
          src_p := adr(tmp_p^.rest);
          dst_p := tp^.pty_inhead;
@@ -621,24 +619,12 @@ begin
          end;
          tp^.pty_inhead := dst_p
          
-         (*
-         i := 0;
-         while (i < packet_size) do  begin
-            tmp_str[i] := tmp_p^.rest[i];
-            i := i + 1
-         end;
-         tmp_str[i] := 0;
-         
-         k_cpr(PTY_COLOR, "term num : "); k_cpr_hex_num(PTY_COLOR, tmp_p^.terminal_num); k_prln(1);
-         k_cpr(PTY_COLOR, "Str is : "); k_cpr(PTY_COLOR, adr(tmp_str)); k_prln(1);
-         k_cpr(PTY_COLOR, "pty incount is : "); k_cpr_hex_num(PTY_COLOR, tp^.pty_incount); k_prln(1)
-         *)
+
          
       end (* Code handling TERMINAL INPUT *)
       else begin (* Handling a write ack *)
          (* k_cpr(PTY_COLOR, "  Sending WRITE reply message "); k_prln(1); *)
          finish(tp, 0)
-         (* k_cpr(PTY_COLOR, "  Finished Sending WRITE reply message "); k_prln(1) *)
          
       end;
       buffer_num := buffer_num + 1
@@ -665,15 +651,11 @@ begin
    (* Now check all waiting procs to see if any are waiting for input
       which may have been satisfied as a result of chars arriving during
       interrupt *)
-   (*
-   k_cpr(PTY_COLOR, "Checking all ptys to see if proc is waiting..."); k_prln(1);
-   *)
+
    terminal_num := 0;
    while (terminal_num < NR_PTYS) do begin
       tp := adr(pty_struct[terminal_num]);
-      (*
-      k_cpr(PTY_COLOR, "Checking terminal : "); k_cpr_hex_num(PTY_COLOR, terminal_num); k_prln(1);
-      *)
+
       
       terminal_num := terminal_num + 1;
    
@@ -683,7 +665,6 @@ begin
       (* Check to see if user proc is waiting for chars *)
       if (tp^.pty_inleft = 0) then continue;
 
-      (* k_cpr(PTY_COLOR, "  inleft and incount both > 0 ... "); k_prln(1); *)
 
       (* Point at the process entry whose mem space we will fill 
        * We need rp so we can get the user process DS *)
@@ -712,12 +693,7 @@ begin
          tp^.pty_incount := tp^.pty_incount - 1;
          replyee := tp^.pty_incaller;
          caller  := tp^.pty_inproc;
-         (*
-         k_cpr(PTY_COLOR, "  sending reply..."); k_prln(1);
-         k_cpr(PTY_COLOR, "   copied char : "); k_cpr_hex_num(PTY_COLOR, ch); k_prln(1);
-         k_cpr(PTY_COLOR, "   Checking replyee : "); k_cpr_hex_num(PTY_COLOR, replyee); k_prln(1);
-         k_cpr(PTY_COLOR, "   Checking caller : "); k_cpr_hex_num(PTY_COLOR, caller); k_prln(1); 
-         *)
+
          pty_reply(TASK_REPLY, replyee, caller, 1, 0, 0)         
       end
       

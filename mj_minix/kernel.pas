@@ -2533,47 +2533,14 @@ begin
 
    k_pr("Enable mem checks now, if running in simulator"); k_prln(1);
 
-(*
-   load_file(
-      "/var/tmp/main.hex.sim",
-      adr(DataSize), 
-      adr(LoadAddress),
-      adr(StartAddress), 
-      1,
-      adr(Status));   
+   (*
+         load_v3_file(
+            adr(filename),
+            slot_num,
+            adr(Status));   
+   *)
+   
 
-   load_file(
-      "/var/tmp/user1.hex.sim",
-      adr(DataSize), 
-      adr(LoadAddress),
-      adr(StartAddress), 
-      4,
-      adr(Status));   
-
-   load_file(
-      "/var/tmp/user1.hex.sim",
-      adr(DataSize), 
-      adr(LoadAddress),
-      adr(StartAddress), 
-      5,
-      adr(Status));   
-
-   load_file(
-      "/var/tmp/user1.hex.sim",
-      adr(DataSize), 
-      adr(LoadAddress),
-      adr(StartAddress), 
-      6,
-      adr(Status));   
-
-   load_file(
-      "/var/tmp/user1.hex.sim",
-      adr(DataSize), 
-      adr(LoadAddress),
-      adr(StartAddress), 
-      7,
-      adr(Status));   
-*)
    
    while 1=1 do  begin
       k_pr("MJ Console Shell >");
@@ -2597,31 +2564,17 @@ begin
          ArgVPtr := ArgVPtr + 1
       end;
 
-      (*
-      BIOS_StrCmp(ArgV, "cd", adr(Ans));
-      if Ans = 1 then begin
-         ConsoleOut(KERNEL_COLOR, "Enter dir to CD to >", 0);
-         ConsoleGetStr(ArgV);
-         BIOS_CD(ArgV, adr(Status));
-         if Status = 0 then begin
-            ConsoleOut(KERNEL_COLOR, "CD was successful!", 1)
-         end
-         else begin
-            ConsoleOut(KERNEL_COLOR, "CD Failed!", 1)
-         end;
-         continue
-      end;
-      *)
-      
-      (*
-      BIOS_StrCmp(ArgV, "ls", adr(Ans));
-      if Ans = 1 then begin
-         ConsoleOut(KERNEL_COLOR, "Saw ls... running ls proc", 1);
-         Ls();
-         continue
-      end;
-      *)
 
+      compare_strings(ArgV, "load_all", adr(ans));
+      if (ans = 1) then begin
+         load_v3_file("/var/tmp/main.hex.V3", 1, adr(status));
+         load_v3_file("/var/tmp/user1.hex.V3", 4, adr(status));
+         load_v3_file("/var/tmp/user1.hex.V3", 5, adr(status));
+         load_v3_file("/var/tmp/user1.hex.V3", 6, adr(status));
+         continue
+      end;
+      
+      
       compare_strings(ArgV, "load_header", adr(ans));
       if (ans = 1) then begin
          k_pr("Calling load_hex_sim_header"); k_prln(1);
