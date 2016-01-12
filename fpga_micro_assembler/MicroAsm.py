@@ -66,6 +66,14 @@ def DecToBinStr(DecimalValue, Width) :
 
 
 #####################################################################
+# Read the 2 column Opcode file
+#     opcode decimal_value
+#
+# Since opcode vals are addresses in the microcode the highest opcode
+# val is returned so later portions of code can know where to start
+#
+# Also this function returns the initially populated SymbolTable.
+#
 def PassLoadOpcodes(FileName):
     print "INFO PASS Loading Opcodes..."
     try:
@@ -117,6 +125,17 @@ def PassLoadOpcodes(FileName):
 
 
 #####################################################################
+# A Parsed Line is a dict consisting of the following fields
+#
+# D['OriginalLine']  - str
+# D['LineNum']  - int
+# D['SubInstructions']  - list of dicts
+# D['Label']  - str
+#
+# A Parsed Line describes a single micro instruction which
+# consists of one or more ; delimited SubInstructions
+# The SubInstructions may have arguments e.g. SETALU A
+#
 def ParseLine(Line, LineNum):
     
     Line = Line.rstrip()
