@@ -167,6 +167,8 @@ def ParseLine(Line, LineNum):
         #  "jmpn trueLable falseLabel"
         SubInstruction = SubInstruction.strip()
         
+        # There's no harm in a blank SubInstruction
+        # Maybe it's the result of a ; at the end of a line.
         if (SubInstruction == "") :
             continue
         
@@ -188,6 +190,9 @@ def ParseLine(Line, LineNum):
 
 
 #####################################################################
+# Create a list of ParsedLines
+# Each ParsedLine corresponds to a MicroInstruction
+#
 def PassParseInput(FileName):
     try:
         File = open(FileName, "r")
@@ -209,6 +214,7 @@ def PassParseInput(FileName):
 
 #####################################################################
 def PrintParsedLines(ParsedLines):
+    print "Printing Parsed Lines"
     for ParsedLine in ParsedLines:
         print "============="
         print "%3d %s" % (ParsedLine['LineNum'], ParsedLine['OriginalLine'])
@@ -222,6 +228,10 @@ def PrintParsedLines(ParsedLines):
 
 
 #####################################################################
+# Dynamic Labels are created as follows
+# Upper and Lower paired labels start from 511 & 255 and work their way DOWN
+# Single labels (used by GOTO) start from param SingleLowerLC and work their way UP
+#
 def PassCreateDynamicLabels(ParsedLines, SymbolTable, SingleLowerLC):
     print "INFO Creating Dynamic Label Entries..."
     UpperPairedLC = 511
@@ -238,14 +248,18 @@ def PassCreateDynamicLabels(ParsedLines, SymbolTable, SingleLowerLC):
                     InstructionAlone == "JMPZ"):
                 if (NumArgs != 2):
                     print "ERROR expected two args with JMPXXX instruction <%s>" % ParsedLine["OriginalLine"]
-                    continue
+                    sys.exit(1)
                     
                 print "INFO saw <%s> <%s> <%s>" % (InstructionAlone, Args[0], Args[1])
                 UpperTrueLabel = Args[0]
                 LowerFalseLabel = Args[1]
                 if (SymbolTable.has_key(UpperTrueLabel)):
-                    print "INFO  <%s> is already in table; will NOT be added to SymTable" % (UpperTrueLabel)
-                    continue
+                    print "ERROR  UpperTrueLabel <%s> is already in table!" % (UpperTrueLabel)
+                    sys.exit(1)
+
+                if (SymbolTable.has_key(LowerFalseLabel)):
+                    print "ERROR  LowerFalseLabel <%s> is already in table!" % (LowerFalseLabel)
+                    sys.exit(1)
 
                 print "Adding <%s> <%d>  +++ <%s> <%d>" %  \
                     (UpperTrueLabel, UpperPairedLC, LowerFalseLabel, LowerPairedLC)
@@ -407,11 +421,11 @@ def AssembleParsedLine (ParsedLine, SymbolTable, DefaultNextAddress):
 
             if (not SymbolTable.has_key(HighSymbol)) :
                 print "ERROR - High Symbol not in sym table <%s>" % (HighSymbol)
-                continue
+                sys.exit(1)
              
             if (not SymbolTable.has_key(LowSymbol)) :
                 print "ERROR - Low Symbol not in sym table <%s>" % (HighSymbol)
-                continue
+                sys.exit(1)
              
             ControlWord['NEXT_ADDRESS'] = SymbolTable[LowSymbol]
                     
@@ -469,6 +483,10 @@ def AssembleParsedLine (ParsedLine, SymbolTable, DefaultNextAddress):
 
    	
 	ControlWord['OriginalLine'] = ParsedLine['OriginalLine']
+    
+    if (ControlWord['NEXT_ADDRESS'] is None):
+        print "ERROR - Tried to assemble a control word with NEXT_ADDRESS is None"
+        sys.exit(1)
 
     return(ControlWord)
 
