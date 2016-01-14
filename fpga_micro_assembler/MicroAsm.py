@@ -116,8 +116,8 @@ def PassLoadOpcodes(FileName):
     File.close()
 
             
-    if (len(SymbolTable) != HighestOpcodeVal):
-        print "Warning There are gaps in the opcode map."
+    if (len(SymbolTable) != (HighestOpcodeVal + 1)):
+        print "Warning There are gaps in the opcode map - len : <%d> high <%d>" % (len(SymbolTable), HighestOpcodeVal)
         
                
     return(SymbolTable, HighestOpcodeVal)
@@ -233,7 +233,7 @@ def PrintParsedLines(ParsedLines):
 # Single labels (used by GOTO) start from param SingleLowerLC and work their way UP
 #
 def PassCreateDynamicLabels(ParsedLines, SymbolTable, SingleLowerLC):
-    print "INFO Creating Dynamic Label Entries..."
+    print "INFO PASS Creating Dynamic Label Entries..."
     UpperPairedLC = 511
     LowerPairedLC = 255
     
@@ -261,7 +261,7 @@ def PassCreateDynamicLabels(ParsedLines, SymbolTable, SingleLowerLC):
                     print "ERROR  LowerFalseLabel <%s> is already in table!" % (LowerFalseLabel)
                     sys.exit(1)
 
-                print "Adding <%s> <%d>  +++ <%s> <%d>" %  \
+                print "Adding    <%s> <%d>  +++ <%s> <%d>" %  \
                     (UpperTrueLabel, UpperPairedLC, LowerFalseLabel, LowerPairedLC)
                     
                 SymbolTable[UpperTrueLabel] = UpperPairedLC
@@ -275,9 +275,19 @@ def PassCreateDynamicLabels(ParsedLines, SymbolTable, SingleLowerLC):
                     continue
                 print "INFO saw <%s> <%s>" % (InstructionAlone, Args[0])
                 DestLabel = Args[0]
+                
+                # If DestLabel is a duplicate, this is NOT necessarily a problem.
+                # It's possible many micro instructions GOTO a common location
+                # As a practical matter the source only goes to MAIN, and HALT
+                # so we do not report those. 
+                # All others are considered errors.
+                #
                 if (SymbolTable.has_key(DestLabel)):
-                    print "INFO  <%s> is already in table; will NOT be added to SymTable" % (DestLabel)
-                    continue
+                    if ((DestLabel == "MAIN") or (DestLabel == "HALT")) :
+                        continue
+                        
+                    print "ERROR  DestLabel <%s> is already in table." % (DestLabel)
+                    sys.exit(1)
 
                 print "INFO    Adding <%s> <%d>" % (DestLabel, SingleLowerLC)
                 SymbolTable[DestLabel] = SingleLowerLC
@@ -299,7 +309,7 @@ def PassCreateDynamicLabels(ParsedLines, SymbolTable, SingleLowerLC):
 def AssembleParsedLine (ParsedLine, SymbolTable, DefaultNextAddress):
 
     ControlWord = dict()
-    print "INFO Assembling Control Word <%s>" % (ParsedLine['OriginalLine'])
+    print "INFO Assembling Control Word  <%4d> <%s>" % (ParsedLine['LineNum'], ParsedLine['OriginalLine'])
 
     ControlWord['NEXT_ADDRESS'] = DefaultNextAddress
     
@@ -483,6 +493,7 @@ def AssembleParsedLine (ParsedLine, SymbolTable, DefaultNextAddress):
 
    	
 	ControlWord['OriginalLine'] = ParsedLine['OriginalLine']
+    ControlWord['LineNum'] = ParsedLine['LineNum']
     
     if (ControlWord['NEXT_ADDRESS'] is None):
         print "ERROR - Tried to assemble a control word with NEXT_ADDRESS is None"
@@ -498,7 +509,7 @@ def AssembleParsedLine (ParsedLine, SymbolTable, DefaultNextAddress):
 def PassCreateIntermediateOutput(ParsedLines, SymbolTable, UpperPairedLC, LowerPairedLC, SingleLowerLC ) :
 
 
-    print "INFO PASS create intermediate output"
+    print "INFO PASS create intermediate output - works Backward from end of ParsedLines"
     IntermediateOutput = 512 * [None]
     
     TmpList = list()
@@ -541,7 +552,7 @@ def PrintIntermediateOutput(IntermediateOutput) :
         if (Rec == None): continue
         
         print "=========="
-        print "<%d> <%s> NEXT : <%d>" % (LC, Rec['OriginalLine'], Rec['NEXT_ADDRESS'] )
+        print "LC : <%3d>   NEXT_ADDRESS : <%3d>    LineNum <%4d>  OriginalLine <%s>   " % (LC, Rec['NEXT_ADDRESS'] , Rec['LineNum'], Rec['OriginalLine'])
 #####################################################################
 
 
@@ -613,7 +624,7 @@ def ControlWordToBitPattern (ControlWord) :
 
     # Shifter Signals
     #
-    ShifterBitPattern = DecToBinStr(ControlWord.get('SHIFTER', 0), 2)
+    ShifterBitPattern = DecToBinStr(ControlWord.get('Shifter', 0), 2)
     BitPattern = BitPattern +  ShifterBitPattern
 
     # ALU Signals
@@ -705,22 +716,18 @@ def CreateControlStoreVHDL(IntermediateAssembly):
     #
     for LC in range(512) :
         ControlWord = IntermediateAssembly[LC]
-        if (ControlWord is None): continue
-
         AddressBitPattern  = DecToBinStr(LC, 9)
-
+        
+        
+        if (ControlWord is None) :  
+            RomBitPattern = DecToBinStr(0, 41)
+            print '"%s" when (input = "%s") else ' % (RomBitPattern, AddressBitPattern)
+            continue
+            
         RomBitPattern = ControlWordToBitPattern(ControlWord)
 
         print '"%s" when (input = "%s") else ' % (RomBitPattern, AddressBitPattern)
         
-        #print 
-        #    "\"ROMBitPattern\" when (input = \"AddressBitPattern\") else\n"
-
-        # print "    -- %3d %s\n", LC, ControlWord->{'OriginalLine'}
-        # foreach my Key (sort(keys(%{ControlWord}))) {
-            # print "        -- [Key] [ControlWord->{Key}] \n"
-
-        # print "\n"		
 
         print "    -- %3d %s" %  (LC, ControlWord['OriginalLine'])
         for (Key, Val) in ControlWord.iteritems():
