@@ -7,41 +7,39 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 entity system is port (
 	reset : in std_logic;
 	clk : in std_logic;
-	clk_hi_ind : out std_logic;
-	clk_low_ind : out std_logic;
-	n_wr : out std_logic;
-	n_rd : out std_logic;
-	n_ind : out std_logic;
-	z_ind : out std_logic;
-	rd_ind : out std_logic;
-	wr_ind : out std_logic;
-	fetch_ind : out std_logic;
-	data_bus : inout std_logic_vector(15 downto 0);
-	addr_bus : out std_logic_vector(25 downto 0);
-	SevenSegAnodes : out std_logic_vector(3 downto 0);
-	SevenSegSegments : out std_logic_vector(7 downto 0);
-	address_switches : in std_logic_vector(7 downto 0);
-	
-	console_uart_tx : out std_logic;
-	console_uart_rx : in std_logic;
-	N_UB : out std_logic;
-	N_LB : out std_logic;
-	external_ram_cs : out std_logic;
-	-- These signals need to be set on Nexys3
-	cellular_ram_clk : out std_logic;
-	cellular_ram_adv : out std_logic;
-	cellular_ram_cre : out std_logic;
-	--
-	parallel_pcm_cs : out std_logic;
-	parallel_pcm_rst : out std_logic;
-	-- End of signals for Nexys 3
-	INT_SW : in std_logic;
 
-	disk_uart_tx : out std_logic;
-	disk_uart_rx : in std_logic;
+	-- Write & Read control signals for ext memory
+	-- n_wr : out std_logic;
+	-- n_rd : out std_logic;
 	
-	ptc_uart_tx : out std_logic;
-	ptc_uart_rx : in std_logic
+	-- External data & address buses 
+	-- data_bus : inout std_logic_vector(15 downto 0);
+	-- addr_bus : out std_logic_vector(25 downto 0);
+	-- external_ram_cs : out std_logic;
+	
+
+	-- Indicators to show cpu is doing something...
+	-- n_ind : out std_logic;
+	-- z_ind : out std_logic;
+	rd_ind : out std_logic;
+	wr_ind : out std_logic
+	-- fetch_ind : out std_logic;
+
+
+	-- Debugging features from lacombe cpu
+	-- SevenSegAnodes : out std_logic_vector(3 downto 0);
+	-- SevenSegSegments : out std_logic_vector(7 downto 0);
+	-- address_switches : in std_logic_vector(7 downto 0);
+	
+	-- Three serial ports...
+	-- console_uart_tx : out std_logic;
+	-- console_uart_rx : in std_logic;
+	
+	-- disk_uart_tx : out std_logic;
+	-- disk_uart_rx : in std_logic;
+	
+	-- ptc_uart_tx : out std_logic;
+	-- ptc_uart_rx : in std_logic
 	
 );
 end system;
@@ -131,16 +129,6 @@ begin
 		-- );
 	-- ---------------------------------------------------------------------
 
-	---------------------------------------------------------------------
-	INT_SW_1 : entity work.switch_debounce 
-		port map (
-			-- clock => clk_counter(20), -- another switch debounce clock - OK
-			clock => my_clock, -- junk entry to get build to work after switching to new clock
-			sw => INT_SW,
-			y => INT_SW_OUT
-		);
-	---------------------------------------------------------------------
-
 
 	
 	
@@ -150,7 +138,7 @@ begin
 	-- we use the clock divided by 2.
 	-- my_clock <= clk_counter(0);
 
-jam_clock : entity work.jam_half_clock
+u_my_clock : entity work.jam_half_clock
   port map
    (-- Clock in ports
     CLK_IN1 => clk,
@@ -217,17 +205,17 @@ jam_clock : entity work.jam_half_clock
 	-- and produces the appropriate signals to drive
 	-- the 4 seven segment LED display on the Digilent spartan 3 board.
 	--
-	DigitDriver : entity work.SevenSegDriver 	
-		port map (	
-			four_digits (15 downto 12),			-- High Digit
-			four_digits (11 downto 8),
-			four_digits (7 downto 4),
-			four_digits (3 downto 0),
+	-- DigitDriver : entity work.SevenSegDriver 	
+		-- port map (	
+			-- four_digits (15 downto 12),			-- High Digit
+			-- four_digits (11 downto 8),
+			-- four_digits (7 downto 4),
+			-- four_digits (3 downto 0),
 			-- clk_counter(15), -- This is OK as - is for digit driver
-			my_clock, -- This is probably wrong - used to get build to work after switch to DCM
-			SevenSegSegments, 
-			SevenSegAnodes
-		);
+			-- my_clock, -- This is probably wrong - used to get build to work after switch to DCM
+			-- SevenSegSegments, 
+			-- SevenSegAnodes
+		-- );
 	---------------------------------------------------------------------
 
 
@@ -256,15 +244,15 @@ jam_clock : entity work.jam_half_clock
 
 
 	---------------------------------------------------------------------
-	counter_0: entity work.mem_based_counter 
-		port map (
-			clock => my_clock,  -- counter clock MAY be OK - Confirm!!!
-			reset => reset,
-			n_rd => n_rd_bus,
-			n_cs => cs_bus(COUNTER_0_CS),
-			x_edge => counter_is_zero,
-			counter_out => data_bus
-		);
+	-- counter_0: entity work.mem_based_counter 
+		-- port map (
+			-- clock => my_clock,  -- counter clock MAY be OK - Confirm!!!
+			-- reset => reset,
+			-- n_rd => n_rd_bus,
+			-- n_cs => cs_bus(COUNTER_0_CS),
+			-- x_edge => counter_is_zero,
+			-- counter_out => data_bus
+		-- );
 	---------------------------------------------------------------------
 
 
@@ -316,19 +304,19 @@ jam_clock : entity work.jam_half_clock
 	-- ---------------------------------------------------------------------
 
 
-	int_controller : entity work.mem_based_int_controller 
-		port map ( 
-			clock => my_clock, 
-			reset => reset,
-			cpu_finish => cpu_finish,
-			addr_bus => local_addr_bus(3 downto 0),
-			data_bus => data_bus,
-			int_occurred => cpu_int,
-			n_cs => cs_bus(INT_CONTROLLER_CS),
-			n_wr => n_wr_bus,
-			n_rd => n_rd_bus,
-			raw_interrupt_word => multiple_int_sources
-		);
+	-- int_controller : entity work.mem_based_int_controller 
+		-- port map ( 
+			-- clock => my_clock, 
+			-- reset => reset,
+			-- cpu_finish => cpu_finish,
+			-- addr_bus => local_addr_bus(3 downto 0),
+			-- data_bus => data_bus,
+			-- int_occurred => cpu_int,
+			-- n_cs => cs_bus(INT_CONTROLLER_CS),
+			-- n_wr => n_wr_bus,
+			-- n_rd => n_rd_bus,
+			-- raw_interrupt_word => multiple_int_sources
+		-- );
 	
 	
 	
@@ -372,50 +360,50 @@ jam_clock : entity work.jam_half_clock
 
 
 
-	console_uart: entity work.uart_w_fifo
-		port map ( 
-			clk  => my_clock,
-			rx => RXD_BUS,
-			tx => TXD_BUS,
-			reset => reset,
-			cpu_finish => cpu_finish,
-			n_cs => cs_bus(CONSOLE_UART_CS),
-			n_rd => n_rd_bus,
-			n_wr => n_wr_bus,
-			data_bus => data_bus,
-			addr_bus => local_addr_bus(3 downto 0)
-		);
+	-- console_uart: entity work.uart_w_fifo
+		-- port map ( 
+			-- clk  => my_clock,
+			-- rx => RXD_BUS,
+			-- tx => TXD_BUS,
+			-- reset => reset,
+			-- cpu_finish => cpu_finish,
+			-- n_cs => cs_bus(CONSOLE_UART_CS),
+			-- n_rd => n_rd_bus,
+			-- n_wr => n_wr_bus,
+			-- data_bus => data_bus,
+			-- addr_bus => local_addr_bus(3 downto 0)
+		-- );
 
 
-	disk_uart: entity work.uart_w_fifo
-		port map ( 
-			clk  => my_clock,
-			rx => disk_uart_rx,
-			tx => disk_uart_tx,
-			reset => reset,
-			cpu_finish => cpu_finish,
-			n_cs => cs_bus(DISK_UART_CS),
-			n_rd => n_rd_bus,
-			n_wr => n_wr_bus,
-			data_bus => data_bus,
-			addr_bus => local_addr_bus(3 downto 0),
-			rx_fifo_is_half_full => disk_uart_rx_fifo_is_half_full
-		);
+	-- disk_uart: entity work.uart_w_fifo
+		-- port map ( 
+			-- clk  => my_clock,
+			-- rx => disk_uart_rx,
+			-- tx => disk_uart_tx,
+			-- reset => reset,
+			-- cpu_finish => cpu_finish,
+			-- n_cs => cs_bus(DISK_UART_CS),
+			-- n_rd => n_rd_bus,
+			-- n_wr => n_wr_bus,
+			-- data_bus => data_bus,
+			-- addr_bus => local_addr_bus(3 downto 0),
+			-- rx_fifo_is_half_full => disk_uart_rx_fifo_is_half_full
+		-- );
 	
-	ptc_uart: entity work.uart_w_fifo
-		port map ( 
-			clk  => my_clock,
-			rx => ptc_uart_rx,
-			tx => ptc_uart_tx,
-			reset => reset,
-			cpu_finish => cpu_finish,
-			n_cs => cs_bus(PTC_UART_CS),
-			n_rd => n_rd_bus,
-			n_wr => n_wr_bus,
-			data_bus => data_bus,
-			addr_bus => local_addr_bus(3 downto 0),
-			rx_fifo_is_quarter_full => ptc_uart_rx_fifo_is_quarter_full
-		);
+	-- ptc_uart: entity work.uart_w_fifo
+		-- port map ( 
+			-- clk  => my_clock,
+			-- rx => ptc_uart_rx,
+			-- tx => ptc_uart_tx,
+			-- reset => reset,
+			-- cpu_finish => cpu_finish,
+			-- n_cs => cs_bus(PTC_UART_CS),
+			-- n_rd => n_rd_bus,
+			-- n_wr => n_wr_bus,
+			-- data_bus => data_bus,
+			-- addr_bus => local_addr_bus(3 downto 0),
+			-- rx_fifo_is_quarter_full => ptc_uart_rx_fifo_is_quarter_full
+		-- );
 	
 
 
