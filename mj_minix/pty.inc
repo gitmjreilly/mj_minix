@@ -115,7 +115,6 @@ begin
    pty_mess.PTY_FLAGS := extra;
    pty_mess.PTY_SPEK := other;
    send_p(replyee, adr(pty_mess))
-
 end;
 (*=================================================================*)
 
@@ -469,14 +468,13 @@ var
    caller : integer;
 
 begin
-   DebugOut(PTY_COLOR, "Entering finish ()", 1);
+   k_cpr(PTY_COLOR, "   *** Entering finish ()"); k_prln(1);
 
    replyee := tp^.pty_otcaller;
    caller := tp^.pty_outproc;
 
    pty_reply(TASK_REPLY, replyee, caller, code, 0, 0);
-
-   DebugOut(PTY_COLOR, "Leaving finish ", 1)
+   k_cpr(PTY_COLOR, "   *** Leaving inish ()"); k_prln(1)
 end;
 (*=================================================================*)
 
@@ -562,10 +560,14 @@ var
    num_bytes_received_from_terminal : integer;
 
 begin
-   DebugOut(PTY_COLOR, "Entered do_pty_int() examining all terminals", 1);
+   ASM
+      DI
+   END;
+   k_cpr(PTY_COLOR, "Entered do_pty_int() examining all terminals - DI"); k_prln(1);
    
    buffer_num := 0;
    while (buffer_num < num_tctlr_buffers_filled) do begin
+      k_cpr(PTY_COLOR, "   Examining Buff : "); k_cpr_hex_num(PTY_COLOR, buffer_num); k_prln(1);
 
    
       (* Get and (for now) throw away packet from PTC *)
@@ -584,6 +586,7 @@ begin
       terminal_num := tmp_p^.terminal_num;
       packet_size := tmp_p^.packet_size;
       tp := adr(pty_struct[terminal_num]);
+      k_cpr(PTY_COLOR, "     >> Terminal is  : "); k_cpr_hex_num(PTY_COLOR, terminal_num); k_prln(1);
       
       if (packet_type = TERMINAL_INPUT) then begin
         
@@ -646,6 +649,10 @@ begin
       EI
    END;
    *)
+   k_cpr(PTY_COLOR, "FINISHED examining all terminals - EI"); k_prln(1);
+   ASM
+      EI
+   END;
       
    
    (* Now check all waiting procs to see if any are waiting for input
@@ -1048,14 +1055,12 @@ begin
       end
       else if p^.m_type = PTY_INT then begin
          (* Something happened with the tctlr *)
-         lock();
          int_message := p;
          if (debug_flag >= 1) then begin
             k_cpr(PTY_COLOR, "   PTY: Recvd PTY_INT msg...");  k_prln(1)
          end;
          (* TODO invoke do_pty_int *)
-         do_pty_int();
-         restore() 
+         do_pty_int()
       end
       else begin
          k_cpr(PTY_COLOR, "   PTY: UNKNOWN message type!"); k_prln(1);
