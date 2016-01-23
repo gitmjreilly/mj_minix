@@ -138,26 +138,14 @@ begin
 	-- we use the clock divided by 2.
 	-- my_clock <= clk_counter(0);
 
-u_my_clock : entity work.jam_half_clock
-  port map
-   (-- Clock in ports
-    CLK_IN1 => clk,
-    -- Clock out ports
-    CLK_OUT1 => my_clock,
-    -- Status and control signals
-    RESET  => RESET);	
+	u_my_clock : entity work.clk_100_50
+		port map (
+			CLK_IN1 => clk,
+			CLK_OUT1 => my_clock,
+			RESET  => RESET
+		);	
 	
 	
-	-- clk_hi_ind <= 	my_clock;
-	-- clk_low_ind <= NOT my_clock;
-	clk_hi_ind <= 	'1';
-	clk_low_ind <=  '0';
-
-	-- 
-	-- Hardwire UB & LB for RAM access
-	--
-	n_ub <= '0';
-	n_lb <= '0';
 
 	---------------------------------------------------------------------
 	-- Notice the timing generator which generates cpu_start and cpu_finish
