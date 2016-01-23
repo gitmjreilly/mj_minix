@@ -3,7 +3,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.STD_LOGIC_ARITH.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
-entity cpu1 is
+entity cpu is
 	Port ( 
 		reset : in std_logic;																		
 		my_clock : in std_logic;	-- this should be the 50Mhz Clock

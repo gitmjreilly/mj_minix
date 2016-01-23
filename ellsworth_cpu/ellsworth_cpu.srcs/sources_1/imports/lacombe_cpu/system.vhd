@@ -21,8 +21,8 @@ entity system is port (
 	-- Indicators to show cpu is doing something...
 	-- n_ind : out std_logic;
 	-- z_ind : out std_logic;
-	rd_ind : out std_logic;
-	wr_ind : out std_logic
+	-- rd_ind : out std_logic;
+	-- wr_ind : out std_logic
 	-- fetch_ind : out std_logic;
 
 
@@ -39,7 +39,9 @@ entity system is port (
 	-- disk_uart_rx : in std_logic;
 	
 	-- ptc_uart_tx : out std_logic;
-	-- ptc_uart_rx : in std_logic
+	-- ptc_uart_rx : in std_logic;
+	
+	led_output_port : std_logic_vector(3 downto 0)
 	
 );
 end system;
@@ -104,21 +106,27 @@ architecture structural of system is
 	
 	---------------------------------------------------------------------
 
+	-- todo either add to entity or remove from cpu
+	signal n_ind : std_logic;
+	signal z_ind : std_logic;
+	signal rd_ind :  std_logic;
+	signal wr_ind :  std_logic;
+	signal fetch_ind :  std_logic;
+	signal address_switches : std_logic_vector(4 downto 0);
+	signal data_bus : std_logic_vector(15 downto 0);
+	signal addr_bus : std_logic_vector(25 downto 0);
 	
 	
 begin
-	reset_n <= NOT reset;
-	console_uart_tx <= txd_bus;
-	rxd_bus <= console_uart_rx;
+	-- Todo restore console
+	-- console_uart_tx <= txd_bus;
+	-- rxd_bus <= console_uart_rx;
 
-	n_wr <= n_wr_bus;
-	n_rd <= n_rd_bus;
+	-- todo restore external r/w
+	-- n_wr <= n_wr_bus;
+	-- n_rd <= n_rd_bus;
 
-	parallel_pcm_cs  <= '1';
-	parallel_pcm_rst  <= '0';
-	cellular_ram_clk <= '0';
-	cellular_ram_adv <= '0';
-	cellular_ram_cre <= '0';
+
 
 	---------------------------------------------------------------------
 	-- clk_divider : entity work.ClockDivider 
@@ -140,9 +148,9 @@ begin
 
 	u_my_clock : entity work.clk_100_50
 		port map (
-			CLK_IN1 => clk,
-			CLK_OUT1 => my_clock,
-			RESET  => RESET
+			clk_in=> clk,
+			clk_out => my_clock,
+			reset  => reset
 		);	
 	
 	
@@ -161,7 +169,7 @@ begin
 	
 	
 	---------------------------------------------------------------------
-	the_cpu : entity work.cpu1 
+	u_cpu : entity work.cpu
 		port map (
 			reset => reset,
 			my_clock => my_clock, 
@@ -219,7 +227,8 @@ begin
 	---------------------------------------------------------------------
 
 
-	external_ram_cs <= cs_bus(RAM_CS);
+	-- todo restore ram cs
+	-- external_ram_cs <= cs_bus(RAM_CS);
  
 	---------------------------------------------------------------------
 	the_rom : entity work.rom  -- no sync clock issues - This is combinatorial
