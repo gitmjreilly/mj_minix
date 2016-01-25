@@ -118,13 +118,13 @@
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PSRCDIR/sources_1/new/cpu.vhd">
+      <File Path="$PSRCDIR/sources_1/new/block_ram_64kb.vhd">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PSRCDIR/sources_1/new/block_ram_64kb.vhd">
+      <File Path="$PSRCDIR/sources_1/new/cpu.vhd">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="simulation"/>
@@ -153,10 +153,12 @@
         </FileInfo>
       </File>
       <Config>
+        <Option Name="TargetConstrsFile" Val="$PSRCDIR/constrs_1/new/system.xdc"/>
         <Option Name="ConstrsType" Val="XDC"/>
       </Config>
     </FileSet>
     <FileSet Name="sim_1" Type="SimulationSrcs" RelSrcDir="$PSRCDIR/sim_1">
+      <Filter Type="Srcs"/>
       <Config>
         <Option Name="DesignMode" Val="RTL"/>
         <Option Name="TopModule" Val="system"/>
@@ -173,18 +175,6 @@
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
-        <CompFileExtendedInfo CompFileName="clk_100_50.xci" FileRelPathName="clk_100_50.xdc"/>
-        <CompFileExtendedInfo CompFileName="clk_100_50.xci" FileRelPathName="clk_100_50_ooc.xdc"/>
-        <CompFileExtendedInfo CompFileName="clk_100_50.xci" FileRelPathName="clk_100_50_sim_netlist.v"/>
-        <CompFileExtendedInfo CompFileName="clk_100_50.xci" FileRelPathName="clk_100_50_sim_netlist.vhdl"/>
-        <CompFileExtendedInfo CompFileName="clk_100_50.xci" FileRelPathName="clk_100_50_stub.v"/>
-        <CompFileExtendedInfo CompFileName="clk_100_50.xci" FileRelPathName="clk_100_50_stub.vhdl"/>
-        <CompFileExtendedInfo CompFileName="clk_100_50.xci" FileRelPathName="clk_100_50.v"/>
-        <CompFileExtendedInfo CompFileName="clk_100_50.xci" FileRelPathName="clk_100_50_clk_wiz.v"/>
-        <CompFileExtendedInfo CompFileName="clk_100_50.xci" FileRelPathName="clk_100_50_board.xdc"/>
-        <CompFileExtendedInfo CompFileName="clk_100_50.xci" FileRelPathName="doc/clk_wiz_v5_2_changelog.txt"/>
-        <CompFileExtendedInfo CompFileName="clk_100_50.xci" FileRelPathName="clk_100_50.vho"/>
-        <CompFileExtendedInfo CompFileName="clk_100_50.xci" FileRelPathName="clk_100_50.xml"/>
       </File>
       <Config>
         <Option Name="TopModule" Val="clk_100_50"/>
@@ -198,25 +188,35 @@
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
-        <CompFileExtendedInfo CompFileName="blk_64_KB.xci" FileRelPathName="doc/blk_mem_gen_v8_3_changelog.txt"/>
-        <CompFileExtendedInfo CompFileName="blk_64_KB.xci" FileRelPathName="summary.log"/>
-        <CompFileExtendedInfo CompFileName="blk_64_KB.xci" FileRelPathName="blk_64_KB.veo"/>
-        <CompFileExtendedInfo CompFileName="blk_64_KB.xci" FileRelPathName="blk_64_KB_stub.vhdl"/>
-        <CompFileExtendedInfo CompFileName="blk_64_KB.xci" FileRelPathName="blk_64_KB_stub.v"/>
-        <CompFileExtendedInfo CompFileName="blk_64_KB.xci" FileRelPathName="blk_64_KB_sim_netlist.v"/>
-        <CompFileExtendedInfo CompFileName="blk_64_KB.xci" FileRelPathName="blk_64_KB.vho"/>
-        <CompFileExtendedInfo CompFileName="blk_64_KB.xci" FileRelPathName="synth/blk_64_KB.vhd"/>
-        <CompFileExtendedInfo CompFileName="blk_64_KB.xci" FileRelPathName="blk_mem_gen_v8_3_0/simulation/blk_mem_gen_v8_3.vhd"/>
-        <CompFileExtendedInfo CompFileName="blk_64_KB.xci" FileRelPathName="blk_64_KB_ooc.xdc"/>
-        <CompFileExtendedInfo CompFileName="blk_64_KB.xci" FileRelPathName="sim/blk_64_KB.vhd"/>
-        <CompFileExtendedInfo CompFileName="blk_64_KB.xci" FileRelPathName="blk_64_KB_sim_netlist.vhdl"/>
-        <CompFileExtendedInfo CompFileName="blk_64_KB.xci" FileRelPathName="blk_mem_gen_v8_3_0/hdl/blk_mem_gen_v8_3_vhsyn_rfs.vhd"/>
-        <CompFileExtendedInfo CompFileName="blk_64_KB.xci" FileRelPathName="blk_mem_gen_v8_3_0/hdl/blk_mem_gen_v8_3.vhd"/>
-        <CompFileExtendedInfo CompFileName="blk_64_KB.xci" FileRelPathName="blk_64_KB.dcp"/>
-        <CompFileExtendedInfo CompFileName="blk_64_KB.xci" FileRelPathName="blk_64_KB.xml"/>
       </File>
       <Config>
         <Option Name="TopModule" Val="blk_64_KB"/>
+        <Option Name="UseBlackboxStub" Val="1"/>
+      </Config>
+    </FileSet>
+    <FileSet Name="blk_mem_gen_64KW_2" Type="BlockSrcs" RelSrcDir="$PSRCDIR/blk_mem_gen_64KW_2">
+      <File Path="$PSRCDIR/sources_1/ip/blk_mem_gen_64KW_2/blk_mem_gen_64KW_2.xci">
+        <FileInfo>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <Config>
+        <Option Name="TopModule" Val="blk_mem_gen_64KW_2"/>
+        <Option Name="UseBlackboxStub" Val="1"/>
+      </Config>
+    </FileSet>
+    <FileSet Name="blk_mem_gen_4" Type="BlockSrcs" RelSrcDir="$PSRCDIR/blk_mem_gen_4">
+      <File Path="$PSRCDIR/sources_1/ip/blk_mem_gen_4/blk_mem_gen_4.xci">
+        <FileInfo>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <Config>
+        <Option Name="TopModule" Val="blk_mem_gen_4"/>
         <Option Name="UseBlackboxStub" Val="1"/>
       </Config>
     </FileSet>
@@ -245,36 +245,42 @@
   <Runs Version="1" Minor="10">
     <Run Id="synth_1" Type="Ft3:Synth" SrcSet="sources_1" Part="xc7a35ticsg324-1L" ConstrsSet="constrs_1" Description="Vivado Synthesis Defaults" State="current" Dir="$PRUNDIR/synth_1" IncludeInArchive="true">
       <Strategy Version="1" Minor="2">
-        <StratHandle Name="Vivado Synthesis Defaults" Flow="Vivado Synthesis 2015">
-          <Desc>Vivado Synthesis Defaults</Desc>
-        </StratHandle>
+        <StratHandle Name="Vivado Synthesis Defaults" Flow="Vivado Synthesis 2015"/>
         <Step Id="synth_design"/>
       </Strategy>
       <GeneratedRun Dir="$PRUNDIR" File="gen_run.xml"/>
     </Run>
     <Run Id="clk_100_50_synth_1" Type="Ft3:Synth" SrcSet="clk_100_50" Part="xc7a35ticsg324-1L" ConstrsSet="clk_100_50" Description="Vivado Synthesis Defaults" Dir="$PRUNDIR/clk_100_50_synth_1" IncludeInArchive="true">
       <Strategy Version="1" Minor="2">
-        <StratHandle Name="Vivado Synthesis Defaults" Flow="Vivado Synthesis 2015">
-          <Desc>Vivado Synthesis Defaults</Desc>
-        </StratHandle>
+        <StratHandle Name="Vivado Synthesis Defaults" Flow="Vivado Synthesis 2015"/>
         <Step Id="synth_design"/>
       </Strategy>
       <GeneratedRun Dir="$PRUNDIR" File="gen_run.xml"/>
     </Run>
     <Run Id="blk_64_KB_synth_1" Type="Ft3:Synth" SrcSet="blk_64_KB" Part="xc7a35ticsg324-1L" ConstrsSet="blk_64_KB" Description="Vivado Synthesis Defaults" Dir="$PRUNDIR/blk_64_KB_synth_1" IncludeInArchive="true">
       <Strategy Version="1" Minor="2">
-        <StratHandle Name="Vivado Synthesis Defaults" Flow="Vivado Synthesis 2015">
-          <Desc>Vivado Synthesis Defaults</Desc>
-        </StratHandle>
+        <StratHandle Name="Vivado Synthesis Defaults" Flow="Vivado Synthesis 2015"/>
         <Step Id="synth_design"/>
       </Strategy>
       <GeneratedRun Dir="$PRUNDIR" File="gen_run.xml"/>
     </Run>
-    <Run Id="impl_1" Type="Ft2:EntireDesign" Part="xc7a35ticsg324-1L" ConstrsSet="constrs_1" Description="Vivado Implementation Defaults" State="current" SynthRun="synth_1" IncludeInArchive="true">
+    <Run Id="blk_mem_gen_64KW_2_synth_1" Type="Ft3:Synth" SrcSet="blk_mem_gen_64KW_2" Part="xc7a35ticsg324-1L" ConstrsSet="blk_mem_gen_64KW_2" Description="Vivado Synthesis Defaults" Dir="$PRUNDIR/blk_mem_gen_64KW_2_synth_1" IncludeInArchive="true">
       <Strategy Version="1" Minor="2">
-        <StratHandle Name="Vivado Implementation Defaults" Flow="Vivado Implementation 2015">
-          <Desc>Vivado Implementation Defaults</Desc>
-        </StratHandle>
+        <StratHandle Name="Vivado Synthesis Defaults" Flow="Vivado Synthesis 2015"/>
+        <Step Id="synth_design"/>
+      </Strategy>
+      <GeneratedRun Dir="$PRUNDIR" File="gen_run.xml"/>
+    </Run>
+    <Run Id="blk_mem_gen_4_synth_1" Type="Ft3:Synth" SrcSet="blk_mem_gen_4" Part="xc7a35ticsg324-1L" ConstrsSet="blk_mem_gen_4" Description="Vivado Synthesis Defaults" Dir="$PRUNDIR/blk_mem_gen_4_synth_1" IncludeInArchive="true">
+      <Strategy Version="1" Minor="2">
+        <StratHandle Name="Vivado Synthesis Defaults" Flow="Vivado Synthesis 2015"/>
+        <Step Id="synth_design"/>
+      </Strategy>
+      <GeneratedRun Dir="$PRUNDIR" File="gen_run.xml"/>
+    </Run>
+    <Run Id="impl_1" Type="Ft2:EntireDesign" Part="xc7a35ticsg324-1L" ConstrsSet="constrs_1" Description="Vivado Implementation Defaults" State="current" Dir="$PRUNDIR/impl_1" SynthRun="synth_1" IncludeInArchive="true">
+      <Strategy Version="1" Minor="2">
+        <StratHandle Name="Vivado Implementation Defaults" Flow="Vivado Implementation 2015"/>
         <Step Id="init_design"/>
         <Step Id="opt_design"/>
         <Step Id="power_opt_design"/>
@@ -287,12 +293,11 @@
           <Option Id="BinFile">1</Option>
         </Step>
       </Strategy>
+      <GeneratedRun Dir="$PRUNDIR" File="gen_run.xml"/>
     </Run>
     <Run Id="clk_100_50_impl_1" Type="Ft2:EntireDesign" Part="xc7a35ticsg324-1L" ConstrsSet="clk_100_50" Description="Vivado Implementation Defaults" SynthRun="clk_100_50_synth_1" IncludeInArchive="true">
       <Strategy Version="1" Minor="2">
-        <StratHandle Name="Vivado Implementation Defaults" Flow="Vivado Implementation 2015">
-          <Desc>Vivado Implementation Defaults</Desc>
-        </StratHandle>
+        <StratHandle Name="Vivado Implementation Defaults" Flow="Vivado Implementation 2015"/>
         <Step Id="init_design"/>
         <Step Id="opt_design"/>
         <Step Id="power_opt_design"/>
@@ -306,9 +311,35 @@
     </Run>
     <Run Id="blk_64_KB_impl_1" Type="Ft2:EntireDesign" Part="xc7a35ticsg324-1L" ConstrsSet="blk_64_KB" Description="Vivado Implementation Defaults" SynthRun="blk_64_KB_synth_1" IncludeInArchive="true">
       <Strategy Version="1" Minor="2">
-        <StratHandle Name="Vivado Implementation Defaults" Flow="Vivado Implementation 2015">
-          <Desc>Vivado Implementation Defaults</Desc>
-        </StratHandle>
+        <StratHandle Name="Vivado Implementation Defaults" Flow="Vivado Implementation 2015"/>
+        <Step Id="init_design"/>
+        <Step Id="opt_design"/>
+        <Step Id="power_opt_design"/>
+        <Step Id="place_design"/>
+        <Step Id="post_place_power_opt_design"/>
+        <Step Id="phys_opt_design"/>
+        <Step Id="route_design"/>
+        <Step Id="post_route_phys_opt_design"/>
+        <Step Id="write_bitstream"/>
+      </Strategy>
+    </Run>
+    <Run Id="blk_mem_gen_64KW_2_impl_1" Type="Ft2:EntireDesign" Part="xc7a35ticsg324-1L" ConstrsSet="blk_mem_gen_64KW_2" Description="Vivado Implementation Defaults" SynthRun="blk_mem_gen_64KW_2_synth_1" IncludeInArchive="true">
+      <Strategy Version="1" Minor="2">
+        <StratHandle Name="Vivado Implementation Defaults" Flow="Vivado Implementation 2015"/>
+        <Step Id="init_design"/>
+        <Step Id="opt_design"/>
+        <Step Id="power_opt_design"/>
+        <Step Id="place_design"/>
+        <Step Id="post_place_power_opt_design"/>
+        <Step Id="phys_opt_design"/>
+        <Step Id="route_design"/>
+        <Step Id="post_route_phys_opt_design"/>
+        <Step Id="write_bitstream"/>
+      </Strategy>
+    </Run>
+    <Run Id="blk_mem_gen_4_impl_1" Type="Ft2:EntireDesign" Part="xc7a35ticsg324-1L" ConstrsSet="blk_mem_gen_4" Description="Vivado Implementation Defaults" SynthRun="blk_mem_gen_4_synth_1" IncludeInArchive="true">
+      <Strategy Version="1" Minor="2">
+        <StratHandle Name="Vivado Implementation Defaults" Flow="Vivado Implementation 2015"/>
         <Step Id="init_design"/>
         <Step Id="opt_design"/>
         <Step Id="power_opt_design"/>

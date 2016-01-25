@@ -41,7 +41,9 @@ entity system is port (
 	-- ptc_uart_tx : out std_logic;
 	-- ptc_uart_rx : in std_logic;
 	
-	led_output_port : std_logic_vector(3 downto 0)
+	led_output_port : out std_logic_vector(3 downto 0);
+	
+	slow_blinker : out std_logic
 	
 );
 end system;
@@ -116,6 +118,7 @@ architecture structural of system is
 	signal data_bus : std_logic_vector(15 downto 0);
 	signal addr_bus : std_logic_vector(25 downto 0);
 	
+	signal test_counter : std_logic_vector(23 downto 0);
 	
 begin
 	-- Todo restore console
@@ -300,19 +303,21 @@ begin
 	
 	
 	
-	-- ---------------------------------------------------------------------
-	-- -- Test output port - no actual use.
-	-- u_output_port_0 : process (my_clock, reset, data_bus)
-	-- begin
-		-- if (reset = '1') then
-			-- output_port_0 <= '0';
-		-- elsif (rising_edge(my_clock)) then
-			-- if (cpu_finish = '1' and n_wr_bus = '0' and cs_bus(OUTPUT_PORT_0_CS) = '0')  then
-				-- output_port_0 <= data_bus(0);
-			-- end if;
-		-- end if;
-	-- end process;
-	-- ---------------------------------------------------------------------
+	---------------------------------------------------------------------
+	-- Test output port - no actual use.
+	u_output_port_0 : process (my_clock, reset, data_bus)
+	begin
+		if (reset = '1') then
+			led_output_port <= X"E";
+		elsif (rising_edge(my_clock)) then
+			if (cpu_finish = '1' and n_wr_bus = '0' and cs_bus(BLANK_20_CS) = '0')  then
+			-- if (cpu_finish = '1' and n_wr_bus = '0')  then
+				led_output_port <= data_bus(3 downto 0);
+				-- led_output_port <= X"9";
+			end if;
+		end if;
+	end process;
+	---------------------------------------------------------------------
 	
 	
 	-- ---------------------------------------------------------------------
