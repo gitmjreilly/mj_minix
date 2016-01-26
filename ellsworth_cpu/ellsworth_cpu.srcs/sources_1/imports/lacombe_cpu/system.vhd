@@ -32,8 +32,8 @@ entity system is port (
 	-- address_switches : in std_logic_vector(7 downto 0);
 	
 	-- Three serial ports...
-	-- console_uart_tx : out std_logic;
-	-- console_uart_rx : in std_logic;
+	console_uart_tx : out std_logic;
+	console_uart_rx : in std_logic;
 	
 	-- disk_uart_tx : out std_logic;
 	-- disk_uart_rx : in std_logic;
@@ -121,9 +121,8 @@ architecture structural of system is
 	signal test_counter : std_logic_vector(23 downto 0);
 	
 begin
-	-- Todo restore console
-	-- console_uart_tx <= txd_bus;
-	-- rxd_bus <= console_uart_rx;
+	console_uart_tx <= txd_bus;
+	rxd_bus <= console_uart_rx;
 
 	-- todo restore external r/w
 	-- n_wr <= n_wr_bus;
@@ -345,19 +344,19 @@ begin
 
 
 
-	-- console_uart: entity work.uart_w_fifo
-		-- port map ( 
-			-- clk  => my_clock,
-			-- rx => RXD_BUS,
-			-- tx => TXD_BUS,
-			-- reset => reset,
-			-- cpu_finish => cpu_finish,
-			-- n_cs => cs_bus(CONSOLE_UART_CS),
-			-- n_rd => n_rd_bus,
-			-- n_wr => n_wr_bus,
-			-- data_bus => data_bus,
-			-- addr_bus => local_addr_bus(3 downto 0)
-		-- );
+	console_uart: entity work.uart_w_fifo
+		port map ( 
+			clk  => my_clock,
+			rx => RXD_BUS,
+			tx => TXD_BUS,
+			reset => reset,
+			cpu_finish => cpu_finish,
+			n_cs => cs_bus(CONSOLE_UART_CS),
+			n_rd => n_rd_bus,
+			n_wr => n_wr_bus,
+			data_bus => data_bus,
+			addr_bus => local_addr_bus(3 downto 0)
+		);
 
 
 	-- disk_uart: entity work.uart_w_fifo

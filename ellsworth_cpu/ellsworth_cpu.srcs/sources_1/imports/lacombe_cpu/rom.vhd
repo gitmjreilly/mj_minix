@@ -18,21 +18,21 @@ architecture Behavioral of rom is
 begin
    output <= 
 --
-x"0002" when (addr =  x"0") else
-x"000B" when (addr =  x"1") else
-x"0002" when (addr =  x"2") else
-x"F020" when (addr =  x"3") else
-x"0008" when (addr =  x"4") else
-x"0003" when (addr =  x"5") else
+-- x"0002" when (addr =  x"0") else
+-- x"000B" when (addr =  x"1") else
+-- x"0002" when (addr =  x"2") else
+-- x"F020" when (addr =  x"3") else
+-- x"0008" when (addr =  x"4") else
+-- x"0003" when (addr =  x"5") else
 
 
 -- Pat's Original
--- x"000A" when (addr =  x"0") else
--- x"006F" when (addr =  x"1") else
--- x"0002" when (addr =  x"2") else
--- x"F001" when (addr =  x"3") else
--- x"0009" when (addr =  x"4") else
--- x"0002" when (addr =  x"5") else
+x"000A" when (addr =  x"0") else
+x"006F" when (addr =  x"1") else
+x"0002" when (addr =  x"2") else
+x"F001" when (addr =  x"3") else
+x"0009" when (addr =  x"4") else
+x"0002" when (addr =  x"5") else
 
 x"0001" when (addr =  x"6") else
 x"001B" when (addr =  x"7") else
