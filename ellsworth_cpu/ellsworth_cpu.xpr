@@ -142,12 +142,29 @@
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
+      <File Path="$PSRCDIR/sources_1/new/mem_based_counter.vhd">
+        <FileInfo>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sources_1/new/mem_based_int_controller.vhd">
+        <FileInfo>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
       <File Path="$PSRCDIR/sources_1/imports/lacombe_cpu/system.vhd">
         <FileInfo>
           <Attr Name="ImportPath" Val="$PPRDIR/../lacombe_cpu/system.vhd"/>
           <Attr Name="ImportTime" Val="1452948459"/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sources_1/ip/mig_7series_0/mig_a.prj">
+        <FileInfo>
+          <Attr Name="UsedIn" Val="synthesis"/>
         </FileInfo>
       </File>
       <Config>
@@ -213,24 +230,22 @@
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
-        <CompFileExtendedInfo CompFileName="blk_mem_dual_1KB.xci" FileRelPathName="blk_mem_dual_1KB.xml"/>
-        <CompFileExtendedInfo CompFileName="blk_mem_dual_1KB.xci" FileRelPathName="blk_mem_gen_v8_3_0/hdl/blk_mem_gen_v8_3.vhd"/>
-        <CompFileExtendedInfo CompFileName="blk_mem_dual_1KB.xci" FileRelPathName="blk_mem_gen_v8_3_0/hdl/blk_mem_gen_v8_3_vhsyn_rfs.vhd"/>
-        <CompFileExtendedInfo CompFileName="blk_mem_dual_1KB.xci" FileRelPathName="blk_mem_dual_1KB.veo"/>
-        <CompFileExtendedInfo CompFileName="blk_mem_dual_1KB.xci" FileRelPathName="sim/blk_mem_dual_1KB.vhd"/>
-        <CompFileExtendedInfo CompFileName="blk_mem_dual_1KB.xci" FileRelPathName="doc/blk_mem_gen_v8_3_changelog.txt"/>
-        <CompFileExtendedInfo CompFileName="blk_mem_dual_1KB.xci" FileRelPathName="blk_mem_gen_v8_3_0/simulation/blk_mem_gen_v8_3.vhd"/>
-        <CompFileExtendedInfo CompFileName="blk_mem_dual_1KB.xci" FileRelPathName="synth/blk_mem_dual_1KB.vhd"/>
-        <CompFileExtendedInfo CompFileName="blk_mem_dual_1KB.xci" FileRelPathName="blk_mem_dual_1KB_ooc.xdc"/>
-        <CompFileExtendedInfo CompFileName="blk_mem_dual_1KB.xci" FileRelPathName="summary.log"/>
-        <CompFileExtendedInfo CompFileName="blk_mem_dual_1KB.xci" FileRelPathName="blk_mem_dual_1KB_sim_netlist.v"/>
-        <CompFileExtendedInfo CompFileName="blk_mem_dual_1KB.xci" FileRelPathName="blk_mem_dual_1KB_stub.vhdl"/>
-        <CompFileExtendedInfo CompFileName="blk_mem_dual_1KB.xci" FileRelPathName="blk_mem_dual_1KB_stub.v"/>
-        <CompFileExtendedInfo CompFileName="blk_mem_dual_1KB.xci" FileRelPathName="blk_mem_dual_1KB.vho"/>
-        <CompFileExtendedInfo CompFileName="blk_mem_dual_1KB.xci" FileRelPathName="blk_mem_dual_1KB_sim_netlist.vhdl"/>
       </File>
       <Config>
         <Option Name="TopModule" Val="blk_mem_dual_1KB"/>
+        <Option Name="UseBlackboxStub" Val="1"/>
+      </Config>
+    </FileSet>
+    <FileSet Name="mig_7series_0" Type="BlockSrcs" RelSrcDir="$PSRCDIR/mig_7series_0">
+      <File Path="$PSRCDIR/sources_1/ip/mig_7series_0/mig_7series_0.xci">
+        <FileInfo>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <Config>
+        <Option Name="TopModule" Val="mig_7series_0"/>
         <Option Name="UseBlackboxStub" Val="1"/>
       </Config>
     </FileSet>
@@ -280,9 +295,14 @@
     </Run>
     <Run Id="blk_mem_dual_1KB_synth_1" Type="Ft3:Synth" SrcSet="blk_mem_dual_1KB" Part="xc7a35ticsg324-1L" ConstrsSet="blk_mem_dual_1KB" Description="Vivado Synthesis Defaults" Dir="$PRUNDIR/blk_mem_dual_1KB_synth_1" IncludeInArchive="true">
       <Strategy Version="1" Minor="2">
-        <StratHandle Name="Vivado Synthesis Defaults" Flow="Vivado Synthesis 2015">
-          <Desc>Vivado Synthesis Defaults</Desc>
-        </StratHandle>
+        <StratHandle Name="Vivado Synthesis Defaults" Flow="Vivado Synthesis 2015"/>
+        <Step Id="synth_design"/>
+      </Strategy>
+      <GeneratedRun Dir="$PRUNDIR" File="gen_run.xml"/>
+    </Run>
+    <Run Id="mig_7series_0_synth_1" Type="Ft3:Synth" SrcSet="mig_7series_0" Part="xc7a35ticsg324-1L" ConstrsSet="mig_7series_0" Description="Vivado Synthesis Defaults" Dir="$PRUNDIR/mig_7series_0_synth_1" IncludeInArchive="true">
+      <Strategy Version="1" Minor="2">
+        <StratHandle Name="Vivado Synthesis Defaults" Flow="Vivado Synthesis 2015"/>
         <Step Id="synth_design"/>
       </Strategy>
       <GeneratedRun Dir="$PRUNDIR" File="gen_run.xml"/>
@@ -334,9 +354,21 @@
     </Run>
     <Run Id="blk_mem_dual_1KB_impl_1" Type="Ft2:EntireDesign" Part="xc7a35ticsg324-1L" ConstrsSet="blk_mem_dual_1KB" Description="Vivado Implementation Defaults" SynthRun="blk_mem_dual_1KB_synth_1" IncludeInArchive="true">
       <Strategy Version="1" Minor="2">
-        <StratHandle Name="Vivado Implementation Defaults" Flow="Vivado Implementation 2015">
-          <Desc>Vivado Implementation Defaults</Desc>
-        </StratHandle>
+        <StratHandle Name="Vivado Implementation Defaults" Flow="Vivado Implementation 2015"/>
+        <Step Id="init_design"/>
+        <Step Id="opt_design"/>
+        <Step Id="power_opt_design"/>
+        <Step Id="place_design"/>
+        <Step Id="post_place_power_opt_design"/>
+        <Step Id="phys_opt_design"/>
+        <Step Id="route_design"/>
+        <Step Id="post_route_phys_opt_design"/>
+        <Step Id="write_bitstream"/>
+      </Strategy>
+    </Run>
+    <Run Id="mig_7series_0_impl_1" Type="Ft2:EntireDesign" Part="xc7a35ticsg324-1L" ConstrsSet="mig_7series_0" Description="Vivado Implementation Defaults" SynthRun="mig_7series_0_synth_1" IncludeInArchive="true">
+      <Strategy Version="1" Minor="2">
+        <StratHandle Name="Vivado Implementation Defaults" Flow="Vivado Implementation 2015"/>
         <Step Id="init_design"/>
         <Step Id="opt_design"/>
         <Step Id="power_opt_design"/>

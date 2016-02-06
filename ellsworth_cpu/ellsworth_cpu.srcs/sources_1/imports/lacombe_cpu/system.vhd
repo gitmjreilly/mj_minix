@@ -258,16 +258,16 @@ begin
 
 
 	---------------------------------------------------------------------
-	-- counter_0: entity work.mem_based_counter 
-		-- port map (
-			-- clock => my_clock,  -- counter clock MAY be OK - Confirm!!!
-			-- reset => reset,
-			-- n_rd => n_rd_bus,
-			-- n_cs => cs_bus(COUNTER_0_CS),
-			-- x_edge => counter_is_zero,
-			-- counter_out => data_bus
-		-- );
-	---------------------------------------------------------------------
+	counter_0: entity work.mem_based_counter 
+		port map (
+			clock => my_clock,  -- counter clock MAY be OK - Confirm!!!
+			reset => reset,
+			n_rd => n_rd_bus,
+			n_cs => cs_bus(COUNTER_0_CS),
+			x_edge => counter_is_zero,
+			counter_out => data_bus
+		);
+	-------------------------------------------------------------------
 
 
    ---
@@ -286,19 +286,19 @@ begin
 
 
 
-	-- int_controller : entity work.mem_based_int_controller 
-		-- port map ( 
-			-- clock => my_clock, 
-			-- reset => reset,
-			-- cpu_finish => cpu_finish,
-			-- addr_bus => local_addr_bus(3 downto 0),
-			-- data_bus => data_bus,
-			-- int_occurred => cpu_int,
-			-- n_cs => cs_bus(INT_CONTROLLER_CS),
-			-- n_wr => n_wr_bus,
-			-- n_rd => n_rd_bus,
-			-- raw_interrupt_word => multiple_int_sources
-		-- );
+	int_controller : entity work.mem_based_int_controller 
+		port map ( 
+			clock => my_clock, 
+			reset => reset,
+			cpu_finish => cpu_finish,
+			addr_bus => local_addr_bus(3 downto 0),
+			data_bus => data_bus,
+			int_occurred => cpu_int,
+			n_cs => cs_bus(INT_CONTROLLER_CS),
+			n_wr => n_wr_bus,
+			n_rd => n_rd_bus,
+			raw_interrupt_word => multiple_int_sources
+		);
 	
 	
 	
