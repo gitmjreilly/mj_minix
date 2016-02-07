@@ -35,11 +35,11 @@ entity system is port (
 	console_uart_tx : out std_logic;
 	console_uart_rx : in std_logic;
 	
-	-- disk_uart_tx : out std_logic;
-	-- disk_uart_rx : in std_logic;
+	disk_uart_tx : out std_logic;
+	disk_uart_rx : in std_logic;
 	
-	-- ptc_uart_tx : out std_logic;
-	-- ptc_uart_rx : in std_logic;
+	ptc_uart_tx : out std_logic;
+	ptc_uart_rx : in std_logic;
 	
 	led_output_port : out std_logic_vector(3 downto 0);
 	
@@ -359,35 +359,35 @@ begin
 		);
 
 
-	-- disk_uart: entity work.uart_w_fifo
-		-- port map ( 
-			-- clk  => my_clock,
-			-- rx => disk_uart_rx,
-			-- tx => disk_uart_tx,
-			-- reset => reset,
-			-- cpu_finish => cpu_finish,
-			-- n_cs => cs_bus(DISK_UART_CS),
-			-- n_rd => n_rd_bus,
-			-- n_wr => n_wr_bus,
-			-- data_bus => data_bus,
-			-- addr_bus => local_addr_bus(3 downto 0),
-			-- rx_fifo_is_half_full => disk_uart_rx_fifo_is_half_full
-		-- );
+	disk_uart: entity work.uart_w_fifo
+		port map ( 
+			clk  => my_clock,
+			rx => disk_uart_rx,
+			tx => disk_uart_tx,
+			reset => reset,
+			cpu_finish => cpu_finish,
+			n_cs => cs_bus(DISK_UART_CS),
+			n_rd => n_rd_bus,
+			n_wr => n_wr_bus,
+			data_bus => data_bus,
+			addr_bus => local_addr_bus(3 downto 0),
+			rx_fifo_is_half_full => disk_uart_rx_fifo_is_half_full
+		);
 	
-	-- ptc_uart: entity work.uart_w_fifo
-		-- port map ( 
-			-- clk  => my_clock,
-			-- rx => ptc_uart_rx,
-			-- tx => ptc_uart_tx,
-			-- reset => reset,
-			-- cpu_finish => cpu_finish,
-			-- n_cs => cs_bus(PTC_UART_CS),
-			-- n_rd => n_rd_bus,
-			-- n_wr => n_wr_bus,
-			-- data_bus => data_bus,
-			-- addr_bus => local_addr_bus(3 downto 0),
-			-- rx_fifo_is_quarter_full => ptc_uart_rx_fifo_is_quarter_full
-		-- );
+	ptc_uart: entity work.uart_w_fifo
+		port map ( 
+			clk  => my_clock,
+			rx => ptc_uart_rx,
+			tx => ptc_uart_tx,
+			reset => reset,
+			cpu_finish => cpu_finish,
+			n_cs => cs_bus(PTC_UART_CS),
+			n_rd => n_rd_bus,
+			n_wr => n_wr_bus,
+			data_bus => data_bus,
+			addr_bus => local_addr_bus(3 downto 0),
+			rx_fifo_is_quarter_full => ptc_uart_rx_fifo_is_quarter_full
+		);
 	
 
 

@@ -1,7 +1,7 @@
 // Copyright 1986-2015 Xilinx, Inc. All Rights Reserved.
 // --------------------------------------------------------------------------------
 // Tool Version: Vivado v.2015.3 (lin64) Build 1368829 Mon Sep 28 20:06:39 MDT 2015
-// Date        : Fri Jan 22 19:23:08 2016
+// Date        : Sat Feb  6 19:07:02 2016
 // Host        : mint-2015 running 64-bit Linux Mint 17 Qiana
 // Command     : write_verilog -force -mode synth_stub
 //               /home/mj/git-src/repo/ellsworth_cpu/ellsworth_cpu.srcs/sources_1/ip/clk_100_50/clk_100_50_stub.v

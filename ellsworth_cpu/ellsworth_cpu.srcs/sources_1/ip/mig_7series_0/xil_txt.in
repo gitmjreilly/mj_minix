@@ -1,0 +1,24 @@
+SET_FLAG MODE INTERACTIVE
+SET_FLAG STANDALONE_MODE TRUE
+SET_PREFERENCE ipi_mode no
+SET_PREFERENCE is_ip_locked false
+SET_PREFERENCE devicefamily artix7
+SET_PREFERENCE device xc7a35ti
+SET_PREFERENCE speedgrade -1L
+SET_PREFERENCE package csg324
+SET_PREFERENCE verilogsim false
+SET_PREFERENCE vhdlsim true
+SET_PREFERENCE designentry VHDL
+SET_PREFERENCE outputdirectory /home/mj/git-src/repo/ellsworth_cpu/.Xil/Vivado-36650-mint-2015/coregen/mig_7series_0/_tmp/
+SET_PREFERENCE subworkingdirectory /home/mj/git-src/repo/ellsworth_cpu/.Xil/Vivado-36650-mint-2015/coregen/mig_7series_0/_tmp/
+SET_PREFERENCE flowvendor Other
+SET_PREFERENCE tool vivado
+SET_PARAMETER component_name mig_7series_0
+SET_PREFERENCE compnamestatus 1
+SET_PARAMETER component_name mig_7series_0
+SET_PARAMETER data_dir_path /vivado/opt/Vivado/2015.3/data/ip/xilinx/mig_7series_v2_4
+SET_CORE_NAME Memory Interface Generator (MIG 7 Series)
+SET_CORE_VERSION 2.3
+SET_CORE_VLNV xilinx.com:ip:mig_7series:2.3
+SET_CORE_PATH /vivado/opt/Vivado/2015.3/data/ip/xilinx/mig_7series_v2_4
+SET_CORE_DATASHEET /vivado/opt/Vivado/2015.3/data/ip/xilinx/mig_7series_v2_4/data/docs/ds176_7series_MIS.pdf
