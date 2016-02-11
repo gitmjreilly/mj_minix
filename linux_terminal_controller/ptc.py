@@ -58,24 +58,29 @@ class service(SocketServer.BaseRequestHandler):
 def get_from_host(a):
     global host
     print 'PTC connecting to host...'
+
     host = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    host.connect(('127.0.0.1',HOST_PORT))
+    host.connect(('127.0.0.1', HOST_PORT))
+
     while (1):
-        term = host.recv(1)
-        terminal = ord(term)
+        terminal = ord(host.recv(1))
         cnt = ord(host.recv(1))
+        seq_num = ord(host.recv(1))
+
+        print "  host write: term :    <%04X>  seq <%04X>" % (terminal, seq_num)
+        
         s = ''
         for k in range(cnt):
             s += host.recv(1)
-	print 'Terminal: %d string is <%s>' % (terminal, s)
+            
         req = requests[terminal]
         req.send(s)
         #send acknowledgement
-        ack = chr(2)+chr(terminal) + chr(20) + 'This is ack...\r' + 256 * ' '
+        ack = chr(2) + chr(terminal) + chr(seq_num) + chr(20) + 'This is ack...\r' + 256 * ' '
         ack = ack[0:256]
         for ch in ack:
             host.send(ch)
-        print 'Sent ack...'
+        print "    PTC write ack: term <%04X>   seq <%04X>" % (terminal, seq_num)
 
     
 

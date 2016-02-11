@@ -50,6 +50,7 @@ type
       pty_outleft : integer;     (* num chars to be copied to out q *)
       pty_cum : integer;         (* chars copied to pty q so far *)
       pty_connection_status : integer;  (*  terminal state *)
+      pty_write_seq_num : integer; (* seq num to be sent to ptc and validated in acks *)
       (* terminal num may be 0..(NR_PTYS - 1) *)
       pty_terminal_num : integer
    end;
@@ -81,6 +82,7 @@ begin
       tp^.pty_incount := 0;
       (* Use pty_cum as num chars written to output q *)
       tp^.pty_cum := 0;
+      tp^.pty_write_seq_num := 0;
       (* TODO set proper connection status 
        * Not sure this is necessary *)
       tp^.pty_connection_status := 0;
@@ -468,56 +470,14 @@ var
    caller : integer;
 
 begin
-   k_cpr(PTY_COLOR, "   *** Entering finish ()"); k_prln(1);
 
    replyee := tp^.pty_otcaller;
    caller := tp^.pty_outproc;
 
-   pty_reply(TASK_REPLY, replyee, caller, code, 0, 0);
-   k_cpr(PTY_COLOR, "   *** Leaving inish ()"); k_prln(1)
+   pty_reply(TASK_REPLY, replyee, caller, code, 0, 0)
 end;
 (*=================================================================*)
 
-
-(*=================================================================*)
-(* Notify a blocked sender its transmission is complete
- * Called by do_pty_int to indicate a transmission is complete
- * Adjusted for tctlr *)
-procedure do_tctlr_ack_send(terminal_num : integer);
-
-var
-   tmp_str : array[20] of integer,
-   i : integer,
-   num_bytes_received : integer,
-   receive_buffer_start : integer,
-   tp : ^pty_struct_type,
-   m : integer,
-   replyee : integer,
-   caller  : integer;
-
-begin
-   DebugOut(PTY_COLOR, "   Entered do_tctlr_ack_send - terminal: ", 0);
-   BIOS_NumToHexStr(terminal_num, adr(tmp_str));
-   DebugOut(PTY_COLOR, adr(tmp_str), 1);
-
-   (*
-   tctlr_clear_transmission_flag(terminal_num);
-   *)
-   
-   (* TODO
-    * Restore finish() here???
-    * AST has it here.
-    * MJ has it as part of do_pty_write hierarchy.
-    * The effect is to make all writes synchronous. *)
-   (*
-   tp := adr(pty_struct[terminal_num]);
-   finish(tp, 0);
-   *)
-   
-   DebugOut(PTY_COLOR, "   Leaving do_tctlr_ack_send  ", 1)
-
-end;
-(*=================================================================*)
 
 
 
@@ -557,17 +517,18 @@ var
    end_dst_p : ^integer,
    start_dst_p : ^integer,
    buffer_num : integer,
+   sequence_num : integer,
    num_bytes_received_from_terminal : integer;
 
 begin
    ASM
       DI
    END;
-   k_cpr(PTY_COLOR, "Entered do_pty_int() examining all terminals - DI"); k_prln(1);
+   (* k_cpr(PTY_COLOR, "Entered do_pty_int() examining all terminals - DI"); k_prln(1);  *)
    
    buffer_num := 0;
    while (buffer_num < num_tctlr_buffers_filled) do begin
-      k_cpr(PTY_COLOR, "   Examining Buff : "); k_cpr_hex_num(PTY_COLOR, buffer_num); k_prln(1);
+      (* k_cpr(PTY_COLOR, "   Examining Buff : "); k_cpr_hex_num(PTY_COLOR, buffer_num); k_prln(1);  *)
 
    
       (* Get and (for now) throw away packet from PTC *)
@@ -585,8 +546,10 @@ begin
       packet_type := tmp_p^.packet_type;
       terminal_num := tmp_p^.terminal_num;
       packet_size := tmp_p^.packet_size;
+      sequence_num := tmp_p^.packet_size;
+      
       tp := adr(pty_struct[terminal_num]);
-      k_cpr(PTY_COLOR, "     >> Terminal is  : "); k_cpr_hex_num(PTY_COLOR, terminal_num); k_prln(1);
+      (* k_cpr(PTY_COLOR, "     >> Terminal is  : "); k_cpr_hex_num(PTY_COLOR, terminal_num); k_prln(1); *)
       
       if (packet_type = TERMINAL_INPUT) then begin
         
@@ -623,7 +586,13 @@ begin
          
       end (* Code handling TERMINAL INPUT *)
       else begin (* Handling a write ack *)
-         finish(tp, 0)
+      
+      
+         k_cpr(PTY_COLOR, "     Got PTC Ack;  Term : "); k_cpr_hex_num(PTY_COLOR, terminal_num); 
+         k_cpr(PTY_COLOR, "     Seq num : "); k_cpr_hex_num(PTY_COLOR, sequence_num); k_prln(1);
+         finish(tp, 0);
+         
+         tp^.pty_write_seq_num := (tp^.pty_write_seq_num + 1) AND $00FF
          
       end;
       buffer_num := buffer_num + 1
@@ -649,7 +618,7 @@ begin
       EI
    END;
    *)
-   k_cpr(PTY_COLOR, "FINISHED examining all terminals - EI"); k_prln(1);
+   (* k_cpr(PTY_COLOR, "FINISHED examining all terminals - EI"); k_prln(1); *)
    ASM
       EI
    END;
@@ -728,7 +697,8 @@ begin
    terminal_num := tp^.pty_terminal_num;
    
 
-   tctlr_write_to_str_to_term(terminal_num, adr(tp^.pty_outqueue), tp^.pty_cum);
+   
+   tctlr_write_to_str_to_term(terminal_num, adr(tp^.pty_outqueue), tp^.pty_cum, tp^.pty_write_seq_num);
 
    
    tp^.pty_cum := 0
@@ -910,7 +880,11 @@ begin
       tp^.pty_cum := tp^.pty_cum + 1
 
    end; (* while loop iterating over pty_outleft chars from user proc *)
-   tctlr_write_to_str_to_term(terminal_num, adr(tp^.pty_outqueue), tp^.pty_cum);
+   
+   k_cpr(PTY_COLOR, "PTY Write : Term : "); k_cpr_hex_num(PTY_COLOR, terminal_num);
+   k_cpr(PTY_COLOR, " Seq : "); k_cpr_hex_num(PTY_COLOR, tp^.pty_write_seq_num); k_prln(1);
+   
+   tctlr_write_to_str_to_term(terminal_num, adr(tp^.pty_outqueue), tp^.pty_cum, tp^.pty_write_seq_num);
    tp^.pty_cum := 0
 
 

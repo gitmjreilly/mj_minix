@@ -126,7 +126,7 @@ end;
          Raw data comes after command line (possibly binary)
   *
   *)
-procedure tctlr_write_to_str_to_term(terminal_num : integer,  s : ^integer, len : integer);
+procedure tctlr_write_to_str_to_term(terminal_num : integer,  s : ^integer, len : integer, seq_num : integer);
 var
    t : integer,
    ch : integer,
@@ -161,6 +161,10 @@ begin
    _tctlr_write_one(num_str[3]); 
    *)
    _tctlr_write_one(orig_len); 
+   
+
+   _tctlr_write_one(seq_num); 
+
    
    (*
    _tctlr_write_one(ASCII_LF); 

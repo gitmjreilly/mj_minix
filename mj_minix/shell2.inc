@@ -90,9 +90,7 @@ begin
    reply_mess := adr(shell2_mess);
 
    while (1) do begin
-      shell2_gets(adr(tmp_str));
-      shell2_puts("Your String was : ");
-      shell2_puts(adr(tmp_str))
+      shell2_puts("Shell 2 ")
    end
 
 end;   
