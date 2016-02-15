@@ -89,13 +89,8 @@ var
 begin
    ConsoleOut(SHELL_COLOR, "(Kernel internal) Shell is starting now...", 1);
 
-   p := adr(shell_mess);
-   reply_mess := adr(shell_mess);
-
    while (1) do begin
-      shell_gets(adr(tmp_str));
-      shell_puts("Your String was : ");
-      shell_puts(adr(tmp_str))
+      shell_puts("Hello World shell 1 ")
    end
 end;   
 
