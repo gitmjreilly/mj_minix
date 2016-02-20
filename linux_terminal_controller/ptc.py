@@ -67,7 +67,7 @@ def get_from_host(a):
         cnt = ord(host.recv(1))
         seq_num = ord(host.recv(1))
 
-        print "  host write: term :    <%04X>  seq <%04X>" % (terminal, seq_num)
+        print "  host write: term :    <%04X>  cnt < %04X> seq <%04X>" % (terminal, cnt, seq_num)
         
         s = ''
         for k in range(cnt):

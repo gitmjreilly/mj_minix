@@ -37,7 +37,7 @@ def socket_to_serial():
         num_bytes_written = my_serial_port.write(s)
         if (num_bytes_written != 1):
             print "WARNING socket_to_serial num_bytes_written is <%d>" % (num_bytes_written)
-        # my_serial_port.flush()
+        my_serial_port.flush()
 #####################################################################
 
    
@@ -64,7 +64,9 @@ def main():
     
     # Clear out the serial port in case there's any thing trapped in it!
     print "Clearing serial buffer..."
-    my_serial_port.read( my_serial_port.inWaiting() )
+    # my_serial_port.read( my_serial_port.inWaiting() )
+    my_serial_port.reset_input_buffer()
+    my_serial_port.reset_output_buffer()
 
     print "Listening on port <%s>..." % (tcp_port)
     listen_socket = socket.socket()
