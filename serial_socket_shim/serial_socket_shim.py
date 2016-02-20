@@ -14,12 +14,27 @@ FOREVER_TIME = 1000000
   
     
 #####################################################################
+# This is to get data from the fpga
+#
 def serial_to_socket():
 
     while (True):
-        s = my_serial_port.read(1)
+    
+
+        terminal_num = ord(my_serial_port.read(1))
+        num_data_bytes = ord(my_serial_port.read(1))
+        sequence_num = ord(my_serial_port.read(1))
+
+        s = my_serial_port.read(num_data_bytes)
+
+        print "  host write: term :    <%04X>  cnt < %04X> seq <%04X>" % (terminal_num, num_data_bytes, sequence_num)
+        
         # print "serial_to_socket: <%s>" % (s)
+        my_socket.send(chr(terminal_num))
+        my_socket.send(chr(num_data_bytes))
+        my_socket.send(chr(sequence_num))
         my_socket.send(s)
+        
 #####################################################################
 
     
@@ -37,7 +52,7 @@ def socket_to_serial():
         num_bytes_written = my_serial_port.write(s)
         if (num_bytes_written != 1):
             print "WARNING socket_to_serial num_bytes_written is <%d>" % (num_bytes_written)
-        my_serial_port.flush()
+            
 #####################################################################
 
    
