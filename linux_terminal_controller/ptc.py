@@ -15,41 +15,55 @@ class service(SocketServer.BaseRequestHandler):
         global connections
         global requests
         
-        data = 'dummy'
+        terminal_char = 'dummy'
         print "Client connected with ", self.client_address
         requests[connections] = self.request    
         terminal = connections
         connections += 1
 
         req = self.request
-        msg = 256 * [' ']
-        cnt = 3
+        msg = list()
+        
+        # First cnt bytes are header so start at cnt (0..cnt-1 are header) 
+        # payload is built up in msg
+        # terminal_char is single byte
         while 1:
-            data = self.request.recv(1)
-            try:
-                if ord(data) == 127:
-                    cnt -= 1
-                else:    
-                    msg[cnt] = data
-                    cnt += 1
-            except:
-                continue
-            #Echo character to terminal.
-            self.request.send(data)
-            if data == '\r':
-                msg[0] = chr(1)
-                msg[1] = chr(terminal)
-                msg[2] = chr(cnt - 3)
-                out_msg = ''.join(msg[0:cnt])
-                out_msg += '\r'
+            terminal_char = self.request.recv(1)
+            msg.append(terminal_char)
+
+
+            # try:
+                # if ord(terminal_char) == 127:
+                    # cnt -= 1
+                # else:    
+                    # msg[cnt] = terminal_char
+                    # cnt += 1
+            # except:
+                # continue
+
+
+            # Echo character to terminal.
+            self.request.send(terminal_char)
+
+            if terminal_char == '\r':
+                # If we got \r, build up header and message and send to host
+            
+                sequence_num = 0
+                header = list()
+                header[0] = chr(1)
+                header[1] = chr(terminal)
+                header[2] = chr(len(msg))
+                header[3] = chr(sequence_num)
+                
+                
+                out_msg = ''.join(header) + ''.join(msg)
                 out_msg += 256 * ' '
-                print 'MESSAGE: '+ out_msg[0:cnt]
+                print '  Term Write :  <%04X>  msg len <%04X> seq <%04X>'  % (terminal, len(msg), sequence_num)
                 out_msg = out_msg[0:256]
                 for ch in out_msg:
                     host.send(ch)
                 self.request.send('\n')
-                msg = 256 * [' ']
-                cnt = 3
+                msg = list()
                 
         print "Client exited"
         self.request.close()
@@ -80,7 +94,7 @@ def get_from_host(a):
         ack = ack[0:256]
         for ch in ack:
             host.send(ch)
-        print "    PTC write ack: term <%04X>   seq <%04X>" % (terminal, seq_num)
+        print "    PTC write ack: term <%04X>   seq <%04X> header <%02X>" % (terminal, seq_num, ord(ack[0]))
 
     
 

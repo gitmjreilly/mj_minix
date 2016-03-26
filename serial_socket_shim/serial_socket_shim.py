@@ -21,19 +21,22 @@ def serial_to_socket():
     while (True):
     
 
-        terminal_num = ord(my_serial_port.read(1))
-        num_data_bytes = ord(my_serial_port.read(1))
-        sequence_num = ord(my_serial_port.read(1))
+        # terminal_num = ord(my_serial_port.read(1))
+        # num_data_bytes = ord(my_serial_port.read(1))
+        # sequence_num = ord(my_serial_port.read(1))
 
-        s = my_serial_port.read(num_data_bytes)
+        # s = my_serial_port.read(num_data_bytes)
 
-        print "  host write: term :    <%04X>  cnt < %04X> seq <%04X>" % (terminal_num, num_data_bytes, sequence_num)
+        # print "  host write: term :    <%04X>  cnt < %04X> seq <%04X>" % (terminal_num, num_data_bytes, sequence_num)
         
         # print "serial_to_socket: <%s>" % (s)
-        my_socket.send(chr(terminal_num))
-        my_socket.send(chr(num_data_bytes))
-        my_socket.send(chr(sequence_num))
-        my_socket.send(s)
+        # my_socket.send(chr(terminal_num))
+        # my_socket.send(chr(num_data_bytes))
+        # my_socket.send(chr(sequence_num))
+        # my_socket.send(s)
+        
+        c = my_serial_port.read(1)
+        my_socket.send(c)
         
 #####################################################################
 
@@ -47,6 +50,7 @@ def socket_to_serial():
         s = my_socket.recv(1)
         if (s == "") : 
             continue
+        # print "from PTC : %d" % (ord(s))
         # print "socket_to_serial: count <%6d> <%s> <%d>" % (count, s, ord(s))
         count = count + 1
         num_bytes_written = my_serial_port.write(s)
