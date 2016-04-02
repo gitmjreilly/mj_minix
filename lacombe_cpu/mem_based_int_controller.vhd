@@ -146,6 +146,7 @@ begin
 				end if;
 				
 			when state_0 =>
+				w_state_next <= state_idle;
 				if (is_write_in_progress = '1') then
 					case addr_bus is 
 						when X"1" => 

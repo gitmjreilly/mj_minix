@@ -567,6 +567,11 @@ begin
    k_cpr(PTY_COLOR, "  num_buffers filled : "); k_cpr_hex_num(PTY_COLOR, num_tctlr_buffers_filled); k_prln(1);
    *)
    
+ 
+   (* Global var set by actual interrupt; cleared here *)
+   ASM
+      DI
+   END;
    buffer_num := 0;
    while (buffer_num < num_tctlr_buffers_filled) do begin
 
@@ -652,10 +657,6 @@ begin
    
    
    
-   (* Global var set by actual interrupt; cleared here *)
-   ASM
-      DI
-   END;
    num_tctlr_buffers_filled := 0;
    ASM
       EI

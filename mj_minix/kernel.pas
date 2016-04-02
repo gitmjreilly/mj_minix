@@ -2350,7 +2350,6 @@ begin
 
    k_pr("Enable mem checks now, if running in simulator"); k_prln(1);
 
-(*
    load_file(
       "/var/tmp/main.hex.sim",
       adr(DataSize), 
@@ -2390,7 +2389,6 @@ begin
       adr(StartAddress), 
       7,
       adr(Status));   
-*)
    
    while 1=1 do  begin
       k_pr("MJ Console Shell >");
