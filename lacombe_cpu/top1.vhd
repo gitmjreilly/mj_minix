@@ -22,9 +22,9 @@ entity cpu is
 		cpu_start : in std_logic;
 		cpu_finish : in std_logic
 	);
-end cpu1;
+end cpu;
 
-architecture structural of cpu1 is
+architecture structural of cpu is
 
 signal alu_b_bus : std_logic_vector(15 downto 0);
 signal c_bus     : std_logic_vector(15 downto 0);

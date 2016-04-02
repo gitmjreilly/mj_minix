@@ -37,7 +37,7 @@ def socket_to_serial():
         num_bytes_written = my_serial_port.write(s)
         if (num_bytes_written != 1):
             print "WARNING socket_to_serial num_bytes_written is <%d>" % (num_bytes_written)
-        my_serial_port.flush()
+        # my_serial_port.flush()
 #####################################################################
 
    

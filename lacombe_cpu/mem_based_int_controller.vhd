@@ -62,8 +62,23 @@ architecture Behavioral of mem_based_int_controller is
 
 	
 begin
-	int_occurred <= '0' when status_reg = X"0000" else '1';
-
+	-----------------------------------------------------------------
+	-- int_occurred <= '0' when status_reg = X"0000" else '1';
+	u_int_occurred : process(clock, reset, status_reg)
+	begin
+		if (reset = '1') then
+			int_occurred <= '0';
+		elsif (rising_edge(clock) AND (cpu_finish = '1')) then
+			if (status_reg = X"0000") then
+				int_occurred <= '0';
+			else
+				int_occurred <= '1'; 
+			end if;
+		end if;
+	
+	end process;
+	-----------------------------------------------------------------
+	
 
 	-----------------------------------------------------------------
 	-- These 2 signals indicate either a read or write is in 
@@ -146,6 +161,7 @@ begin
 				end if;
 				
 			when state_0 =>
+				w_state_next <= state_idle;
 				if (is_write_in_progress = '1') then
 					case addr_bus is 
 						when X"1" => 
@@ -194,7 +210,7 @@ begin
 		case r_state_reg is
 			when state_idle =>
 				if (cpu_finish = '1') then
-					r_state_next <= state_0;
+					r_state_next <= state_1;
 				end if;
 				
 			-- Necessary Pause?

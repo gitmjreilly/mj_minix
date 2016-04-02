@@ -185,7 +185,7 @@ jam_clock : entity work.jam_half_clock
 	
 	
 	---------------------------------------------------------------------
-	the_cpu : entity work.cpu1 
+	the_cpu : entity work.cpu
 		port map (
 			reset => reset,
 			my_clock => my_clock, 
@@ -279,7 +279,7 @@ jam_clock : entity work.jam_half_clock
 	multiple_int_sources(4) <= disk_uart_rx_fifo_is_half_full;
 	multiple_int_sources(5) <= ptc_uart_rx_fifo_is_quarter_full;
 	  
-	multiple_int_sources(15 downto 6) <= (others => disk_uart_rx_fifo_is_half_full);
+	multiple_int_sources(15 downto 6) <= (others => '0');
    
 
 
