@@ -3,6 +3,7 @@
 #include <block_rw.inc>
 
 (* Test comment to test git functions *)
+(* Another git test *)
 
 (*
  * Main program for file system.  Based on AST1,8950.
