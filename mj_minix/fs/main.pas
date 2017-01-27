@@ -2,6 +2,7 @@
 #include <k_userio.inc>
 #include <block_rw.inc>
 
+(* Test comment to test git functions *)
 
 (*
  * Main program for file system.  Based on AST1,8950.
