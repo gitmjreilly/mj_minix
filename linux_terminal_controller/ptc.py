@@ -5,7 +5,7 @@ import sys
 
 #PTC  IS AT PORT 5050.
 #HOST IS AT PORT 6000.
-HOST_PORT = 6001
+HOST_PORT = 6000
 
 requests    = 16 * [0]
 connections = 0

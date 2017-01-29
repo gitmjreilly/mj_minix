@@ -31,7 +31,8 @@ var
    
 begin
    k_cpr(INODE_COLOR, "Entered wipe_inode");  k_prln(1);
-   rip^.i_size := 0;
+   rip^.i_size[0] := 0;
+   rip^.i_size[1] := 0;
    rip^.i_dirt := DIRTY;
    i := 0;
    while (i < NR_ZONE_NUMS) do begin
