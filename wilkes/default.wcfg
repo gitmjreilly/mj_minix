@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="/home/mj/git-src/repo/lacombe_cpu/mem_mapped_fsm_tb_isim_beh.wdb" id="1" type="auto">
+         <top_modules>
+            <top_module name="mem_mapped_fsm_tb" />
+            <top_module name="numeric_std" />
+            <top_module name="std_logic_1164" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <WVObjectSize size="10" />
+   <wvobject fp_name="/mem_mapped_fsm_tb/clk" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/mem_mapped_fsm_tb/reset" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">reset</obj_property>
+      <obj_property name="ObjectShortName">reset</obj_property>
+   </wvobject>
+   <wvobject fp_name="/mem_mapped_fsm_tb/cpu_start" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">cpu_start</obj_property>
+      <obj_property name="ObjectShortName">cpu_start</obj_property>
+   </wvobject>
+   <wvobject fp_name="/mem_mapped_fsm_tb/cpu_finish" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">cpu_finish</obj_property>
+      <obj_property name="ObjectShortName">cpu_finish</obj_property>
+   </wvobject>
+   <wvobject fp_name="/mem_mapped_fsm_tb/n_cs" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">n_cs</obj_property>
+      <obj_property name="ObjectShortName">n_cs</obj_property>
+   </wvobject>
+   <wvobject fp_name="/mem_mapped_fsm_tb/n_rd" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">n_rd</obj_property>
+      <obj_property name="ObjectShortName">n_rd</obj_property>
+   </wvobject>
+   <wvobject fp_name="/mem_mapped_fsm_tb/n_wr" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">n_wr</obj_property>
+      <obj_property name="ObjectShortName">n_wr</obj_property>
+   </wvobject>
+   <wvobject fp_name="/mem_mapped_fsm_tb/addr_bus" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">addr_bus[3:0]</obj_property>
+      <obj_property name="ObjectShortName">addr_bus[3:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/mem_mapped_fsm_tb/data_bus" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">data_bus[15:0]</obj_property>
+      <obj_property name="ObjectShortName">data_bus[15:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/mem_mapped_fsm_tb/clk_period" type="other" db_ref_id="1">
+      <obj_property name="ElementShortName">clk_period</obj_property>
+      <obj_property name="ObjectShortName">clk_period</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+</wave_config>
