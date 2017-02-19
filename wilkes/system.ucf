@@ -80,7 +80,8 @@ NET "address_switches<6>"  LOC = "V8"  ;
 NET "address_switches<7>"  LOC = "T5"  ; 
 #
 # Revised for Nexys 3 (Clock is 100Mhz on Nexys3, 50Mhz on Spartan 3)
-NET "clk"  LOC = "V10"  ; 
+NET clk            LOC="V10"  | IOSTANDARD=LVTTL | PERIOD=10.0ns;               # CLK
+
 #
 # Revised For Nexys 3 LED's 7/6
 NET "clk_hi_ind"  LOC = "T11"  ; 

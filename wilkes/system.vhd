@@ -122,6 +122,31 @@ begin
 	cellular_ram_adv <= '0';
 	cellular_ram_cre <= '0';
 
+
+	u_lower_block : entity work.block_ram_demo
+		port map (
+			clk => my_clock,
+			reset => reset,
+			cpu_finish => cpu_finish,
+			n_cs => cs_bus(BLANK_70_CS),
+			n_rd => n_rd_bus,
+			n_wr => n_wr_bus,
+			data_bus => data_bus,
+			addr_bus => local_addr_bus(10 downto 0)
+		);
+
+	u_stack_mem : entity work.block_ram_demo
+		port map (
+			clk => my_clock,
+			reset => reset,
+			cpu_finish => cpu_finish,
+			n_cs => cs_bus(BLANK_80_CS),
+			n_rd => n_rd_bus,
+			n_wr => n_wr_bus,
+			data_bus => data_bus,
+			addr_bus => local_addr_bus(10 downto 0)
+		);
+
 	---------------------------------------------------------------------
 	-- clk_divider : entity work.ClockDivider 
 		-- port map (
@@ -284,37 +309,6 @@ jam_clock : entity work.jam_half_clock
 
 
 	
-	-- ---------------------------------------------------------------------
-	-- int_controller_1 :  entity work.mem_based_int_controller 
-		-- port map (
-			-- -- clock => my_clock, -- TODO fix clock for interrupt controller
-			-- clock => cpu_start, -- TODO fix clock for interrupt controller
-			-- reset => reset,
-			-- address => local_addr_bus(1 downto 0),
-			-- data_bus_0 => data_bus(0),
-			-- data_bus_1 => data_bus(1),
-			-- data_bus_2 => data_bus(2),
-			-- data_bus_3 => data_bus(3),
-			-- data_bus_4 => data_bus(4),
-			-- data_bus_5 => data_bus(5),
-			-- data_bus_6 => data_bus(6),
-			-- data_bus_7 => data_bus(7),
-			-- data_bus_8 => data_bus(8),
-			-- data_bus_9 => data_bus(9),
-			-- data_bus_10 => data_bus(10),
-			-- data_bus_11 => data_bus(11),
-			-- data_bus_12 => data_bus(12),
-			-- data_bus_13 => data_bus(13),
-			-- data_bus_14 => data_bus(14),
-			-- data_bus_15 => data_bus(15),
-			-- int_out => cpu_int,
-			-- n_cs => cs_bus(INT_CONTROLLER_CS),
-			-- n_rd => n_rd_bus,
-			-- n_wr => n_wr_bus,
-			-- int_in => multiple_int_sources
-		-- );
-	-- ---------------------------------------------------------------------
-
 
 	int_controller : entity work.mem_based_int_controller 
 		port map ( 

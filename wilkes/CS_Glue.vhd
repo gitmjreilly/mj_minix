@@ -33,6 +33,14 @@ begin
 	-- Conditional assignment forces priority
 	CS <= 
 		ROM_CS            when (local_addr >= x"0000" AND local_addr <= x"03FF") else 
+		
+		
+		-- lower block ram
+		BLANK_70_CS 		when (local_addr >= x"0400" AND local_addr <= x"0BFF") else
+		-- block ram for stack
+		BLANK_80_CS	   	when (local_addr >= x"F800" AND local_addr <= x"FFFF") else
+		
+		
 		CONSOLE_UART_CS   when (local_addr >= x"F000" AND local_addr <= x"F00F") else
 		INT_CONTROLLER_CS when (local_addr >= x"F010" AND local_addr <= x"F01F") else
 		BLANK_20_CS       when (local_addr >= x"F020" AND local_addr <= x"F02F") else
@@ -40,9 +48,8 @@ begin
 		BLANK_40_CS       when (local_addr >= x"F040" AND local_addr <= x"F04F") else 
 		BLANK_50_CS       when (local_addr >= x"F050" AND local_addr <= x"F05F") else
 		COUNTER_0_CS      when (local_addr >= x"F060" AND local_addr <= x"F06F") else 
-		BLANK_70_CS       when (local_addr >= x"F070" AND local_addr <= x"F07F") else 
-		BLANK_80_CS       when (local_addr >= x"F080" AND local_addr <= x"F08F") else 
 		DISK_UART_CS      when (local_addr >= x"F090" and local_addr <= x"F09F") else		
-		RAM_CS;
+		-- RAM_CS;
+		NO_CS;
 		
 end Behavioral;
