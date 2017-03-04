@@ -1,0 +1,8 @@
+INTSTYLE=ise
+INFILE=/home/mj/git-src/repo/Wilkes/system.ncd
+OUTFILE=/home/mj/git-src/repo/Wilkes/system.bit
+FAMILY=Spartan6
+PART=xc6slx9-2tqg144
+WORKINGDIR=/home/mj/git-src/repo/Wilkes
+LICENSE=WebPack
+USER_INFO=210188899_0_0_328

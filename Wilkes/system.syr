@@ -1,0 +1,1306 @@
+Release 14.7 - xst P.20131013 (lin64)
+Copyright (c) 1995-2013 Xilinx, Inc.  All rights reserved.
+--> 
+Parameter TMPDIR set to xst/projnav.tmp
+
+
+Total REAL time to Xst completion: 0.00 secs
+Total CPU time to Xst completion: 0.05 secs
+ 
+--> 
+Parameter xsthdpdir set to xst
+
+
+Total REAL time to Xst completion: 0.00 secs
+Total CPU time to Xst completion: 0.05 secs
+ 
+--> 
+Reading design: system.prj
+
+TABLE OF CONTENTS
+  1) Synthesis Options Summary
+  2) HDL Parsing
+  3) HDL Elaboration
+  4) HDL Synthesis
+       4.1) HDL Synthesis Report
+  5) Advanced HDL Synthesis
+       5.1) Advanced HDL Synthesis Report
+  6) Low Level Synthesis
+  7) Partition Report
+  8) Design Summary
+       8.1) Primitive and Black Box Usage
+       8.2) Device utilization summary
+       8.3) Partition Resource Summary
+       8.4) Timing Report
+            8.4.1) Clock Information
+            8.4.2) Asynchronous Control Signals Information
+            8.4.3) Timing Summary
+            8.4.4) Timing Details
+            8.4.5) Cross Clock Domains Report
+
+
+=========================================================================
+*                      Synthesis Options Summary                        *
+=========================================================================
+---- Source Parameters
+Input File Name                    : "system.prj"
+Ignore Synthesis Constraint File   : NO
+
+---- Target Parameters
+Output File Name                   : "system"
+Output Format                      : NGC
+Target Device                      : xc6slx9-2-tqg144
+
+---- Source Options
+Top Module Name                    : system
+Automatic FSM Extraction           : YES
+FSM Encoding Algorithm             : Auto
+Safe Implementation                : No
+FSM Style                          : LUT
+RAM Extraction                     : Yes
+RAM Style                          : Auto
+ROM Extraction                     : Yes
+Shift Register Extraction          : YES
+ROM Style                          : Auto
+Resource Sharing                   : YES
+Asynchronous To Synchronous        : NO
+Shift Register Minimum Size        : 2
+Use DSP Block                      : Auto
+Automatic Register Balancing       : No
+
+---- Target Options
+LUT Combining                      : Auto
+Reduce Control Sets                : Auto
+Add IO Buffers                     : YES
+Global Maximum Fanout              : 100000
+Add Generic Clock Buffer(BUFG)     : 16
+Register Duplication               : YES
+Optimize Instantiated Primitives   : NO
+Use Clock Enable                   : Auto
+Use Synchronous Set                : Auto
+Use Synchronous Reset              : Auto
+Pack IO Registers into IOBs        : Auto
+Equivalent register Removal        : YES
+
+---- General Options
+Optimization Goal                  : Speed
+Optimization Effort                : 1
+Power Reduction                    : NO
+Keep Hierarchy                     : No
+Netlist Hierarchy                  : As_Optimized
+RTL Output                         : Yes
+Global Optimization                : AllClockNets
+Read Cores                         : YES
+Write Timing Constraints           : NO
+Cross Clock Analysis               : NO
+Hierarchy Separator                : /
+Bus Delimiter                      : <>
+Case Specifier                     : Maintain
+Slice Utilization Ratio            : 100
+BRAM Utilization Ratio             : 100
+DSP48 Utilization Ratio            : 100
+Auto BRAM Packing                  : NO
+Slice Utilization Ratio Delta      : 5
+
+=========================================================================
+
+
+=========================================================================
+*                          HDL Parsing                                  *
+=========================================================================
+Parsing VHDL file "/home/mj/git-src/repo/Wilkes/Shifter.vhd" into library work
+Parsing entity <Shifter>.
+Parsing architecture <Behavioral> of entity <shifter>.
+Parsing VHDL file "/home/mj/git-src/repo/Wilkes/mod_m.vhdl" into library work
+Parsing entity <mod_m>.
+Parsing architecture <behavioural> of entity <mod_m>.
+Parsing VHDL file "/home/mj/git-src/repo/Wilkes/mj_dual_1KB.vhd" into library work
+Parsing entity <mj_dual_1KB>.
+Parsing architecture <mj_dual_1KB_a> of entity <mj_dual_1kb>.
+Parsing VHDL file "/home/mj/git-src/repo/Wilkes/mj_2k_words.vhd" into library work
+Parsing entity <mj_2k_words>.
+Parsing architecture <mj_2k_words_a> of entity <mj_2k_words>.
+Parsing VHDL file "/home/mj/git-src/repo/Wilkes/mem_addr_gen.vhd" into library work
+Parsing entity <mem_addr_gen>.
+Parsing architecture <Behavioral> of entity <mem_addr_gen>.
+Parsing VHDL file "/home/mj/git-src/repo/Wilkes/mdr.vhd" into library work
+Parsing entity <mdr>.
+Parsing architecture <behavioural> of entity <mdr>.
+Parsing VHDL file "/home/mj/git-src/repo/Wilkes/HighBit.vhd" into library work
+Parsing entity <HighBit>.
+Parsing architecture <Behavioral> of entity <highbit>.
+Parsing VHDL file "/home/mj/git-src/repo/Wilkes/FlipFlop.vhd" into library work
+Parsing entity <FlipFlop>.
+Parsing architecture <Behavioral> of entity <flipflop>.
+Parsing VHDL file "/home/mj/git-src/repo/Wilkes/DisplaySelector.vhd" into library work
+Parsing entity <DisplaySelector>.
+Parsing architecture <Behavioral> of entity <displayselector>.
+Parsing VHDL file "/home/mj/git-src/repo/Wilkes/ControlStore.vhdl" into library work
+Parsing entity <ControlStore>.
+Parsing architecture <Behavioral> of entity <controlstore>.
+Parsing VHDL file "/home/mj/git-src/repo/Wilkes/compound_register.vhd" into library work
+Parsing entity <compound_register>.
+Parsing architecture <behave> of entity <compound_register>.
+Parsing VHDL file "/home/mj/git-src/repo/Wilkes/alu1.vhd" into library work
+Parsing entity <alu1>.
+Parsing architecture <Behavioral> of entity <alu1>.
+Parsing VHDL file "/home/mj/git-src/repo/Wilkes/AddressSelector.vhd" into library work
+Parsing entity <AddressSelector>.
+Parsing architecture <Behavioral> of entity <addressselector>.
+Parsing VHDL file "/home/mj/git-src/repo/Wilkes/4to16Decoder.vhd" into library work
+Parsing entity <FourTo16Decoder>.
+Parsing architecture <Behavioral> of entity <fourto16decoder>.
+Parsing VHDL file "/home/mj/git-src/repo/Wilkes/uart_w_fifo.vhd" into library work
+Parsing entity <uart_w_fifo>.
+Parsing architecture <behavioral> of entity <uart_w_fifo>.
+Parsing VHDL file "/home/mj/git-src/repo/Wilkes/rom.vhd" into library work
+Parsing entity <rom>.
+Parsing architecture <Behavioral> of entity <rom>.
+Parsing VHDL file "/home/mj/git-src/repo/Wilkes/papilio_pro_32_50.vhd" into library work
+Parsing entity <papilio_pro_32_50>.
+Parsing architecture <xilinx> of entity <papilio_pro_32_50>.
+Parsing VHDL file "/home/mj/git-src/repo/Wilkes/CS_Glue.vhd" into library work
+Parsing entity <CS_Glue>.
+Parsing architecture <Behavioral> of entity <cs_glue>.
+Parsing VHDL file "/home/mj/git-src/repo/Wilkes/cpu_timing_generator.vhd" into library work
+Parsing entity <cpu_timing_generator>.
+Parsing architecture <Behavioral> of entity <cpu_timing_generator>.
+Parsing VHDL file "/home/mj/git-src/repo/Wilkes/cpu1.vhd" into library work
+Parsing entity <cpu1>.
+Parsing architecture <structural> of entity <cpu1>.
+Parsing VHDL file "/home/mj/git-src/repo/Wilkes/block_ram_demo.vhd" into library work
+Parsing entity <block_ram_demo>.
+Parsing architecture <behavioral> of entity <block_ram_demo>.
+Parsing VHDL file "/home/mj/git-src/repo/Wilkes/system.vhd" into library work
+Parsing entity <system>.
+Parsing architecture <structural> of entity <system>.
+
+=========================================================================
+*                            HDL Elaboration                            *
+=========================================================================
+
+Elaborating entity <system> (architecture <structural>) from library <work>.
+WARNING:HDLCompiler:1127 - "/home/mj/git-src/repo/Wilkes/system.vhd" Line 125: Assignment to n_wr ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/mj/git-src/repo/Wilkes/system.vhd" Line 126: Assignment to n_rd ignored, since the identifier is never used
+
+Elaborating entity <block_ram_demo> (architecture <behavioral>) from library <work>.
+
+Elaborating entity <mj_2k_words> (architecture <mj_2k_words_a>) from library <work>.
+INFO:HDLCompiler:679 - "/home/mj/git-src/repo/Wilkes/block_ram_demo.vhd" Line 148. Case statement is complete. others clause is never selected
+
+Elaborating entity <papilio_pro_32_50> (architecture <xilinx>) from library <work>.
+
+Elaborating entity <cpu_timing_generator> (architecture <Behavioral>) from library <work>.
+
+Elaborating entity <cpu1> (architecture <structural>) from library <work>.
+
+Elaborating entity <compound_register> (architecture <behave>) with generics from library <work>.
+
+Elaborating entity <AddressSelector> (architecture <Behavioral>) from library <work>.
+
+Elaborating entity <ControlStore> (architecture <Behavioral>) from library <work>.
+
+Elaborating entity <FourTo16Decoder> (architecture <Behavioral>) from library <work>.
+
+Elaborating entity <compound_register> (architecture <behave>) with generics from library <work>.
+
+Elaborating entity <compound_register> (architecture <behave>) with generics from library <work>.
+
+Elaborating entity <mdr> (architecture <behavioural>) from library <work>.
+
+Elaborating entity <FlipFlop> (architecture <Behavioral>) from library <work>.
+
+Elaborating entity <mem_addr_gen> (architecture <Behavioral>) from library <work>.
+
+Elaborating entity <DisplaySelector> (architecture <Behavioral>) from library <work>.
+
+Elaborating entity <alu1> (architecture <Behavioral>) from library <work>.
+
+Elaborating entity <HighBit> (architecture <Behavioral>) from library <work>.
+
+Elaborating entity <Shifter> (architecture <Behavioral>) from library <work>.
+WARNING:HDLCompiler:1127 - "/home/mj/git-src/repo/Wilkes/system.vhd" Line 214: Assignment to addr_bus ignored, since the identifier is never used
+
+Elaborating entity <CS_Glue> (architecture <Behavioral>) from library <work>.
+
+Elaborating entity <rom> (architecture <Behavioral>) from library <work>.
+
+Elaborating entity <uart_w_fifo> (architecture <behavioral>) with generics from library <work>.
+
+Elaborating entity <mod_m> (architecture <behavioural>) with generics from library <work>.
+
+Elaborating entity <mj_dual_1KB> (architecture <mj_dual_1KB_a>) from library <work>.
+WARNING:HDLCompiler:634 - "/home/mj/git-src/repo/Wilkes/system.vhd" Line 99: Net <cpu_int> does not have a driver.
+WARNING:HDLCompiler:634 - "/home/mj/git-src/repo/Wilkes/system.vhd" Line 114: Net <address_switches[4]> does not have a driver.
+
+=========================================================================
+*                           HDL Synthesis                               *
+=========================================================================
+
+Synthesizing Unit <system>.
+    Related source file is "/home/mj/git-src/repo/Wilkes/system.vhd".
+INFO:Xst:3210 - "/home/mj/git-src/repo/Wilkes/system.vhd" line 131: Output port <fake_data_bus> of the instance <u_lower_block> is unconnected or connected to loadless signal.
+INFO:Xst:3210 - "/home/mj/git-src/repo/Wilkes/system.vhd" line 143: Output port <fake_data_bus> of the instance <u_stack_mem> is unconnected or connected to loadless signal.
+INFO:Xst:3210 - "/home/mj/git-src/repo/Wilkes/system.vhd" line 192: Output port <four_digits> of the instance <the_cpu> is unconnected or connected to loadless signal.
+INFO:Xst:3210 - "/home/mj/git-src/repo/Wilkes/system.vhd" line 192: Output port <N_indicator> of the instance <the_cpu> is unconnected or connected to loadless signal.
+INFO:Xst:3210 - "/home/mj/git-src/repo/Wilkes/system.vhd" line 192: Output port <Z_indicator> of the instance <the_cpu> is unconnected or connected to loadless signal.
+INFO:Xst:3210 - "/home/mj/git-src/repo/Wilkes/system.vhd" line 192: Output port <RD_INDICATOR> of the instance <the_cpu> is unconnected or connected to loadless signal.
+INFO:Xst:3210 - "/home/mj/git-src/repo/Wilkes/system.vhd" line 192: Output port <WR_INDICATOR> of the instance <the_cpu> is unconnected or connected to loadless signal.
+INFO:Xst:3210 - "/home/mj/git-src/repo/Wilkes/system.vhd" line 192: Output port <FETCH_INDICATOR> of the instance <the_cpu> is unconnected or connected to loadless signal.
+INFO:Xst:3210 - "/home/mj/git-src/repo/Wilkes/system.vhd" line 253: Output port <data> of the instance <the_rom> is unconnected or connected to loadless signal.
+INFO:Xst:3210 - "/home/mj/git-src/repo/Wilkes/system.vhd" line 348: Output port <fake_data_bus> of the instance <console_uart> is unconnected or connected to loadless signal.
+WARNING:Xst:653 - Signal <address_switches<4:0>> is used but never assigned. This sourceless signal will be automatically connected to value GND.
+WARNING:Xst:653 - Signal <cpu_int> is used but never assigned. This sourceless signal will be automatically connected to value GND.
+    Summary:
+	no macro.
+Unit <system> synthesized.
+
+Synthesizing Unit <block_ram_demo>.
+    Related source file is "/home/mj/git-src/repo/Wilkes/block_ram_demo.vhd".
+    Found 2-bit register for signal <write_state_reg>.
+    Found 2-bit register for signal <read_state_reg>.
+    Found 1-bit register for signal <wea_reg>.
+    Found 16-bit register for signal <val_reg>.
+    Found finite state machine <FSM_0> for signal <write_state_reg>.
+    -----------------------------------------------------------------------
+    | States             | 4                                              |
+    | Transitions        | 7                                              |
+    | Inputs             | 3                                              |
+    | Outputs            | 2                                              |
+    | Clock              | clk (rising_edge)                              |
+    | Reset              | reset (positive)                               |
+    | Reset type         | asynchronous                                   |
+    | Reset State        | write_state_idle                               |
+    | Power Up State     | write_state_idle                               |
+    | Encoding           | auto                                           |
+    | Implementation     | LUT                                            |
+    -----------------------------------------------------------------------
+    Found finite state machine <FSM_1> for signal <read_state_reg>.
+    -----------------------------------------------------------------------
+    | States             | 3                                              |
+    | Transitions        | 4                                              |
+    | Inputs             | 1                                              |
+    | Outputs            | 1                                              |
+    | Clock              | clk (rising_edge)                              |
+    | Reset              | reset (positive)                               |
+    | Reset type         | asynchronous                                   |
+    | Reset State        | read_state_idle                                |
+    | Power Up State     | read_state_idle                                |
+    | Encoding           | auto                                           |
+    | Implementation     | LUT                                            |
+    -----------------------------------------------------------------------
+    Found 1-bit tristate buffer for signal <data_bus<15>> created at line 211
+    Found 1-bit tristate buffer for signal <data_bus<14>> created at line 211
+    Found 1-bit tristate buffer for signal <data_bus<13>> created at line 211
+    Found 1-bit tristate buffer for signal <data_bus<12>> created at line 211
+    Found 1-bit tristate buffer for signal <data_bus<11>> created at line 211
+    Found 1-bit tristate buffer for signal <data_bus<10>> created at line 211
+    Found 1-bit tristate buffer for signal <data_bus<9>> created at line 211
+    Found 1-bit tristate buffer for signal <data_bus<8>> created at line 211
+    Found 1-bit tristate buffer for signal <data_bus<7>> created at line 211
+    Found 1-bit tristate buffer for signal <data_bus<6>> created at line 211
+    Found 1-bit tristate buffer for signal <data_bus<5>> created at line 211
+    Found 1-bit tristate buffer for signal <data_bus<4>> created at line 211
+    Found 1-bit tristate buffer for signal <data_bus<3>> created at line 211
+    Found 1-bit tristate buffer for signal <data_bus<2>> created at line 211
+    Found 1-bit tristate buffer for signal <data_bus<1>> created at line 211
+    Found 1-bit tristate buffer for signal <data_bus<0>> created at line 211
+    Summary:
+	inferred  17 D-type flip-flop(s).
+	inferred  16 Tristate(s).
+	inferred   2 Finite State Machine(s).
+Unit <block_ram_demo> synthesized.
+
+Synthesizing Unit <papilio_pro_32_50>.
+    Related source file is "/home/mj/git-src/repo/Wilkes/papilio_pro_32_50.vhd".
+    Summary:
+	no macro.
+Unit <papilio_pro_32_50> synthesized.
+
+Synthesizing Unit <cpu_timing_generator>.
+    Related source file is "/home/mj/git-src/repo/Wilkes/cpu_timing_generator.vhd".
+    Found 2-bit register for signal <state_reg>.
+    Found 5-bit register for signal <count_0>.
+    Found finite state machine <FSM_2> for signal <state_reg>.
+    -----------------------------------------------------------------------
+    | States             | 4                                              |
+    | Transitions        | 5                                              |
+    | Inputs             | 1                                              |
+    | Outputs            | 4                                              |
+    | Clock              | clk (rising_edge)                              |
+    | Reset              | reset (positive)                               |
+    | Reset type         | asynchronous                                   |
+    | Reset State        | state_idle                                     |
+    | Power Up State     | state_idle                                     |
+    | Encoding           | auto                                           |
+    | Implementation     | LUT                                            |
+    -----------------------------------------------------------------------
+    Found 5-bit subtractor for signal <GND_31_o_GND_31_o_sub_6_OUT<4:0>> created at line 1308.
+    Found 5-bit 4-to-1 multiplexer for signal <count_0_next> created at line 70.
+    Summary:
+	inferred   1 Adder/Subtractor(s).
+	inferred   5 D-type flip-flop(s).
+	inferred   1 Multiplexer(s).
+	inferred   1 Finite State Machine(s).
+Unit <cpu_timing_generator> synthesized.
+
+Synthesizing Unit <cpu1>.
+    Related source file is "/home/mj/git-src/repo/Wilkes/cpu1.vhd".
+INFO:Xst:3210 - "/home/mj/git-src/repo/Wilkes/cpu1.vhd" line 261: Output port <out2> of the instance <MIR_REG> is unconnected or connected to loadless signal.
+    Summary:
+	no macro.
+Unit <cpu1> synthesized.
+
+Synthesizing Unit <compound_register_1>.
+    Related source file is "/home/mj/git-src/repo/Wilkes/compound_register.vhd".
+        width = 41
+    Found 41-bit register for signal <internal_state>.
+    Found 1-bit tristate buffer for signal <out1<40>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<39>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<38>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<37>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<36>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<35>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<34>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<33>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<32>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<31>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<30>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<29>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<28>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<27>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<26>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<25>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<24>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<23>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<22>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<21>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<20>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<19>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<18>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<17>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<16>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<15>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<14>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<13>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<12>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<11>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<10>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<9>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<8>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<7>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<6>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<5>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<4>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<3>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<2>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<1>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<0>> created at line 38
+    Summary:
+	inferred  41 D-type flip-flop(s).
+	inferred  41 Tristate(s).
+Unit <compound_register_1> synthesized.
+
+Synthesizing Unit <AddressSelector>.
+    Related source file is "/home/mj/git-src/repo/Wilkes/AddressSelector.vhd".
+    Summary:
+	inferred   2 Multiplexer(s).
+Unit <AddressSelector> synthesized.
+
+Synthesizing Unit <ControlStore>.
+    Related source file is "/home/mj/git-src/repo/Wilkes/ControlStore.vhdl".
+    Found 512x41-bit Read Only RAM for signal <output>
+    Summary:
+	inferred   1 RAM(s).
+Unit <ControlStore> synthesized.
+
+Synthesizing Unit <FourTo16Decoder>.
+    Related source file is "/home/mj/git-src/repo/Wilkes/4to16Decoder.vhd".
+    Found 16x16-bit Read Only RAM for signal <output>
+    Summary:
+	inferred   1 RAM(s).
+Unit <FourTo16Decoder> synthesized.
+
+Synthesizing Unit <compound_register>.
+    Related source file is "/home/mj/git-src/repo/Wilkes/compound_register.vhd".
+        width = 16
+    Found 16-bit register for signal <internal_state>.
+    Found 1-bit tristate buffer for signal <out1<15>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<14>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<13>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<12>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<11>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<10>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<9>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<8>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<7>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<6>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<5>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<4>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<3>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<2>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<1>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<0>> created at line 38
+    Summary:
+	inferred  16 D-type flip-flop(s).
+	inferred  16 Tristate(s).
+Unit <compound_register> synthesized.
+
+Synthesizing Unit <compound_register_2>.
+    Related source file is "/home/mj/git-src/repo/Wilkes/compound_register.vhd".
+        width = 8
+    Found 8-bit register for signal <internal_state>.
+    Found 1-bit tristate buffer for signal <out1<7>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<6>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<5>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<4>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<3>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<2>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<1>> created at line 38
+    Found 1-bit tristate buffer for signal <out1<0>> created at line 38
+    Summary:
+	inferred   8 D-type flip-flop(s).
+	inferred   8 Tristate(s).
+Unit <compound_register_2> synthesized.
+
+Synthesizing Unit <mdr>.
+    Related source file is "/home/mj/git-src/repo/Wilkes/mdr.vhd".
+    Found 16-bit register for signal <stored_word>.
+    Found 1-bit tristate buffer for signal <b_bus<15>> created at line 45
+    Found 1-bit tristate buffer for signal <b_bus<14>> created at line 45
+    Found 1-bit tristate buffer for signal <b_bus<13>> created at line 45
+    Found 1-bit tristate buffer for signal <b_bus<12>> created at line 45
+    Found 1-bit tristate buffer for signal <b_bus<11>> created at line 45
+    Found 1-bit tristate buffer for signal <b_bus<10>> created at line 45
+    Found 1-bit tristate buffer for signal <b_bus<9>> created at line 45
+    Found 1-bit tristate buffer for signal <b_bus<8>> created at line 45
+    Found 1-bit tristate buffer for signal <b_bus<7>> created at line 45
+    Found 1-bit tristate buffer for signal <b_bus<6>> created at line 45
+    Found 1-bit tristate buffer for signal <b_bus<5>> created at line 45
+    Found 1-bit tristate buffer for signal <b_bus<4>> created at line 45
+    Found 1-bit tristate buffer for signal <b_bus<3>> created at line 45
+    Found 1-bit tristate buffer for signal <b_bus<2>> created at line 45
+    Found 1-bit tristate buffer for signal <b_bus<1>> created at line 45
+    Found 1-bit tristate buffer for signal <b_bus<0>> created at line 45
+    Found 1-bit tristate buffer for signal <mem_data_bus<15>> created at line 46
+    Found 1-bit tristate buffer for signal <mem_data_bus<14>> created at line 46
+    Found 1-bit tristate buffer for signal <mem_data_bus<13>> created at line 46
+    Found 1-bit tristate buffer for signal <mem_data_bus<12>> created at line 46
+    Found 1-bit tristate buffer for signal <mem_data_bus<11>> created at line 46
+    Found 1-bit tristate buffer for signal <mem_data_bus<10>> created at line 46
+    Found 1-bit tristate buffer for signal <mem_data_bus<9>> created at line 46
+    Found 1-bit tristate buffer for signal <mem_data_bus<8>> created at line 46
+    Found 1-bit tristate buffer for signal <mem_data_bus<7>> created at line 46
+    Found 1-bit tristate buffer for signal <mem_data_bus<6>> created at line 46
+    Found 1-bit tristate buffer for signal <mem_data_bus<5>> created at line 46
+    Found 1-bit tristate buffer for signal <mem_data_bus<4>> created at line 46
+    Found 1-bit tristate buffer for signal <mem_data_bus<3>> created at line 46
+    Found 1-bit tristate buffer for signal <mem_data_bus<2>> created at line 46
+    Found 1-bit tristate buffer for signal <mem_data_bus<1>> created at line 46
+    Found 1-bit tristate buffer for signal <mem_data_bus<0>> created at line 46
+    Summary:
+	inferred  16 D-type flip-flop(s).
+	inferred   1 Multiplexer(s).
+	inferred  32 Tristate(s).
+Unit <mdr> synthesized.
+
+Synthesizing Unit <FlipFlop>.
+    Related source file is "/home/mj/git-src/repo/Wilkes/FlipFlop.vhd".
+    Found 1-bit register for signal <output>.
+    Summary:
+	inferred   1 D-type flip-flop(s).
+Unit <FlipFlop> synthesized.
+
+Synthesizing Unit <mem_addr_gen>.
+    Related source file is "/home/mj/git-src/repo/Wilkes/mem_addr_gen.vhd".
+    Found 20-bit adder for signal <cs_sum> created at line 38.
+    Found 20-bit adder for signal <ds_sum> created at line 39.
+    Found 20-bit adder for signal <es_sum> created at line 40.
+    Found 1-bit tristate buffer for signal <addr_out<19>> created at line 32
+    Found 1-bit tristate buffer for signal <addr_out<18>> created at line 32
+    Found 1-bit tristate buffer for signal <addr_out<17>> created at line 32
+    Found 1-bit tristate buffer for signal <addr_out<16>> created at line 32
+    Found 1-bit tristate buffer for signal <addr_out<15>> created at line 32
+    Found 1-bit tristate buffer for signal <addr_out<14>> created at line 32
+    Found 1-bit tristate buffer for signal <addr_out<13>> created at line 32
+    Found 1-bit tristate buffer for signal <addr_out<12>> created at line 32
+    Found 1-bit tristate buffer for signal <addr_out<11>> created at line 32
+    Found 1-bit tristate buffer for signal <addr_out<10>> created at line 32
+    Found 1-bit tristate buffer for signal <addr_out<9>> created at line 32
+    Found 1-bit tristate buffer for signal <addr_out<8>> created at line 32
+    Found 1-bit tristate buffer for signal <addr_out<7>> created at line 32
+    Found 1-bit tristate buffer for signal <addr_out<6>> created at line 32
+    Found 1-bit tristate buffer for signal <addr_out<5>> created at line 32
+    Found 1-bit tristate buffer for signal <addr_out<4>> created at line 32
+    Found 1-bit tristate buffer for signal <addr_out<3>> created at line 32
+    Found 1-bit tristate buffer for signal <addr_out<2>> created at line 32
+    Found 1-bit tristate buffer for signal <addr_out<1>> created at line 32
+    Found 1-bit tristate buffer for signal <addr_out<0>> created at line 32
+    Summary:
+	inferred   3 Adder/Subtractor(s).
+	inferred  40 Multiplexer(s).
+	inferred  20 Tristate(s).
+Unit <mem_addr_gen> synthesized.
+
+Synthesizing Unit <DisplaySelector>.
+    Related source file is "/home/mj/git-src/repo/Wilkes/DisplaySelector.vhd".
+    Summary:
+	no macro.
+Unit <DisplaySelector> synthesized.
+
+Synthesizing Unit <alu1>.
+    Related source file is "/home/mj/git-src/repo/Wilkes/alu1.vhd".
+    Found 17-bit adder for signal <n0071> created at line 52.
+    Found 17-bit adder for signal <ATmp[16]_GND_295_o_add_8_OUT> created at line 52.
+    Found 17-bit adder for signal <ATmp[16]_GND_295_o_add_9_OUT> created at line 53.
+    Found 17-bit adder for signal <BTmp[16]_GND_295_o_add_10_OUT> created at line 54.
+    Found 17-bit subtractor for signal <GND_295_o_GND_295_o_sub_12_OUT<16:0>> created at line 56.
+    Found 17-bit subtractor for signal <GND_295_o_GND_295_o_sub_13_OUT<16:0>> created at line 57.
+    Found 17-bit subtractor for signal <GND_295_o_GND_295_o_sub_17_OUT<16:0>> created at line 65.
+    Found 17-bit subtractor for signal <GND_295_o_GND_295_o_sub_19_OUT<16:0>> created at line 67.
+    Found 17-bit subtractor for signal <GND_295_o_GND_295_o_sub_14_OUT<16:0>> created at line 58.
+    Found 17x17-bit multiplier for signal <prod> created at line 42.
+    Found 17-bit comparator greater for signal <u_a_less_than_u_b> created at line 84
+    Summary:
+	inferred   1 Multiplier(s).
+	inferred   9 Adder/Subtractor(s).
+	inferred   1 Comparator(s).
+	inferred  21 Multiplexer(s).
+Unit <alu1> synthesized.
+
+Synthesizing Unit <HighBit>.
+    Related source file is "/home/mj/git-src/repo/Wilkes/HighBit.vhd".
+    Summary:
+	no macro.
+Unit <HighBit> synthesized.
+
+Synthesizing Unit <Shifter>.
+    Related source file is "/home/mj/git-src/repo/Wilkes/Shifter.vhd".
+    Found 16-bit 4-to-1 multiplexer for signal <output> created at line 17.
+    Summary:
+	inferred   1 Multiplexer(s).
+Unit <Shifter> synthesized.
+
+Synthesizing Unit <CS_Glue>.
+    Related source file is "/home/mj/git-src/repo/Wilkes/CS_Glue.vhd".
+WARNING:Xst:647 - Input <addr<19:16>> is never used. This port will be preserved and left unconnected if it belongs to a top-level block or it belongs to a sub-block and the hierarchy of this sub-block is preserved.
+    Found 16-bit comparator lessequal for signal <n0001> created at line 35
+    Found 16-bit comparator lessequal for signal <n0003> created at line 39
+    Found 16-bit comparator lessequal for signal <n0005> created at line 39
+    Found 16-bit comparator lessequal for signal <n0008> created at line 41
+    Found 16-bit comparator lessequal for signal <n0010> created at line 44
+    Found 16-bit comparator lessequal for signal <n0012> created at line 44
+    Found 16-bit comparator lessequal for signal <n0015> created at line 45
+    Found 16-bit comparator lessequal for signal <n0017> created at line 45
+    Found 16-bit comparator lessequal for signal <n0020> created at line 46
+    Found 16-bit comparator lessequal for signal <n0022> created at line 46
+    Found 16-bit comparator lessequal for signal <n0025> created at line 47
+    Found 16-bit comparator lessequal for signal <n0027> created at line 47
+    Found 16-bit comparator lessequal for signal <n0030> created at line 48
+    Found 16-bit comparator lessequal for signal <n0032> created at line 48
+    Found 16-bit comparator lessequal for signal <n0035> created at line 49
+    Found 16-bit comparator lessequal for signal <n0037> created at line 49
+    Found 16-bit comparator lessequal for signal <n0040> created at line 50
+    Found 16-bit comparator lessequal for signal <n0042> created at line 50
+    Found 16-bit comparator lessequal for signal <n0045> created at line 51
+    Found 16-bit comparator lessequal for signal <n0047> created at line 51
+    Summary:
+	inferred  20 Comparator(s).
+	inferred  10 Multiplexer(s).
+Unit <CS_Glue> synthesized.
+
+Synthesizing Unit <rom>.
+    Related source file is "/home/mj/git-src/repo/Wilkes/rom.vhd".
+    Found 512x16-bit Read Only RAM for signal <_n1180>
+    Found 1-bit tristate buffer for signal <data<15>> created at line 420
+    Found 1-bit tristate buffer for signal <data<14>> created at line 420
+    Found 1-bit tristate buffer for signal <data<13>> created at line 420
+    Found 1-bit tristate buffer for signal <data<12>> created at line 420
+    Found 1-bit tristate buffer for signal <data<11>> created at line 420
+    Found 1-bit tristate buffer for signal <data<10>> created at line 420
+    Found 1-bit tristate buffer for signal <data<9>> created at line 420
+    Found 1-bit tristate buffer for signal <data<8>> created at line 420
+    Found 1-bit tristate buffer for signal <data<7>> created at line 420
+    Found 1-bit tristate buffer for signal <data<6>> created at line 420
+    Found 1-bit tristate buffer for signal <data<5>> created at line 420
+    Found 1-bit tristate buffer for signal <data<4>> created at line 420
+    Found 1-bit tristate buffer for signal <data<3>> created at line 420
+    Found 1-bit tristate buffer for signal <data<2>> created at line 420
+    Found 1-bit tristate buffer for signal <data<1>> created at line 420
+    Found 1-bit tristate buffer for signal <data<0>> created at line 420
+    Summary:
+	inferred   1 RAM(s).
+	inferred   1 Multiplexer(s).
+	inferred  16 Tristate(s).
+Unit <rom> synthesized.
+
+Synthesizing Unit <uart_w_fifo>.
+    Related source file is "/home/mj/git-src/repo/Wilkes/uart_w_fifo.vhd".
+        DBIT = 8
+        SB_TICK = 16
+    Found 1-bit register for signal <tx_reg>.
+    Found 4-bit register for signal <s_reg>.
+    Found 4-bit register for signal <tx_fsm2_s_reg>.
+    Found 3-bit register for signal <n_reg>.
+    Found 3-bit register for signal <tx_fsm2_n_reg>.
+    Found 8-bit register for signal <b_reg>.
+    Found 8-bit register for signal <tx_fsm2_b_reg>.
+    Found 2-bit register for signal <read_state_reg>.
+    Found 2-bit register for signal <tx_fsm_w_state_reg>.
+    Found 2-bit register for signal <tx_fsm2_state_reg>.
+    Found 2-bit register for signal <state_reg>.
+    Found 10-bit register for signal <rx_fifo_in_addr>.
+    Found 10-bit register for signal <rx_fifo_out_addr>.
+    Found 10-bit register for signal <tx_fifo_in_addr>.
+    Found 10-bit register for signal <tx_fifo_out_addr>.
+    Found 16-bit register for signal <val_reg>.
+    Found 11-bit register for signal <num_bytes_in_rx_fifo>.
+    Found 11-bit register for signal <num_bytes_in_tx_fifo>.
+    Found 1-bit register for signal <inc_num_bytes_in_rx_fifo_tick>.
+    Found 1-bit register for signal <wea_reg>.
+    Found 1-bit register for signal <tx_fifo_wea_reg>.
+    Found finite state machine <FSM_3> for signal <read_state_reg>.
+    -----------------------------------------------------------------------
+    | States             | 3                                              |
+    | Transitions        | 10                                             |
+    | Inputs             | 7                                              |
+    | Outputs            | 1                                              |
+    | Clock              | clk (rising_edge)                              |
+    | Reset              | reset (positive)                               |
+    | Reset type         | asynchronous                                   |
+    | Reset State        | read_state_idle                                |
+    | Power Up State     | read_state_idle                                |
+    | Encoding           | auto                                           |
+    | Implementation     | LUT                                            |
+    -----------------------------------------------------------------------
+    Found finite state machine <FSM_4> for signal <tx_fsm_w_state_reg>.
+    -----------------------------------------------------------------------
+    | States             | 4                                              |
+    | Transitions        | 7                                              |
+    | Inputs             | 3                                              |
+    | Outputs            | 3                                              |
+    | Clock              | clk (rising_edge)                              |
+    | Reset              | reset (positive)                               |
+    | Reset type         | asynchronous                                   |
+    | Reset State        | tx_fsm_w_state_idle                            |
+    | Power Up State     | tx_fsm_w_state_idle                            |
+    | Encoding           | auto                                           |
+    | Implementation     | LUT                                            |
+    -----------------------------------------------------------------------
+    Found finite state machine <FSM_5> for signal <tx_fsm2_state_reg>.
+    -----------------------------------------------------------------------
+    | States             | 4                                              |
+    | Transitions        | 12                                             |
+    | Inputs             | 4                                              |
+    | Outputs            | 2                                              |
+    | Clock              | clk (rising_edge)                              |
+    | Reset              | reset (positive)                               |
+    | Reset type         | asynchronous                                   |
+    | Reset State        | tx_fsm2_state_idle                             |
+    | Power Up State     | tx_fsm2_state_idle                             |
+    | Encoding           | auto                                           |
+    | Implementation     | LUT                                            |
+    -----------------------------------------------------------------------
+    Found finite state machine <FSM_6> for signal <state_reg>.
+    -----------------------------------------------------------------------
+    | States             | 4                                              |
+    | Transitions        | 12                                             |
+    | Inputs             | 5                                              |
+    | Outputs            | 2                                              |
+    | Clock              | clk (rising_edge)                              |
+    | Reset              | reset (positive)                               |
+    | Reset type         | asynchronous                                   |
+    | Reset State        | state_idle                                     |
+    | Power Up State     | state_idle                                     |
+    | Encoding           | auto                                           |
+    | Implementation     | LUT                                            |
+    -----------------------------------------------------------------------
+    Found 3-bit adder for signal <n_reg[2]_GND_317_o_add_16_OUT> created at line 251.
+    Found 4-bit adder for signal <s_reg[3]_GND_317_o_add_29_OUT> created at line 265.
+    Found 10-bit adder for signal <rx_fifo_in_addr[9]_GND_317_o_add_45_OUT> created at line 371.
+    Found 10-bit adder for signal <rx_fifo_out_addr[9]_GND_317_o_add_52_OUT> created at line 439.
+    Found 11-bit adder for signal <num_bytes_in_rx_fifo[10]_GND_317_o_add_65_OUT> created at line 523.
+    Found 11-bit adder for signal <num_bytes_in_tx_fifo[10]_GND_317_o_add_76_OUT> created at line 642.
+    Found 10-bit adder for signal <tx_fifo_in_addr[9]_GND_317_o_add_89_OUT> created at line 720.
+    Found 10-bit adder for signal <tx_fifo_out_addr[9]_GND_317_o_add_102_OUT> created at line 803.
+    Found 3-bit adder for signal <tx_fsm2_n_reg[2]_GND_317_o_add_118_OUT> created at line 833.
+    Found 4-bit adder for signal <tx_fsm2_s_reg[3]_GND_317_o_add_131_OUT> created at line 847.
+    Found 11-bit subtractor for signal <GND_317_o_GND_317_o_sub_69_OUT<10:0>> created at line 527.
+    Found 11-bit subtractor for signal <GND_317_o_GND_317_o_sub_80_OUT<10:0>> created at line 646.
+    Found 4-bit 4-to-1 multiplexer for signal <s_next> created at line 222.
+    Found 16-bit 14-to-1 multiplexer for signal <addr_bus[3]_GND_317_o_wide_mux_55_OUT> created at line 430.
+    Found 4-bit 4-to-1 multiplexer for signal <tx_fsm2_s_next> created at line 791.
+    Found 1-bit tristate buffer for signal <data_bus<15>> created at line 545
+    Found 1-bit tristate buffer for signal <data_bus<14>> created at line 545
+    Found 1-bit tristate buffer for signal <data_bus<13>> created at line 545
+    Found 1-bit tristate buffer for signal <data_bus<12>> created at line 545
+    Found 1-bit tristate buffer for signal <data_bus<11>> created at line 545
+    Found 1-bit tristate buffer for signal <data_bus<10>> created at line 545
+    Found 1-bit tristate buffer for signal <data_bus<9>> created at line 545
+    Found 1-bit tristate buffer for signal <data_bus<8>> created at line 545
+    Found 1-bit tristate buffer for signal <data_bus<7>> created at line 545
+    Found 1-bit tristate buffer for signal <data_bus<6>> created at line 545
+    Found 1-bit tristate buffer for signal <data_bus<5>> created at line 545
+    Found 1-bit tristate buffer for signal <data_bus<4>> created at line 545
+    Found 1-bit tristate buffer for signal <data_bus<3>> created at line 545
+    Found 1-bit tristate buffer for signal <data_bus<2>> created at line 545
+    Found 1-bit tristate buffer for signal <data_bus<1>> created at line 545
+    Found 1-bit tristate buffer for signal <data_bus<0>> created at line 545
+    Found 11-bit comparator lessequal for signal <num_bytes_in_rx_fifo[10]_PWR_71_o_LessThan_65_o> created at line 522
+    Found 11-bit comparator lessequal for signal <num_bytes_in_tx_fifo[10]_PWR_71_o_LessThan_76_o> created at line 641
+    Found 11-bit comparator greater for signal <GND_317_o_num_bytes_in_tx_fifo[10]_LessThan_101_o> created at line 645
+    Found 11-bit comparator lessequal for signal <n0173> created at line 859
+    Found 11-bit comparator lessequal for signal <n0175> created at line 860
+    Found 11-bit comparator greater for signal <rx_fifo_has_char> created at line 863
+    Found 11-bit comparator lessequal for signal <n0181> created at line 866
+    Found 11-bit comparator lessequal for signal <n0183> created at line 867
+    Summary:
+	inferred  10 Adder/Subtractor(s).
+	inferred 112 D-type flip-flop(s).
+	inferred   8 Comparator(s).
+	inferred  31 Multiplexer(s).
+	inferred  16 Tristate(s).
+	inferred   4 Finite State Machine(s).
+Unit <uart_w_fifo> synthesized.
+
+Synthesizing Unit <mod_m>.
+    Related source file is "/home/mj/git-src/repo/Wilkes/mod_m.vhdl".
+        N = 5
+        M = 27
+    Found 5-bit register for signal <r_reg>.
+    Found 5-bit adder for signal <r_reg[4]_GND_318_o_add_2_OUT> created at line 1241.
+    Summary:
+	inferred   1 Adder/Subtractor(s).
+	inferred   5 D-type flip-flop(s).
+	inferred   1 Multiplexer(s).
+Unit <mod_m> synthesized.
+
+=========================================================================
+HDL Synthesis Report
+
+Macro Statistics
+# RAMs                                                 : 3
+ 16x16-bit single-port Read Only RAM                   : 1
+ 512x16-bit single-port Read Only RAM                  : 1
+ 512x41-bit single-port Read Only RAM                  : 1
+# Multipliers                                          : 1
+ 17x17-bit multiplier                                  : 1
+# Adders/Subtractors                                   : 24
+ 10-bit adder                                          : 4
+ 11-bit addsub                                         : 2
+ 17-bit adder                                          : 4
+ 17-bit subtractor                                     : 5
+ 20-bit adder                                          : 3
+ 3-bit adder                                           : 2
+ 4-bit adder                                           : 2
+ 5-bit adder                                           : 1
+ 5-bit subtractor                                      : 1
+# Registers                                            : 45
+ 1-bit register                                        : 13
+ 10-bit register                                       : 4
+ 11-bit register                                       : 2
+ 16-bit register                                       : 15
+ 3-bit register                                        : 2
+ 4-bit register                                        : 2
+ 41-bit register                                       : 1
+ 5-bit register                                        : 2
+ 8-bit register                                        : 4
+# Comparators                                          : 29
+ 11-bit comparator greater                             : 2
+ 11-bit comparator lessequal                           : 6
+ 16-bit comparator lessequal                           : 20
+ 17-bit comparator greater                             : 1
+# Multiplexers                                         : 109
+ 1-bit 2-to-1 multiplexer                              : 49
+ 10-bit 2-to-1 multiplexer                             : 4
+ 16-bit 14-to-1 multiplexer                            : 1
+ 16-bit 2-to-1 multiplexer                             : 12
+ 16-bit 4-to-1 multiplexer                             : 1
+ 17-bit 2-to-1 multiplexer                             : 21
+ 3-bit 2-to-1 multiplexer                              : 2
+ 4-bit 2-to-1 multiplexer                              : 12
+ 4-bit 4-to-1 multiplexer                              : 2
+ 5-bit 2-to-1 multiplexer                              : 1
+ 5-bit 4-to-1 multiplexer                              : 1
+ 8-bit 2-to-1 multiplexer                              : 3
+# Tristates                                            : 349
+ 1-bit tristate buffer                                 : 349
+# FSMs                                                 : 9
+# Xors                                                 : 1
+ 17-bit xor2                                           : 1
+
+=========================================================================
+
+=========================================================================
+*                       Advanced HDL Synthesis                          *
+=========================================================================
+
+Reading core <mj_2k_words.ngc>.
+Reading core <mj_dual_1KB.ngc>.
+Loading core <mj_2k_words> for timing and area information for instance <u_2k_block>.
+Loading core <mj_dual_1KB> for timing and area information for instance <u_1k_block>.
+Loading core <mj_dual_1KB> for timing and area information for instance <u_tx_fifo_1KB>.
+WARNING:Xst:1290 - Hierarchical block <dispSelector> is unconnected in block <the_cpu>.
+   It will be removed from the design.
+WARNING:Xst:1710 - FF/Latch <internal_state_0> (without init value) has a constant value of 0 in block <INTCTL_HIGH_REG>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1710 - FF/Latch <internal_state_1> (without init value) has a constant value of 0 in block <INTCTL_HIGH_REG>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1710 - FF/Latch <internal_state_2> (without init value) has a constant value of 0 in block <INTCTL_HIGH_REG>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1710 - FF/Latch <internal_state_3> (without init value) has a constant value of 0 in block <INTCTL_HIGH_REG>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1710 - FF/Latch <internal_state_4> (without init value) has a constant value of 0 in block <INTCTL_HIGH_REG>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1710 - FF/Latch <internal_state_5> (without init value) has a constant value of 0 in block <INTCTL_HIGH_REG>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1710 - FF/Latch <internal_state_6> (without init value) has a constant value of 0 in block <INTCTL_HIGH_REG>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1710 - FF/Latch <internal_state_7> (without init value) has a constant value of 0 in block <INTCTL_HIGH_REG>. This FF/Latch will be trimmed during the optimization process.
+
+Synthesizing (advanced) Unit <ControlStore>.
+INFO:Xst:3217 - HDL ADVISOR - Register <internal_state> currently described with an asynchronous reset, could be combined with distributed RAM <Mram_output> for implementation on block RAM resources if you made this reset synchronous instead.
+    -----------------------------------------------------------------------
+    | ram_type           | Distributed                         |          |
+    -----------------------------------------------------------------------
+    | Port A                                                              |
+    |     aspect ratio   | 512-word x 41-bit                   |          |
+    |     weA            | connected to signal <GND>           | high     |
+    |     addrA          | connected to signal <input>         |          |
+    |     diA            | connected to signal <GND>           |          |
+    |     doA            | connected to signal <output>        |          |
+    -----------------------------------------------------------------------
+INFO:Xst:3218 - HDL ADVISOR - The RAM <Mram_output> will be implemented on LUTs either because you have described an asynchronous read or because of currently unsupported block RAM features. If you have described an asynchronous read, making it synchronous would allow you to take advantage of available block RAM resources, for optimized device usage and improved timings. Please refer to your documentation for coding guidelines.
+Unit <ControlStore> synthesized (advanced).
+
+Synthesizing (advanced) Unit <FourTo16Decoder>.
+INFO:Xst:3218 - HDL ADVISOR - The RAM <Mram_output> will be implemented on LUTs either because you have described an asynchronous read or because of currently unsupported block RAM features. If you have described an asynchronous read, making it synchronous would allow you to take advantage of available block RAM resources, for optimized device usage and improved timings. Please refer to your documentation for coding guidelines.
+    -----------------------------------------------------------------------
+    | ram_type           | Distributed                         |          |
+    -----------------------------------------------------------------------
+    | Port A                                                              |
+    |     aspect ratio   | 16-word x 16-bit                    |          |
+    |     weA            | connected to signal <GND>           | high     |
+    |     addrA          | connected to signal <input>         |          |
+    |     diA            | connected to signal <GND>           |          |
+    |     doA            | connected to signal <output>        |          |
+    -----------------------------------------------------------------------
+Unit <FourTo16Decoder> synthesized (advanced).
+
+Synthesizing (advanced) Unit <mod_m>.
+The following registers are absorbed into counter <r_reg>: 1 register on signal <r_reg>.
+Unit <mod_m> synthesized (advanced).
+
+Synthesizing (advanced) Unit <rom>.
+INFO:Xst:3218 - HDL ADVISOR - The RAM <Mram__n1180> will be implemented on LUTs either because you have described an asynchronous read or because of currently unsupported block RAM features. If you have described an asynchronous read, making it synchronous would allow you to take advantage of available block RAM resources, for optimized device usage and improved timings. Please refer to your documentation for coding guidelines.
+    -----------------------------------------------------------------------
+    | ram_type           | Distributed                         |          |
+    -----------------------------------------------------------------------
+    | Port A                                                              |
+    |     aspect ratio   | 512-word x 16-bit                   |          |
+    |     weA            | connected to signal <GND>           | high     |
+    |     addrA          | connected to signal <addr<8:0>>     |          |
+    |     diA            | connected to signal <GND>           |          |
+    |     doA            | connected to internal node          |          |
+    -----------------------------------------------------------------------
+Unit <rom> synthesized (advanced).
+
+Synthesizing (advanced) Unit <uart_w_fifo>.
+The following registers are absorbed into counter <tx_fsm2_n_reg>: 1 register on signal <tx_fsm2_n_reg>.
+The following registers are absorbed into counter <n_reg>: 1 register on signal <n_reg>.
+The following registers are absorbed into counter <rx_fifo_in_addr>: 1 register on signal <rx_fifo_in_addr>.
+The following registers are absorbed into counter <tx_fifo_in_addr>: 1 register on signal <tx_fifo_in_addr>.
+The following registers are absorbed into counter <rx_fifo_out_addr>: 1 register on signal <rx_fifo_out_addr>.
+The following registers are absorbed into counter <tx_fifo_out_addr>: 1 register on signal <tx_fifo_out_addr>.
+The following registers are absorbed into counter <num_bytes_in_rx_fifo>: 1 register on signal <num_bytes_in_rx_fifo>.
+The following registers are absorbed into counter <num_bytes_in_tx_fifo>: 1 register on signal <num_bytes_in_tx_fifo>.
+Unit <uart_w_fifo> synthesized (advanced).
+
+=========================================================================
+Advanced HDL Synthesis Report
+
+Macro Statistics
+# RAMs                                                 : 3
+ 16x16-bit single-port distributed Read Only RAM       : 1
+ 512x16-bit single-port distributed Read Only RAM      : 1
+ 512x41-bit single-port distributed Read Only RAM      : 1
+# Multipliers                                          : 1
+ 17x17-bit multiplier                                  : 1
+# Adders/Subtractors                                   : 15
+ 17-bit adder                                          : 4
+ 17-bit subtractor                                     : 5
+ 20-bit adder                                          : 3
+ 4-bit adder                                           : 2
+ 5-bit subtractor                                      : 1
+# Counters                                             : 9
+ 10-bit up counter                                     : 4
+ 11-bit updown counter                                 : 2
+ 3-bit up counter                                      : 2
+ 5-bit up counter                                      : 1
+# Registers                                            : 339
+ Flip-Flops                                            : 339
+# Comparators                                          : 29
+ 11-bit comparator greater                             : 2
+ 11-bit comparator lessequal                           : 6
+ 16-bit comparator lessequal                           : 20
+ 17-bit comparator greater                             : 1
+# Multiplexers                                         : 102
+ 1-bit 2-to-1 multiplexer                              : 49
+ 16-bit 14-to-1 multiplexer                            : 1
+ 16-bit 2-to-1 multiplexer                             : 12
+ 16-bit 4-to-1 multiplexer                             : 1
+ 17-bit 2-to-1 multiplexer                             : 21
+ 4-bit 2-to-1 multiplexer                              : 12
+ 4-bit 4-to-1 multiplexer                              : 2
+ 5-bit 4-to-1 multiplexer                              : 1
+ 8-bit 2-to-1 multiplexer                              : 3
+# FSMs                                                 : 9
+# Xors                                                 : 1
+ 17-bit xor2                                           : 1
+
+=========================================================================
+
+=========================================================================
+*                         Low Level Synthesis                           *
+=========================================================================
+Analyzing FSM <MFsm> for best encoding.
+Optimizing FSM <FSM_1> on signal <read_state_reg[1:2]> with user encoding.
+Optimizing FSM <FSM_1> on signal <read_state_reg[1:2]> with user encoding.
+-----------------------------
+ State           | Encoding
+-----------------------------
+ read_state_idle | 00
+ read_state_0    | 01
+ read_state_1    | 10
+-----------------------------
+Analyzing FSM <MFsm> for best encoding.
+Optimizing FSM <FSM_0> on signal <write_state_reg[1:2]> with user encoding.
+Optimizing FSM <FSM_0> on signal <write_state_reg[1:2]> with user encoding.
+------------------------------
+ State            | Encoding
+------------------------------
+ write_state_idle | 00
+ write_state_0    | 01
+ write_state_1    | 10
+ write_state_2    | 11
+------------------------------
+Analyzing FSM <MFsm> for best encoding.
+Optimizing FSM <the_cpu_timing_generator/FSM_2> on signal <state_reg[1:2]> with gray encoding.
+------------------------
+ State      | Encoding
+------------------------
+ state_idle | 00
+ state_0    | 01
+ state_1    | 11
+ state_2    | 10
+------------------------
+Analyzing FSM <MFsm> for best encoding.
+Optimizing FSM <console_uart/FSM_3> on signal <read_state_reg[1:2]> with user encoding.
+-----------------------------
+ State           | Encoding
+-----------------------------
+ read_state_idle | 00
+ read_state_0    | 01
+ read_state_1    | 10
+-----------------------------
+Analyzing FSM <MFsm> for best encoding.
+Optimizing FSM <console_uart/FSM_4> on signal <tx_fsm_w_state_reg[1:2]> with user encoding.
+---------------------------------
+ State               | Encoding
+---------------------------------
+ tx_fsm_w_state_idle | 00
+ tx_fsm_w_state_0    | 01
+ tx_fsm_w_state_1    | 10
+ tx_fsm_w_state_2    | 11
+---------------------------------
+Analyzing FSM <MFsm> for best encoding.
+Optimizing FSM <console_uart/FSM_5> on signal <tx_fsm2_state_reg[1:2]> with gray encoding.
+-------------------------------------
+ State                   | Encoding
+-------------------------------------
+ tx_fsm2_state_idle      | 00
+ tx_fsm2_state_start_bit | 01
+ tx_fsm2_state_data      | 11
+ tx_fsm2_state_stop_bit  | 10
+-------------------------------------
+Analyzing FSM <MFsm> for best encoding.
+Optimizing FSM <console_uart/FSM_6> on signal <state_reg[1:2]> with gray encoding.
+-----------------------------
+ State           | Encoding
+-----------------------------
+ state_idle      | 00
+ state_start_bit | 01
+ state_data      | 11
+ state_stop_bit  | 10
+-----------------------------
+WARNING:Xst:1710 - FF/Latch <val_reg_11> (without init value) has a constant value of 0 in block <uart_w_fifo>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <val_reg_12> (without init value) has a constant value of 0 in block <uart_w_fifo>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <val_reg_13> (without init value) has a constant value of 0 in block <uart_w_fifo>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <val_reg_15> (without init value) has a constant value of 0 in block <uart_w_fifo>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:2040 - Unit system: 16 multi-source signals are replaced by logic (pull-up yes): data_bus<0>, data_bus<10>, data_bus<11>, data_bus<12>, data_bus<13>, data_bus<14>, data_bus<15>, data_bus<1>, data_bus<2>, data_bus<3>, data_bus<4>, data_bus<5>, data_bus<6>, data_bus<7>, data_bus<8>, data_bus<9>.
+WARNING:Xst:2042 - Unit uart_w_fifo: 16 internal tristates are replaced by logic (pull-up yes): data_bus<0>, data_bus<10>, data_bus<11>, data_bus<12>, data_bus<13>, data_bus<14>, data_bus<15>, data_bus<1>, data_bus<2>, data_bus<3>, data_bus<4>, data_bus<5>, data_bus<6>, data_bus<7>, data_bus<8>, data_bus<9>.
+WARNING:Xst:2042 - Unit mem_addr_gen: 20 internal tristates are replaced by logic (pull-up yes): addr_out<0>, addr_out<10>, addr_out<11>, addr_out<12>, addr_out<13>, addr_out<14>, addr_out<15>, addr_out<16>, addr_out<17>, addr_out<18>, addr_out<19>, addr_out<1>, addr_out<2>, addr_out<3>, addr_out<4>, addr_out<5>, addr_out<6>, addr_out<7>, addr_out<8>, addr_out<9>.
+WARNING:Xst:2042 - Unit mdr: 32 internal tristates are replaced by logic (pull-up yes): b_bus<0>, b_bus<10>, b_bus<11>, b_bus<12>, b_bus<13>, b_bus<14>, b_bus<15>, b_bus<1>, b_bus<2>, b_bus<3>, b_bus<4>, b_bus<5>, b_bus<6>, b_bus<7>, b_bus<8>, b_bus<9>, mem_data_bus<0>, mem_data_bus<10>, mem_data_bus<11>, mem_data_bus<12>, mem_data_bus<13>, mem_data_bus<14>, mem_data_bus<15>, mem_data_bus<1>, mem_data_bus<2>, mem_data_bus<3>, mem_data_bus<4>, mem_data_bus<5>, mem_data_bus<6>, mem_data_bus<7>, mem_data_bus<8>, mem_data_bus<9>.
+WARNING:Xst:2042 - Unit compound_register_2: 8 internal tristates are replaced by logic (pull-up yes): out1<0>, out1<1>, out1<2>, out1<3>, out1<4>, out1<5>, out1<6>, out1<7>.
+WARNING:Xst:2042 - Unit compound_register: 16 internal tristates are replaced by logic (pull-up yes): out1<0>, out1<10>, out1<11>, out1<12>, out1<13>, out1<14>, out1<15>, out1<1>, out1<2>, out1<3>, out1<4>, out1<5>, out1<6>, out1<7>, out1<8>, out1<9>.
+WARNING:Xst:1710 - FF/Latch <the_cpu/INTCTL_HIGH_REG/internal_state_7> (without init value) has a constant value of 0 in block <system>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <the_cpu/INTCTL_HIGH_REG/internal_state_6> (without init value) has a constant value of 0 in block <system>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <the_cpu/INTCTL_HIGH_REG/internal_state_5> (without init value) has a constant value of 0 in block <system>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <the_cpu/INTCTL_HIGH_REG/internal_state_4> (without init value) has a constant value of 0 in block <system>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <the_cpu/INTCTL_HIGH_REG/internal_state_3> (without init value) has a constant value of 0 in block <system>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <the_cpu/INTCTL_HIGH_REG/internal_state_2> (without init value) has a constant value of 0 in block <system>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <the_cpu/INTCTL_HIGH_REG/internal_state_1> (without init value) has a constant value of 0 in block <system>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <the_cpu/INTCTL_HIGH_REG/internal_state_0> (without init value) has a constant value of 0 in block <system>. This FF/Latch will be trimmed during the optimization process.
+
+Optimizing unit <compound_register_1> ...
+
+Optimizing unit <system> ...
+
+Optimizing unit <cpu_timing_generator> ...
+
+Optimizing unit <mem_addr_gen> ...
+
+Optimizing unit <alu1> ...
+WARNING:Xst:1710 - FF/Latch <the_cpu/MIR_REG/internal_state_21> (without init value) has a constant value of 0 in block <system>. This FF/Latch will be trimmed during the optimization process.
+INFO:Xst:2261 - The FF/Latch <u_stack_mem/read_state_reg_FSM_FFd1> in Unit <system> is equivalent to the following FF/Latch, which will be removed : <u_lower_block/read_state_reg_FSM_FFd1> 
+INFO:Xst:2261 - The FF/Latch <u_stack_mem/read_state_reg_FSM_FFd2> in Unit <system> is equivalent to the following FF/Latch, which will be removed : <u_lower_block/read_state_reg_FSM_FFd2> 
+
+Mapping all equations...
+Building and optimizing final netlist ...
+Found area constraint ratio of 100 (+ 5) on block system, actual ratio is 21.
+FlipFlop the_cpu/MIR_REG/internal_state_0 has been replicated 4 time(s)
+FlipFlop the_cpu/MIR_REG/internal_state_1 has been replicated 3 time(s)
+FlipFlop the_cpu/MIR_REG/internal_state_16 has been replicated 1 time(s)
+FlipFlop the_cpu/MIR_REG/internal_state_17 has been replicated 2 time(s)
+FlipFlop the_cpu/MIR_REG/internal_state_18 has been replicated 1 time(s)
+FlipFlop the_cpu/MIR_REG/internal_state_19 has been replicated 1 time(s)
+FlipFlop the_cpu/MIR_REG/internal_state_2 has been replicated 3 time(s)
+FlipFlop the_cpu/MIR_REG/internal_state_20 has been replicated 1 time(s)
+FlipFlop the_cpu/MIR_REG/internal_state_3 has been replicated 4 time(s)
+FlipFlop the_cpu/RD_FF/output has been replicated 1 time(s)
+FlipFlop the_cpu/WR_FF/output has been replicated 1 time(s)
+
+Final Macro Processing ...
+
+=========================================================================
+Final Register Report
+
+Macro Statistics
+# Registers                                            : 437
+ Flip-Flops                                            : 437
+
+=========================================================================
+
+=========================================================================
+*                           Partition Report                            *
+=========================================================================
+
+Partition Implementation Status
+-------------------------------
+
+  No Partitions were found in this design.
+
+-------------------------------
+
+=========================================================================
+*                            Design Summary                             *
+=========================================================================
+
+Top Level Output File Name         : system.ngc
+
+Primitive and Black Box Usage:
+------------------------------
+# BELS                             : 1700
+#      GND                         : 5
+#      INV                         : 19
+#      LUT1                        : 32
+#      LUT2                        : 106
+#      LUT3                        : 128
+#      LUT4                        : 97
+#      LUT5                        : 153
+#      LUT6                        : 603
+#      MUXCY                       : 248
+#      MUXF7                       : 51
+#      MUXF8                       : 5
+#      VCC                         : 5
+#      XORCY                       : 248
+# FlipFlops/Latches                : 437
+#      FDC                         : 31
+#      FDCE                        : 341
+#      FDE                         : 62
+#      FDPE                        : 1
+#      FDRE                        : 2
+# RAMS                             : 6
+#      RAMB16BWER                  : 4
+#      RAMB8BWER                   : 2
+# Clock Buffers                    : 2
+#      BUFG                        : 2
+# IO Buffers                       : 5
+#      IBUF                        : 2
+#      IBUFG                       : 1
+#      OBUF                        : 2
+# DCMs                             : 1
+#      DCM_SP                      : 1
+# DSPs                             : 1
+#      DSP48A1                     : 1
+
+Device utilization summary:
+---------------------------
+
+Selected Device : 6slx9tqg144-2 
+
+
+Slice Logic Utilization: 
+ Number of Slice Registers:             437  out of  11440     3%  
+ Number of Slice LUTs:                 1138  out of   5720    19%  
+    Number used as Logic:              1138  out of   5720    19%  
+
+Slice Logic Distribution: 
+ Number of LUT Flip Flop pairs used:   1371
+   Number with an unused Flip Flop:     934  out of   1371    68%  
+   Number with an unused LUT:           233  out of   1371    16%  
+   Number of fully used LUT-FF pairs:   204  out of   1371    14%  
+   Number of unique control sets:        34
+
+IO Utilization: 
+ Number of IOs:                           5
+ Number of bonded IOBs:                   5  out of    102     4%  
+
+Specific Feature Utilization:
+ Number of Block RAM/FIFO:                5  out of     32    15%  
+    Number using Block RAM only:          5
+ Number of BUFG/BUFGCTRLs:                2  out of     16    12%  
+ Number of DSP48A1s:                      1  out of     16     6%  
+
+---------------------------
+Partition Resource Summary:
+---------------------------
+
+  No Partitions were found in this design.
+
+---------------------------
+
+
+=========================================================================
+Timing Report
+
+NOTE: THESE TIMING NUMBERS ARE ONLY A SYNTHESIS ESTIMATE.
+      FOR ACCURATE TIMING INFORMATION PLEASE REFER TO THE TRACE REPORT
+      GENERATED AFTER PLACE-and-ROUTE.
+
+Clock Information:
+------------------
+-----------------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------+-------+
+Clock Signal                       | Clock buffer(FF name)                                                                                                                               | Load  |
+-----------------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------+-------+
+clk                                | DCM_SP:CLKFX                                                                                                                                        | 443   |
+u_lower_block/u_2k_block/N1        | NONE(u_lower_block/u_2k_block/U0/xst_blk_mem_generator/gnativebmg.native_blk_mem_gen/valid.cstr/ramloop[0].ram.r/s6_noinit.ram/SP.SIMPLE_PRIM18.ram)| 2     |
+u_stack_mem/u_2k_block/N1          | NONE(u_stack_mem/u_2k_block/U0/xst_blk_mem_generator/gnativebmg.native_blk_mem_gen/valid.cstr/ramloop[0].ram.r/s6_noinit.ram/SP.SIMPLE_PRIM18.ram)  | 2     |
+-----------------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------+-------+
+INFO:Xst:2169 - HDL ADVISOR - Some clock signals were not automatically buffered by XST with BUFG/BUFR resources. Please use the buffer_type constraint in order to insert these buffers to the clock signals to help prevent skew problems.
+
+Asynchronous Control Signals Information:
+----------------------------------------
+No asynchronous control signals found in this design
+
+Timing Summary:
+---------------
+Speed Grade: -2
+
+   Minimum period: 19.536ns (Maximum Frequency: 51.188MHz)
+   Minimum input arrival time before clock: 5.786ns
+   Maximum output required time after clock: 4.118ns
+   Maximum combinational path delay: No path found
+
+Timing Details:
+---------------
+All values displayed in nanoseconds (ns)
+
+=========================================================================
+Timing constraint: Default period analysis for Clock 'clk'
+  Clock period: 19.536ns (frequency: 51.188MHz)
+  Total number of paths / destination ports: 3996881 / 989
+-------------------------------------------------------------------------
+Delay:               12.503ns (Levels of Logic = 7)
+  Source:            the_cpu/MIR_REG/internal_state_2_2 (FF)
+  Destination:       the_cpu/MDR_REG/stored_word_7 (FF)
+  Source Clock:      clk rising 1.6X
+  Destination Clock: clk rising 1.6X
+
+  Data Path: the_cpu/MIR_REG/internal_state_2_2 to the_cpu/MDR_REG/stored_word_7
+                                Gate     Net
+    Cell:in->out      fanout   Delay   Delay  Logical Name (Net Name)
+    ----------------------------------------  ------------
+     FDCE:C->Q            15   0.525   1.155  the_cpu/MIR_REG/internal_state_2_2 (the_cpu/MIR_REG/internal_state_2_2)
+     LUT4:I3->O            1   0.254   0.682  the_cpu/n0059<15>LogicTrst3 (the_cpu/n0059<15>LogicTrst2)
+     LUT6:I5->O            5   0.254   0.841  the_cpu/n0059<15>LogicTrst4 (the_cpu/n0059<15>LogicTrst3)
+     LUT6:I5->O           10   0.254   1.007  the_cpu/n0059<15>LogicTrst5 (the_cpu/n0059<15>)
+     DSP48A1:B15->M12      1   3.894   0.682  the_cpu/ALU/Mmult_prod (the_cpu/ALU/prod<12>)
+     LUT6:I5->O            4   0.254   1.080  the_cpu/ALU/Mmux_YTmp249 (the_cpu/alu_output<12>)
+     LUT6:I2->O           11   0.254   1.039  the_cpu/SHIFTER1/Mmux_output41 (the_cpu/c_bus<12>)
+     LUT3:I2->O            1   0.254   0.000  the_cpu/MDR_REG/Mmux_stored_word[15]_mem_data_bus[15]_mux_1_OUT41 (the_cpu/MDR_REG/stored_word[15]_mem_data_bus[15]_mux_1_OUT<12>)
+     FDE:D                     0.074          the_cpu/MDR_REG/stored_word_12
+    ----------------------------------------
+    Total                     12.503ns (6.017ns logic, 6.486ns route)
+                                       (48.1% logic, 51.9% route)
+
+=========================================================================
+Timing constraint: Default OFFSET IN BEFORE for Clock 'clk'
+  Total number of paths / destination ports: 420 / 420
+-------------------------------------------------------------------------
+Offset:              5.786ns (Levels of Logic = 2)
+  Source:            reset (PAD)
+  Destination:       u_stack_mem/val_reg_15 (FF)
+  Destination Clock: clk rising 1.6X
+
+  Data Path: reset to u_stack_mem/val_reg_15
+                                Gate     Net
+    Cell:in->out      fanout   Delay   Delay  Logical Name (Net Name)
+    ----------------------------------------  ------------
+     IBUF:I->O           378   1.328   2.721  reset_IBUF (reset_IBUF)
+     LUT5:I1->O           16   0.254   1.181  u_stack_mem/_n0071_inv1 (u_stack_mem/_n0071_inv)
+     FDE:CE                    0.302          u_stack_mem/val_reg_0
+    ----------------------------------------
+    Total                      5.786ns (1.884ns logic, 3.902ns route)
+                                       (32.6% logic, 67.4% route)
+
+=========================================================================
+Timing constraint: Default OFFSET OUT AFTER for Clock 'clk'
+  Total number of paths / destination ports: 1 / 1
+-------------------------------------------------------------------------
+Offset:              4.118ns (Levels of Logic = 1)
+  Source:            console_uart/tx_reg (FF)
+  Destination:       console_uart_tx (PAD)
+  Source Clock:      clk rising 1.6X
+
+  Data Path: console_uart/tx_reg to console_uart_tx
+                                Gate     Net
+    Cell:in->out      fanout   Delay   Delay  Logical Name (Net Name)
+    ----------------------------------------  ------------
+     FDPE:C->Q             1   0.525   0.681  console_uart/tx_reg (console_uart/tx_reg)
+     OBUF:I->O                 2.912          console_uart_tx_OBUF (console_uart_tx)
+    ----------------------------------------
+    Total                      4.118ns (3.437ns logic, 0.681ns route)
+                                       (83.5% logic, 16.5% route)
+
+=========================================================================
+
+Cross Clock Domains Report:
+--------------------------
+
+Clock to Setup on destination clock clk
+---------------+---------+---------+---------+---------+
+               | Src:Rise| Src:Fall| Src:Rise| Src:Fall|
+Source Clock   |Dest:Rise|Dest:Rise|Dest:Fall|Dest:Fall|
+---------------+---------+---------+---------+---------+
+clk            |   12.503|         |         |         |
+---------------+---------+---------+---------+---------+
+
+=========================================================================
+
+
+Total REAL time to Xst completion: 30.00 secs
+Total CPU time to Xst completion: 24.99 secs
+ 
+--> 
+
+
+Total memory usage is 434888 kilobytes
+
+Number of errors   :    0 (   0 filtered)
+Number of warnings :   36 (   0 filtered)
+Number of infos    :   18 (   0 filtered)
+
