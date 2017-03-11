@@ -182,6 +182,7 @@ begin
 		port map( 
 		clk => my_clock,
 		reset => reset,
+		external_pause => '0',
 		cpu_start => cpu_start,
 		cpu_finish => cpu_finish
 	);

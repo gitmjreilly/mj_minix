@@ -5,14 +5,14 @@ Parameter TMPDIR set to xst/projnav.tmp
 
 
 Total REAL time to Xst completion: 0.00 secs
-Total CPU time to Xst completion: 0.05 secs
+Total CPU time to Xst completion: 0.08 secs
  
 --> 
 Parameter xsthdpdir set to xst
 
 
 Total REAL time to Xst completion: 0.00 secs
-Total CPU time to Xst completion: 0.05 secs
+Total CPU time to Xst completion: 0.08 secs
  
 --> 
 Reading design: system.prj
@@ -219,7 +219,7 @@ Elaborating entity <alu1> (architecture <Behavioral>) from library <work>.
 Elaborating entity <HighBit> (architecture <Behavioral>) from library <work>.
 
 Elaborating entity <Shifter> (architecture <Behavioral>) from library <work>.
-WARNING:HDLCompiler:1127 - "/home/mj/git-src/repo/Wilkes/system.vhd" Line 214: Assignment to addr_bus ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/mj/git-src/repo/Wilkes/system.vhd" Line 215: Assignment to addr_bus ignored, since the identifier is never used
 
 Elaborating entity <CS_Glue> (architecture <Behavioral>) from library <work>.
 
@@ -241,14 +241,14 @@ Synthesizing Unit <system>.
     Related source file is "/home/mj/git-src/repo/Wilkes/system.vhd".
 INFO:Xst:3210 - "/home/mj/git-src/repo/Wilkes/system.vhd" line 131: Output port <fake_data_bus> of the instance <u_lower_block> is unconnected or connected to loadless signal.
 INFO:Xst:3210 - "/home/mj/git-src/repo/Wilkes/system.vhd" line 143: Output port <fake_data_bus> of the instance <u_stack_mem> is unconnected or connected to loadless signal.
-INFO:Xst:3210 - "/home/mj/git-src/repo/Wilkes/system.vhd" line 192: Output port <four_digits> of the instance <the_cpu> is unconnected or connected to loadless signal.
-INFO:Xst:3210 - "/home/mj/git-src/repo/Wilkes/system.vhd" line 192: Output port <N_indicator> of the instance <the_cpu> is unconnected or connected to loadless signal.
-INFO:Xst:3210 - "/home/mj/git-src/repo/Wilkes/system.vhd" line 192: Output port <Z_indicator> of the instance <the_cpu> is unconnected or connected to loadless signal.
-INFO:Xst:3210 - "/home/mj/git-src/repo/Wilkes/system.vhd" line 192: Output port <RD_INDICATOR> of the instance <the_cpu> is unconnected or connected to loadless signal.
-INFO:Xst:3210 - "/home/mj/git-src/repo/Wilkes/system.vhd" line 192: Output port <WR_INDICATOR> of the instance <the_cpu> is unconnected or connected to loadless signal.
-INFO:Xst:3210 - "/home/mj/git-src/repo/Wilkes/system.vhd" line 192: Output port <FETCH_INDICATOR> of the instance <the_cpu> is unconnected or connected to loadless signal.
-INFO:Xst:3210 - "/home/mj/git-src/repo/Wilkes/system.vhd" line 253: Output port <data> of the instance <the_rom> is unconnected or connected to loadless signal.
-INFO:Xst:3210 - "/home/mj/git-src/repo/Wilkes/system.vhd" line 348: Output port <fake_data_bus> of the instance <console_uart> is unconnected or connected to loadless signal.
+INFO:Xst:3210 - "/home/mj/git-src/repo/Wilkes/system.vhd" line 193: Output port <four_digits> of the instance <the_cpu> is unconnected or connected to loadless signal.
+INFO:Xst:3210 - "/home/mj/git-src/repo/Wilkes/system.vhd" line 193: Output port <N_indicator> of the instance <the_cpu> is unconnected or connected to loadless signal.
+INFO:Xst:3210 - "/home/mj/git-src/repo/Wilkes/system.vhd" line 193: Output port <Z_indicator> of the instance <the_cpu> is unconnected or connected to loadless signal.
+INFO:Xst:3210 - "/home/mj/git-src/repo/Wilkes/system.vhd" line 193: Output port <RD_INDICATOR> of the instance <the_cpu> is unconnected or connected to loadless signal.
+INFO:Xst:3210 - "/home/mj/git-src/repo/Wilkes/system.vhd" line 193: Output port <WR_INDICATOR> of the instance <the_cpu> is unconnected or connected to loadless signal.
+INFO:Xst:3210 - "/home/mj/git-src/repo/Wilkes/system.vhd" line 193: Output port <FETCH_INDICATOR> of the instance <the_cpu> is unconnected or connected to loadless signal.
+INFO:Xst:3210 - "/home/mj/git-src/repo/Wilkes/system.vhd" line 254: Output port <data> of the instance <the_rom> is unconnected or connected to loadless signal.
+INFO:Xst:3210 - "/home/mj/git-src/repo/Wilkes/system.vhd" line 349: Output port <fake_data_bus> of the instance <console_uart> is unconnected or connected to loadless signal.
 WARNING:Xst:653 - Signal <address_switches<4:0>> is used but never assigned. This sourceless signal will be automatically connected to value GND.
 WARNING:Xst:653 - Signal <cpu_int> is used but never assigned. This sourceless signal will be automatically connected to value GND.
     Summary:
@@ -335,8 +335,8 @@ Synthesizing Unit <cpu_timing_generator>.
     | Encoding           | auto                                           |
     | Implementation     | LUT                                            |
     -----------------------------------------------------------------------
-    Found 5-bit subtractor for signal <GND_31_o_GND_31_o_sub_6_OUT<4:0>> created at line 1308.
-    Found 5-bit 4-to-1 multiplexer for signal <count_0_next> created at line 70.
+    Found 5-bit subtractor for signal <GND_31_o_GND_31_o_sub_7_OUT<4:0>> created at line 1308.
+    Found 5-bit 4-to-1 multiplexer for signal <count_0_next> created at line 71.
     Summary:
 	inferred   1 Adder/Subtractor(s).
 	inferred   5 D-type flip-flop(s).
@@ -551,14 +551,14 @@ Unit <DisplaySelector> synthesized.
 Synthesizing Unit <alu1>.
     Related source file is "/home/mj/git-src/repo/Wilkes/alu1.vhd".
     Found 17-bit adder for signal <n0071> created at line 52.
-    Found 17-bit adder for signal <ATmp[16]_GND_295_o_add_8_OUT> created at line 52.
-    Found 17-bit adder for signal <ATmp[16]_GND_295_o_add_9_OUT> created at line 53.
-    Found 17-bit adder for signal <BTmp[16]_GND_295_o_add_10_OUT> created at line 54.
-    Found 17-bit subtractor for signal <GND_295_o_GND_295_o_sub_12_OUT<16:0>> created at line 56.
-    Found 17-bit subtractor for signal <GND_295_o_GND_295_o_sub_13_OUT<16:0>> created at line 57.
-    Found 17-bit subtractor for signal <GND_295_o_GND_295_o_sub_17_OUT<16:0>> created at line 65.
-    Found 17-bit subtractor for signal <GND_295_o_GND_295_o_sub_19_OUT<16:0>> created at line 67.
-    Found 17-bit subtractor for signal <GND_295_o_GND_295_o_sub_14_OUT<16:0>> created at line 58.
+    Found 17-bit adder for signal <ATmp[16]_GND_296_o_add_8_OUT> created at line 52.
+    Found 17-bit adder for signal <ATmp[16]_GND_296_o_add_9_OUT> created at line 53.
+    Found 17-bit adder for signal <BTmp[16]_GND_296_o_add_10_OUT> created at line 54.
+    Found 17-bit subtractor for signal <GND_296_o_GND_296_o_sub_12_OUT<16:0>> created at line 56.
+    Found 17-bit subtractor for signal <GND_296_o_GND_296_o_sub_13_OUT<16:0>> created at line 57.
+    Found 17-bit subtractor for signal <GND_296_o_GND_296_o_sub_17_OUT<16:0>> created at line 65.
+    Found 17-bit subtractor for signal <GND_296_o_GND_296_o_sub_19_OUT<16:0>> created at line 67.
+    Found 17-bit subtractor for signal <GND_296_o_GND_296_o_sub_14_OUT<16:0>> created at line 58.
     Found 17x17-bit multiplier for signal <prod> created at line 42.
     Found 17-bit comparator greater for signal <u_a_less_than_u_b> created at line 84
     Summary:
@@ -715,20 +715,20 @@ Synthesizing Unit <uart_w_fifo>.
     | Encoding           | auto                                           |
     | Implementation     | LUT                                            |
     -----------------------------------------------------------------------
-    Found 3-bit adder for signal <n_reg[2]_GND_317_o_add_16_OUT> created at line 251.
-    Found 4-bit adder for signal <s_reg[3]_GND_317_o_add_29_OUT> created at line 265.
-    Found 10-bit adder for signal <rx_fifo_in_addr[9]_GND_317_o_add_45_OUT> created at line 371.
-    Found 10-bit adder for signal <rx_fifo_out_addr[9]_GND_317_o_add_52_OUT> created at line 439.
-    Found 11-bit adder for signal <num_bytes_in_rx_fifo[10]_GND_317_o_add_65_OUT> created at line 523.
-    Found 11-bit adder for signal <num_bytes_in_tx_fifo[10]_GND_317_o_add_76_OUT> created at line 642.
-    Found 10-bit adder for signal <tx_fifo_in_addr[9]_GND_317_o_add_89_OUT> created at line 720.
-    Found 10-bit adder for signal <tx_fifo_out_addr[9]_GND_317_o_add_102_OUT> created at line 803.
-    Found 3-bit adder for signal <tx_fsm2_n_reg[2]_GND_317_o_add_118_OUT> created at line 833.
-    Found 4-bit adder for signal <tx_fsm2_s_reg[3]_GND_317_o_add_131_OUT> created at line 847.
-    Found 11-bit subtractor for signal <GND_317_o_GND_317_o_sub_69_OUT<10:0>> created at line 527.
-    Found 11-bit subtractor for signal <GND_317_o_GND_317_o_sub_80_OUT<10:0>> created at line 646.
+    Found 3-bit adder for signal <n_reg[2]_GND_318_o_add_16_OUT> created at line 251.
+    Found 4-bit adder for signal <s_reg[3]_GND_318_o_add_29_OUT> created at line 265.
+    Found 10-bit adder for signal <rx_fifo_in_addr[9]_GND_318_o_add_45_OUT> created at line 371.
+    Found 10-bit adder for signal <rx_fifo_out_addr[9]_GND_318_o_add_52_OUT> created at line 439.
+    Found 11-bit adder for signal <num_bytes_in_rx_fifo[10]_GND_318_o_add_65_OUT> created at line 523.
+    Found 11-bit adder for signal <num_bytes_in_tx_fifo[10]_GND_318_o_add_76_OUT> created at line 642.
+    Found 10-bit adder for signal <tx_fifo_in_addr[9]_GND_318_o_add_89_OUT> created at line 720.
+    Found 10-bit adder for signal <tx_fifo_out_addr[9]_GND_318_o_add_102_OUT> created at line 803.
+    Found 3-bit adder for signal <tx_fsm2_n_reg[2]_GND_318_o_add_118_OUT> created at line 833.
+    Found 4-bit adder for signal <tx_fsm2_s_reg[3]_GND_318_o_add_131_OUT> created at line 847.
+    Found 11-bit subtractor for signal <GND_318_o_GND_318_o_sub_69_OUT<10:0>> created at line 527.
+    Found 11-bit subtractor for signal <GND_318_o_GND_318_o_sub_80_OUT<10:0>> created at line 646.
     Found 4-bit 4-to-1 multiplexer for signal <s_next> created at line 222.
-    Found 16-bit 14-to-1 multiplexer for signal <addr_bus[3]_GND_317_o_wide_mux_55_OUT> created at line 430.
+    Found 16-bit 14-to-1 multiplexer for signal <addr_bus[3]_GND_318_o_wide_mux_55_OUT> created at line 430.
     Found 4-bit 4-to-1 multiplexer for signal <tx_fsm2_s_next> created at line 791.
     Found 1-bit tristate buffer for signal <data_bus<15>> created at line 545
     Found 1-bit tristate buffer for signal <data_bus<14>> created at line 545
@@ -748,7 +748,7 @@ Synthesizing Unit <uart_w_fifo>.
     Found 1-bit tristate buffer for signal <data_bus<0>> created at line 545
     Found 11-bit comparator lessequal for signal <num_bytes_in_rx_fifo[10]_PWR_71_o_LessThan_65_o> created at line 522
     Found 11-bit comparator lessequal for signal <num_bytes_in_tx_fifo[10]_PWR_71_o_LessThan_76_o> created at line 641
-    Found 11-bit comparator greater for signal <GND_317_o_num_bytes_in_tx_fifo[10]_LessThan_101_o> created at line 645
+    Found 11-bit comparator greater for signal <GND_318_o_num_bytes_in_tx_fifo[10]_LessThan_101_o> created at line 645
     Found 11-bit comparator lessequal for signal <n0173> created at line 859
     Found 11-bit comparator lessequal for signal <n0175> created at line 860
     Found 11-bit comparator greater for signal <rx_fifo_has_char> created at line 863
@@ -768,7 +768,7 @@ Synthesizing Unit <mod_m>.
         N = 5
         M = 27
     Found 5-bit register for signal <r_reg>.
-    Found 5-bit adder for signal <r_reg[4]_GND_318_o_add_2_OUT> created at line 1241.
+    Found 5-bit adder for signal <r_reg[4]_GND_319_o_add_2_OUT> created at line 1241.
     Summary:
 	inferred   1 Adder/Subtractor(s).
 	inferred   5 D-type flip-flop(s).
@@ -1292,13 +1292,13 @@ clk            |   12.503|         |         |         |
 =========================================================================
 
 
-Total REAL time to Xst completion: 30.00 secs
-Total CPU time to Xst completion: 24.99 secs
+Total REAL time to Xst completion: 28.00 secs
+Total CPU time to Xst completion: 23.64 secs
  
 --> 
 
 
-Total memory usage is 434888 kilobytes
+Total memory usage is 434604 kilobytes
 
 Number of errors   :    0 (   0 filtered)
 Number of warnings :   36 (   0 filtered)

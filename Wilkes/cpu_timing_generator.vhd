@@ -10,6 +10,7 @@ entity cpu_timing_generator is
     Port ( 
 		clk : in  STD_LOGIC;
 		reset : in STD_LOGIC;
+		external_pause : in STD_LOGIC;
 		cpu_start : out  STD_LOGIC;
 		cpu_finish : out  STD_LOGIC
 	);
@@ -57,7 +58,7 @@ begin
 	-- state 2 being N cycles long
 	-- For a TOTAL of 2N cycles.
 	
-	process (state_reg, count_0, count_0_next, count_2, count_2_next)
+	process (state_reg, count_0, count_0_next, count_2, count_2_next, external_pause)
 
 	-- This process statement is NG; count (nexts) have to be included
 	-- process (state_reg, count_0, count_2)
@@ -69,9 +70,12 @@ begin
 		
 		case state_reg is 
 			when state_idle =>
-				state_next <= state_0;
+				state_next <= state_reg;
 				L <= '0';
 				H <= '0';
+				if (external_pause = '0') then
+					state_next <= state_0;
+				end if;
 			when state_0 =>
 				state_next <= state_1;
 				L <= '1';

@@ -1,11 +1,11 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <report-views version="2.0" >
  <header>
-  <DateModified>2017-02-28T19:57:22</DateModified>
+  <DateModified>2017-03-05T19:10:12</DateModified>
   <ModuleName>system</ModuleName>
   <SummaryTimeStamp>2017-02-28T19:55:33</SummaryTimeStamp>
   <SavedFilePath>/home/mj/git-src/repo/Wilkes/iseconfig/system.xreport</SavedFilePath>
-  <ImplementationReportsDirectory>/home/mj/git-src/repo/Wilkes</ImplementationReportsDirectory>
+  <ImplementationReportsDirectory>/home/mj/git-src/repo/Wilkes/</ImplementationReportsDirectory>
   <DateInitialized>2017-02-26T16:05:33</DateInitialized>
   <EnableMessageFiltering>false</EnableMessageFiltering>
  </header>

@@ -11,7 +11,7 @@
 <msg type="warning" file="HDLCompiler" num="1127" delta="old" >"/home/mj/git-src/repo/Wilkes/system.vhd" Line 126: Assignment to <arg fmt="%s" index="1">n_rd</arg> ignored, since the identifier is never used
 </msg>
 
-<msg type="warning" file="HDLCompiler" num="1127" delta="old" >"/home/mj/git-src/repo/Wilkes/system.vhd" Line 214: Assignment to <arg fmt="%s" index="1">addr_bus</arg> ignored, since the identifier is never used
+<msg type="warning" file="HDLCompiler" num="1127" delta="old" >"/home/mj/git-src/repo/Wilkes/system.vhd" Line 215: Assignment to <arg fmt="%s" index="1">addr_bus</arg> ignored, since the identifier is never used
 </msg>
 
 <msg type="warning" file="HDLCompiler" num="634" delta="old" >"/home/mj/git-src/repo/Wilkes/system.vhd" Line 99: Net &lt;<arg fmt="%s" index="1">cpu_int</arg>&gt; does not have a driver.
@@ -26,28 +26,28 @@
 <msg type="info" file="Xst" num="3210" delta="old" >&quot;<arg fmt="%s" index="1">/home/mj/git-src/repo/Wilkes/system.vhd</arg>&quot; line <arg fmt="%s" index="2">143</arg>: Output port &lt;<arg fmt="%s" index="3">fake_data_bus</arg>&gt; of the instance &lt;<arg fmt="%s" index="4">u_stack_mem</arg>&gt; is unconnected or connected to loadless signal.
 </msg>
 
-<msg type="info" file="Xst" num="3210" delta="old" >&quot;<arg fmt="%s" index="1">/home/mj/git-src/repo/Wilkes/system.vhd</arg>&quot; line <arg fmt="%s" index="2">192</arg>: Output port &lt;<arg fmt="%s" index="3">four_digits</arg>&gt; of the instance &lt;<arg fmt="%s" index="4">the_cpu</arg>&gt; is unconnected or connected to loadless signal.
+<msg type="info" file="Xst" num="3210" delta="new" >&quot;<arg fmt="%s" index="1">/home/mj/git-src/repo/Wilkes/system.vhd</arg>&quot; line <arg fmt="%s" index="2">193</arg>: Output port &lt;<arg fmt="%s" index="3">four_digits</arg>&gt; of the instance &lt;<arg fmt="%s" index="4">the_cpu</arg>&gt; is unconnected or connected to loadless signal.
 </msg>
 
-<msg type="info" file="Xst" num="3210" delta="old" >&quot;<arg fmt="%s" index="1">/home/mj/git-src/repo/Wilkes/system.vhd</arg>&quot; line <arg fmt="%s" index="2">192</arg>: Output port &lt;<arg fmt="%s" index="3">N_indicator</arg>&gt; of the instance &lt;<arg fmt="%s" index="4">the_cpu</arg>&gt; is unconnected or connected to loadless signal.
+<msg type="info" file="Xst" num="3210" delta="new" >&quot;<arg fmt="%s" index="1">/home/mj/git-src/repo/Wilkes/system.vhd</arg>&quot; line <arg fmt="%s" index="2">193</arg>: Output port &lt;<arg fmt="%s" index="3">N_indicator</arg>&gt; of the instance &lt;<arg fmt="%s" index="4">the_cpu</arg>&gt; is unconnected or connected to loadless signal.
 </msg>
 
-<msg type="info" file="Xst" num="3210" delta="old" >&quot;<arg fmt="%s" index="1">/home/mj/git-src/repo/Wilkes/system.vhd</arg>&quot; line <arg fmt="%s" index="2">192</arg>: Output port &lt;<arg fmt="%s" index="3">Z_indicator</arg>&gt; of the instance &lt;<arg fmt="%s" index="4">the_cpu</arg>&gt; is unconnected or connected to loadless signal.
+<msg type="info" file="Xst" num="3210" delta="new" >&quot;<arg fmt="%s" index="1">/home/mj/git-src/repo/Wilkes/system.vhd</arg>&quot; line <arg fmt="%s" index="2">193</arg>: Output port &lt;<arg fmt="%s" index="3">Z_indicator</arg>&gt; of the instance &lt;<arg fmt="%s" index="4">the_cpu</arg>&gt; is unconnected or connected to loadless signal.
 </msg>
 
-<msg type="info" file="Xst" num="3210" delta="old" >&quot;<arg fmt="%s" index="1">/home/mj/git-src/repo/Wilkes/system.vhd</arg>&quot; line <arg fmt="%s" index="2">192</arg>: Output port &lt;<arg fmt="%s" index="3">RD_INDICATOR</arg>&gt; of the instance &lt;<arg fmt="%s" index="4">the_cpu</arg>&gt; is unconnected or connected to loadless signal.
+<msg type="info" file="Xst" num="3210" delta="new" >&quot;<arg fmt="%s" index="1">/home/mj/git-src/repo/Wilkes/system.vhd</arg>&quot; line <arg fmt="%s" index="2">193</arg>: Output port &lt;<arg fmt="%s" index="3">RD_INDICATOR</arg>&gt; of the instance &lt;<arg fmt="%s" index="4">the_cpu</arg>&gt; is unconnected or connected to loadless signal.
 </msg>
 
-<msg type="info" file="Xst" num="3210" delta="old" >&quot;<arg fmt="%s" index="1">/home/mj/git-src/repo/Wilkes/system.vhd</arg>&quot; line <arg fmt="%s" index="2">192</arg>: Output port &lt;<arg fmt="%s" index="3">WR_INDICATOR</arg>&gt; of the instance &lt;<arg fmt="%s" index="4">the_cpu</arg>&gt; is unconnected or connected to loadless signal.
+<msg type="info" file="Xst" num="3210" delta="new" >&quot;<arg fmt="%s" index="1">/home/mj/git-src/repo/Wilkes/system.vhd</arg>&quot; line <arg fmt="%s" index="2">193</arg>: Output port &lt;<arg fmt="%s" index="3">WR_INDICATOR</arg>&gt; of the instance &lt;<arg fmt="%s" index="4">the_cpu</arg>&gt; is unconnected or connected to loadless signal.
 </msg>
 
-<msg type="info" file="Xst" num="3210" delta="old" >&quot;<arg fmt="%s" index="1">/home/mj/git-src/repo/Wilkes/system.vhd</arg>&quot; line <arg fmt="%s" index="2">192</arg>: Output port &lt;<arg fmt="%s" index="3">FETCH_INDICATOR</arg>&gt; of the instance &lt;<arg fmt="%s" index="4">the_cpu</arg>&gt; is unconnected or connected to loadless signal.
+<msg type="info" file="Xst" num="3210" delta="new" >&quot;<arg fmt="%s" index="1">/home/mj/git-src/repo/Wilkes/system.vhd</arg>&quot; line <arg fmt="%s" index="2">193</arg>: Output port &lt;<arg fmt="%s" index="3">FETCH_INDICATOR</arg>&gt; of the instance &lt;<arg fmt="%s" index="4">the_cpu</arg>&gt; is unconnected or connected to loadless signal.
 </msg>
 
-<msg type="info" file="Xst" num="3210" delta="old" >&quot;<arg fmt="%s" index="1">/home/mj/git-src/repo/Wilkes/system.vhd</arg>&quot; line <arg fmt="%s" index="2">253</arg>: Output port &lt;<arg fmt="%s" index="3">data</arg>&gt; of the instance &lt;<arg fmt="%s" index="4">the_rom</arg>&gt; is unconnected or connected to loadless signal.
+<msg type="info" file="Xst" num="3210" delta="new" >&quot;<arg fmt="%s" index="1">/home/mj/git-src/repo/Wilkes/system.vhd</arg>&quot; line <arg fmt="%s" index="2">254</arg>: Output port &lt;<arg fmt="%s" index="3">data</arg>&gt; of the instance &lt;<arg fmt="%s" index="4">the_rom</arg>&gt; is unconnected or connected to loadless signal.
 </msg>
 
-<msg type="info" file="Xst" num="3210" delta="old" >&quot;<arg fmt="%s" index="1">/home/mj/git-src/repo/Wilkes/system.vhd</arg>&quot; line <arg fmt="%s" index="2">348</arg>: Output port &lt;<arg fmt="%s" index="3">fake_data_bus</arg>&gt; of the instance &lt;<arg fmt="%s" index="4">console_uart</arg>&gt; is unconnected or connected to loadless signal.
+<msg type="info" file="Xst" num="3210" delta="new" >&quot;<arg fmt="%s" index="1">/home/mj/git-src/repo/Wilkes/system.vhd</arg>&quot; line <arg fmt="%s" index="2">349</arg>: Output port &lt;<arg fmt="%s" index="3">fake_data_bus</arg>&gt; of the instance &lt;<arg fmt="%s" index="4">console_uart</arg>&gt; is unconnected or connected to loadless signal.
 </msg>
 
 <msg type="warning" file="Xst" num="653" delta="old" >Signal &lt;<arg fmt="%s" index="1">address_switches&lt;4:0&gt;</arg>&gt; is used but never assigned. This sourceless signal will be automatically connected to value <arg fmt="%s" index="2">GND</arg>.

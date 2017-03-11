@@ -1,9 +1,0 @@
-run
--ifmt MIXED
--top jam_test_clock_1_exdes
--p xc6slx16-csg324-3
--ifn xst.prj
--ofn jam_test_clock_1_exdes
--keep_hierarchy soft 
--equivalent_register_removal no 
--max_fanout 65535
