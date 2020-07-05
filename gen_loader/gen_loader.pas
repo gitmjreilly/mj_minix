@@ -306,7 +306,7 @@ begin
    data_ptr := $F000;
    rx_empty_ptr := $F006;
    
-   pr("Starting second stage loader now!  We expect a sim or V4 file."); 
+   pr("Starting second stage loader now!  We expect V4 file."); 
    
    file_format := 0;
 
@@ -337,4 +337,4 @@ begin
   
 end.
 (*=================================================================*)
-	
+

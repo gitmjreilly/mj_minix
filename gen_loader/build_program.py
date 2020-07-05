@@ -1,19 +1,38 @@
 #!/usr/bin/python
 #
-# Test Program
-#
 
 import os
+import sys
+
+def usage():
+   print("USAGE: %s BaseName (e.g. main not main.pas)" % (sys.argv[0]))
+
 
 
 #
 # Main Program
 # 
-include_dir = "/home/mjamet/src/src-ten-year/minix_common"
+
+if (len(sys.argv) != 2):
+   usage()
+   sys.exit(1)
+
+
+include_dir = "/home/mj/mint_2016/repo/minix_common"
 output_dir = "./obj";
+rm_command = "/bin/rm -f %s/*" % (output_dir)
+print "rm command is [%s]" % rm_command
+status = os.system(rm_command)
+print "   Status is : " + str(status)
+if (status != 0):
+    print "command failed"
+    exit(1)
 
 
-base_name = "gen_loader"
+base_name = sys.argv[1]
+
+# base_name = base_no_pas + ".pas"
+#print "Base name is [%s]" % (base_name)
 
 cpp_command = "cpp -I %s %s.pas %s/%s.p" % \
         (include_dir, base_name, output_dir, base_name)
