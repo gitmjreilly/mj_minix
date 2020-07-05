@@ -9,9 +9,17 @@ import os
 #
 # Main Program
 # 
+include_dir = "/home/mj/mint_2016/repo/minix_common"
+output_dir = "./obj";
+
+rm_command = "/bin/rm -f %s/*" % (output_dir)
+print "rm command is [%s]" % rm_command
+status = os.system(rm_command)
+print "   Status is : " + str(status)
+if (status != 0):
+    print "command failed"
+    exit(1)
 base_name = "main"
-include_dir = "/home/mjamet/git-src/repo/minix_common"
-output_dir  = "./obj"
 
 print "We assume the program is called %s.pas" % (base_name)
 
