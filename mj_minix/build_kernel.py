@@ -9,8 +9,16 @@ import os
 #
 # Main Program
 # 
-include_dir = "/home/mjamet/git-src/repo/minix_common"
+
+include_dir = "/home/mj/mint_2016/repo/minix_common"
 output_dir = "./obj";
+rm_command = "/bin/rm -f %s/*" % (output_dir)
+print "rm command is [%s]" % rm_command
+status = os.system(rm_command)
+print "   Status is : " + str(status)
+if (status != 0):
+    print "command failed"
+    exit(1)
 
 
 print "We assume the kernel main is called kernel.pas"
