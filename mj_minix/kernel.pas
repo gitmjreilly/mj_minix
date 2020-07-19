@@ -2572,7 +2572,6 @@ begin
          load_v3_file("/var/tmp/main.hex.V3", 1, adr(status));
          load_v3_file("/var/tmp/user1.hex.V3", 4, adr(status));
          load_v3_file("/var/tmp/user1.hex.V3", 5, adr(status));
-         load_v3_file("/var/tmp/user1.hex.V3", 6, adr(status));
          continue
       end;
       

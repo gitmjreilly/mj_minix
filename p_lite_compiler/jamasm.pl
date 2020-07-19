@@ -78,7 +78,7 @@ my $ListFileName;
 
 ###############################################################################
 sub Usage {
-	printf("$0 -outputformat 1|3|4 -srcfile SrcFile -objfile ObjFile -listfile ListFile -errorfile ErrorFile \n");
+	printf("$0 -outputformat 1|3|4 -srcfile SrcFile -objfile ObjFile -listfile ListFile [-v4codeaddress n ] -errorfile ErrorFile \n");
 }
 ###############################################################################
 
@@ -391,6 +391,9 @@ sub AssembleInstruction {
 		}
 		elsif (IsNumber($Token)) {
 			EmitToObjectAndList($LC, $Token, $CODE_WORD);
+		}
+		elsif (IsHexNumber($Token)) {
+			EmitToObjectAndList($LC, HexToNum($Token), $DATA_WORD);
 		}
 		else {
 			Error("Symbol [$Token] not found on line [$LineNum]\n");
@@ -932,6 +935,7 @@ Init;
 
 GetOptions(	
 	"outputformat=i" => \$OutputFormat,
+	"v4codeaddress=i" => \$V4_CODE_LOAD_ADDRESS,
 	"srcfile=s"		=> \$SrcFileName,
 	"objfile=s"		=> \$ObjFileName,
 	"errorfile=s"		=> \$ErrorFileName,
@@ -949,6 +953,7 @@ if (($OutputFormat != 1) && ($OutputFormat != 3) && ($OutputFormat != 4) ) {
 	Usage();
 	exit(1);
 }
+
 	
 
 
