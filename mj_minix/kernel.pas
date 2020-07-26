@@ -2226,8 +2226,6 @@ begin
 
 
    if (interrupt_status_ptr^ AND DISK_UART_RX_HALF_MASK) = DISK_UART_RX_HALF_MASK then begin
-      (* We got a clock interrupt, turn it into a message for the clock_task *)
-      interrupt_mask_ptr^ :=  interrupt_mask_ptr^ AND ($FFEF);
 
       interrupt_clear_ptr^ := DISK_UART_RX_HALF_MASK;
       interrupt_clear_ptr^ := 0;
@@ -2247,7 +2245,6 @@ begin
        * so all we need to do is clear the current one
        * and drain the serial port fifo so the int won't be triggered again
        * after the kernel interrupt processing is finished *)
-      (* interrupt_mask_ptr^ :=  interrupt_mask_ptr^ AND ($FFDF); *)
 
      
       (* TODO proper PTC packet handling *)
@@ -2283,8 +2280,10 @@ begin
       interrupt_clear_ptr^ := PTC_UART_RX_QUARTER_FULL_MASK;
       interrupt_clear_ptr^ := 0;
 
-      hw_pty_mess.m_type := PTY_INT;
-      interrupt(PTY, adr(hw_pty_mess))
+      (* if (num_tctlr_buffers_filled = 1) then begin *)
+         hw_pty_mess.m_type := PTY_INT;
+         interrupt(PTY, adr(hw_pty_mess)) 
+      (* end *)
       
    end;
 
