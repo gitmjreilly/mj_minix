@@ -10,7 +10,7 @@ import os
 # Main Program
 # 
 
-include_dir = "/home/mj/mint_2016/repo/minix_common"
+include_dir = "../minix_common"
 output_dir = "./obj";
 rm_command = "/bin/rm -f %s/*" % (output_dir)
 print "rm command is [%s]" % rm_command
