@@ -2,7 +2,6 @@
 
 import sys
 import socket
-import serial
 import threading
 import time
 
